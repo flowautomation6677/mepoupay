@@ -1,19 +1,4 @@
-2025/12/20-15:39:52.388 5b3c Reusing MANIFEST C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/12/20-15:39:52.389 5b3c Recovering log #185
-2025/12/20-15:39:52.618 5b3c Reusing old log C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000185.log 
-2025/12/20-15:39:54.171 3da4 Level-0 table #193: started
-2025/12/20-15:39:54.208 3da4 Level-0 table #193: 1268568 bytes OK
-2025/12/20-15:39:54.209 3da4 Delete type=0 #185
-2025/12/20-15:39:54.210 3da4 Manual compaction at level-0 from '\x00"\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00#\x00\x00\x00' @ 0 : 0; will stop at (end)
-2025/12/20-15:39:54.296 59f4 Compacting 1@1 + 4@2 files
-2025/12/20-15:39:54.435 59f4 Generated table #194@1: 55478 keys, 2243495 bytes
-2025/12/20-15:39:54.553 59f4 Generated table #195@1: 43485 keys, 2204793 bytes
-2025/12/20-15:39:54.614 59f4 Generated table #196@1: 9109 keys, 2179758 bytes
-2025/12/20-15:39:54.724 59f4 Generated table #197@1: 55368 keys, 2044665 bytes
-2025/12/20-15:39:54.724 59f4 Compacted 1@1 + 4@2 files => 8672711 bytes
-2025/12/20-15:39:54.724 59f4 compacted to: files[ 0 0 4 0 0 0 0 ]
-2025/12/20-15:39:54.725 59f4 Delete type=2 #187
-2025/12/20-15:39:54.725 59f4 Delete type=2 #188
-2025/12/20-15:39:54.725 59f4 Delete type=2 #189
-2025/12/20-15:39:54.725 59f4 Delete type=2 #190
-2025/12/20-15:39:54.725 59f4 Delete type=2 #193
+2025/12/20-18:00:57.202 6998 Reusing MANIFEST C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/12/20-18:00:57.202 6998 Recovering log #263
+2025/12/20-18:00:57.307 6998 Reusing old log C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000263.log 
+2025/12/20-18:00:59.019 6a20 Manual compaction at level-0 from '\x001\x00\x00\x00' @ 72057594037927935 : 1 .. '\x002\x00\x00\x00' @ 0 : 0; will stop at (end)

@@ -9,14 +9,21 @@ const MotionCard = motion.div
 export default function StatsGrid({ transactions }: { transactions: any[] }) {
     if (!transactions) return null
 
-    const total = transactions.reduce((acc, t) => acc + t.valor, 0)
-    // Simulação de dados para demo
-    const mediaDiaria = total / 30
-    const economia = total * 0.15
+    // Cálculos de Receita e Despesa
+    const receitas = transactions
+        .filter(t => t.tipo === 'receita')
+        .reduce((acc, t) => acc + t.valor, 0)
+
+    const despesas = transactions
+        .filter(t => t.tipo !== 'receita') // Default 'despesa' or null
+        .reduce((acc, t) => acc + t.valor, 0)
+
+    const saldo = receitas - despesas
+    const mediaDiaria = despesas / 30 // Média de gastos apenas
 
     return (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-            {/* Card Principal - Total */}
+            {/* Card Principal - Saldo Atual */}
             <MotionCard
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -27,13 +34,19 @@ export default function StatsGrid({ transactions }: { transactions: any[] }) {
 
                 <div className="flex items-start justify-between">
                     <div>
-                        <p className="text-sm font-medium text-indigo-300">Gasto Total (Mês)</p>
+                        <p className="text-sm font-medium text-indigo-300">Saldo Atual</p>
                         <h2 className="mt-2 text-4xl font-bold tracking-tight text-white neon-text-indigo">
-                            {total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            {saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </h2>
-                        <div className="mt-4 inline-flex items-center gap-1 rounded-full bg-indigo-500/10 px-3 py-1 text-xs text-indigo-300 ring-1 ring-inset ring-indigo-500/20">
-                            <TrendingUp size={12} />
-                            <span>+12% vs mês passado</span>
+                        <div className="mt-4 flex gap-4 text-xs">
+                            <div className="flex items-center gap-1 text-emerald-400">
+                                <TrendingUp size={12} />
+                                <span>Entradas: {receitas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-red-400">
+                                <TrendingUp size={12} className="rotate-180" />
+                                <span>Saídas: {despesas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                            </div>
                         </div>
                     </div>
                     <div className="rounded-2xl bg-indigo-500/20 p-3 text-indigo-400 ring-1 ring-white/10">
@@ -53,7 +66,7 @@ export default function StatsGrid({ transactions }: { transactions: any[] }) {
                     <CreditCard size={24} />
                 </div>
                 <div>
-                    <p className="text-sm text-slate-400">Média Diária</p>
+                    <p className="text-sm text-slate-400">Média de Gastos (Dia)</p>
                     <p className="text-2xl font-bold text-white">
                         {mediaDiaria.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                     </p>
@@ -70,9 +83,10 @@ export default function StatsGrid({ transactions }: { transactions: any[] }) {
                     <PiggyBank size={24} />
                 </div>
                 <div>
-                    <p className="text-sm text-slate-400">Economia Estimada</p>
+                    <p className="text-sm text-slate-400">Economia Total</p>
                     <p className="text-2xl font-bold text-white neon-text-emerald">
-                        {economia.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        {/* Simulação de economia baseada em 20% das receitas */}
+                        {(receitas * 0.2).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                     </p>
                 </div>
             </MotionCard>

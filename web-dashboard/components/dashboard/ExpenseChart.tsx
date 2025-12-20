@@ -13,28 +13,42 @@ export default function ExpenseChart({ transactions }: { transactions: any[] }) 
     // Agrupa por data simples
     const groups = transactions.reduce((acc: any, t) => {
         const date = t.data.split('T')[0]
-        acc[date] = (acc[date] || 0) + t.valor
+        if (!acc[date]) {
+            acc[date] = { receita: 0, despesa: 0 }
+        }
+
+        if (t.tipo === 'receita') {
+            acc[date].receita += t.valor
+        } else {
+            acc[date].despesa += t.valor
+        }
         return acc
     }, {})
 
+    // Ordena por data e formata
     const areaData = Object.keys(groups)
-        .sort() // ordena datas
-        .slice(-7) // pega ultimas 7
+        .sort()
         .map(date => ({
             name: new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-            valor: groups[date]
+            receita: groups[date].receita,
+            despesa: groups[date].despesa
         }))
 
+    // Se tiver muitos dias (mais de 14), pega apenas os últimos para não poluir, ou deixa tudo se for do mês
+    // Por enquanto vou deixar mostrar tudo que vier da query (que será filtrada por mês)
+
     // Dados para Donut Chart (Categorias)
-    const categoryData = transactions.reduce((acc: any, t) => {
-        const found = acc.find((i: any) => i.name === t.categoria)
-        if (found) {
-            found.value += t.valor
-        } else {
-            acc.push({ name: t.categoria, value: t.valor })
-        }
-        return acc
-    }, [])
+    const categoryData = transactions
+        .filter(t => t.tipo !== 'receita') // Apenas despesas no gráfico de pizza
+        .reduce((acc: any, t) => {
+            const found = acc.find((i: any) => i.name === t.categoria)
+            if (found) {
+                found.value += t.valor
+            } else {
+                acc.push({ name: t.categoria, value: t.valor })
+            }
+            return acc
+        }, [])
 
     return (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -46,14 +60,18 @@ export default function ExpenseChart({ transactions }: { transactions: any[] }) 
                 className="col-span-1 md:col-span-2 rounded-[2rem] border border-white/5 bg-slate-900/50 p-6 shadow-xl backdrop-blur-md"
             >
                 <div className="mb-6">
-                    <h3 className="text-lg font-bold text-white">Evolução de Gastos</h3>
-                    <p className="text-sm text-slate-500">Últimos 7 dias</p>
+                    <h3 className="text-lg font-bold text-white">Evolução de Entradas e Saídas</h3>
+                    <p className="text-sm text-slate-500">Fluxo do período selecionado</p>
                 </div>
                 <div className="h-[250px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={areaData}>
                             <defs>
-                                <linearGradient id="colorValor" x1="0" y1="0" x2="0" y2="1">
+                                <linearGradient id="colorReceita" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                </linearGradient>
+                                <linearGradient id="colorDespesa" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
                                     <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                                 </linearGradient>
@@ -68,16 +86,29 @@ export default function ExpenseChart({ transactions }: { transactions: any[] }) 
                             />
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
-                                itemStyle={{ color: '#6366f1' }}
-                                formatter={(value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                itemStyle={{ padding: 0 }}
+                                formatter={(value: number, name: string) => [
+                                    value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                                    name === 'receita' ? 'Entradas' : 'Saídas'
+                                ]}
                             />
                             <Area
                                 type="monotone"
-                                dataKey="valor"
+                                dataKey="receita"
+                                stroke="#10b981"
+                                strokeWidth={3}
+                                fillOpacity={1}
+                                fill="url(#colorReceita)"
+                                name="receita"
+                            />
+                            <Area
+                                type="monotone"
+                                dataKey="despesa"
                                 stroke="#6366f1"
                                 strokeWidth={3}
                                 fillOpacity={1}
-                                fill="url(#colorValor)"
+                                fill="url(#colorDespesa)"
+                                name="despesa"
                             />
                         </AreaChart>
                     </ResponsiveContainer>

@@ -7,7 +7,11 @@ import ExpenseChart from '@/components/dashboard/ExpenseChart'
 import TransactionFeed from '@/components/dashboard/TransactionFeed'
 import WhatsAppLinker from '@/components/dashboard/WhatsAppLinker'
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+    searchParams,
+}: {
+    searchParams: { [key: string]: string | string[] | undefined }
+}) {
     const supabase = await createClient()
 
     const {
@@ -24,12 +28,28 @@ export default async function DashboardPage() {
         .eq('auth_user_id', user.id)
         .single()
 
+    // Filtro de Data (Default: Mês Atual)
+    const today = new Date()
+    const currentYear = today.getFullYear()
+    const currentMonth = today.getMonth() + 1
+
+    const year = searchParams?.year ? parseInt(searchParams.year as string) : currentYear
+    const month = searchParams?.month ? parseInt(searchParams.month as string) : currentMonth
+
+    // Cálculo do range do mês selecionado
+    const startDate = new Date(year, month - 1, 1).toISOString()
+    // O dia 0 do próximo mês volta para o último dia do mês atual
+    const endDate = new Date(year, month, 0, 23, 59, 59).toISOString()
+
     let transactions: any[] = []
     if (profile) {
-        // Busca transações ordenadas pela data
+        // Busca transações ordenadas pela data e filtradas pelo range
         const output = await supabase
             .from('transacoes')
             .select('*')
+            .eq('user_id', profile.id) // Importante: Filtrar também pelo profile.id para garantir performance
+            .gte('data', startDate)
+            .lte('data', endDate)
             .order('data', { ascending: false })
         if (output.data) transactions = output.data
     }
@@ -38,8 +58,8 @@ export default async function DashboardPage() {
         <div className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0f172a] to-black text-slate-200">
             <div className="mx-auto max-w-7xl p-4 md:p-8">
 
-                {/* Header Inteligente */}
-                <DashboardHeader userEmail={user.email} />
+                {/* Header Inteligente com Filtro */}
+                <DashboardHeader userEmail={user.email} currentMonth={month} currentYear={year} />
 
                 <main className="space-y-8">
                     {!profile ? (
