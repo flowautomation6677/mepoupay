@@ -1,4 +1,0 @@
-2025/12/20-18:00:57.202 6998 Reusing MANIFEST C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2025/12/20-18:00:57.202 6998 Recovering log #263
-2025/12/20-18:00:57.307 6998 Reusing old log C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000263.log 
-2025/12/20-18:00:59.019 6a20 Manual compaction at level-0 from '\x001\x00\x00\x00' @ 72057594037927935 : 1 .. '\x002\x00\x00\x00' @ 0 : 0; will stop at (end)

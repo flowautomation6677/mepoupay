@@ -1,5 +1,5 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card' // Shadcn UI placeholder if available, else plain div
+// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DollarSign, Calendar, TrendingUp } from 'lucide-react'
 
 // Simple Card replacement since we didn't install Shadcn components via CLI

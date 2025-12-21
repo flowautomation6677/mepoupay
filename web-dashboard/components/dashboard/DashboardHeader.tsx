@@ -12,11 +12,15 @@ const MONTH_NAMES = [
 export default function DashboardHeader({
     userEmail,
     currentMonth,
-    currentYear
+    currentYear,
+    customStart,
+    customEnd
 }: {
     userEmail: string | undefined,
     currentMonth: number,
-    currentYear: number
+    currentYear: number,
+    customStart?: string,
+    customEnd?: string
 }) {
     const router = useRouter()
 
@@ -60,26 +64,72 @@ export default function DashboardHeader({
                 </div>
             </div>
 
-            <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-                {/* Seletor de Mês */}
+            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+                {/* Seletor de Mês / Customizado */}
                 <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 p-1">
-                    <button
-                        onClick={() => handleMonthChange(-1)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
-                    >
-                        <ChevronLeft size={16} />
-                    </button>
-                    <div className="flex items-center gap-2 px-2 min-w-[140px] justify-center text-sm font-medium text-slate-200">
-                        <Calendar size={14} className="text-indigo-400" />
-                        <span>{MONTH_NAMES[currentMonth - 1]} {currentYear}</span>
-                    </div>
-                    <button
-                        onClick={() => handleMonthChange(1)}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
-                    >
-                        <ChevronRight size={16} />
-                    </button>
+                    {!customStart ? (
+                        <>
+                            <button
+                                onClick={() => handleMonthChange(-1)}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <div className="flex items-center gap-2 px-2 min-w-[140px] justify-center text-sm font-medium text-slate-200">
+                                <Calendar size={14} className="text-indigo-400" />
+                                <span>{MONTH_NAMES[currentMonth - 1]} {currentYear}</span>
+                            </div>
+                            <button
+                                onClick={() => handleMonthChange(1)}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </>
+                    ) : (
+                        <div className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-indigo-300">
+                            <Calendar size={14} />
+                            <span>Período Personalizado</span>
+                            <button
+                                onClick={() => router.push('/dashboard')}
+                                className="ml-2 rounded-full hover:bg-white/10 p-1"
+                            >
+                                X
+                            </button>
+                        </div>
+                    )}
                 </div>
+
+                {/* Input de Data Personalizada (Trigger) */}
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        const formData = new FormData(e.currentTarget)
+                        const start = formData.get('start')
+                        const end = formData.get('end')
+                        if (start && end) router.push(`/dashboard?startDate=${start}&endDate=${end}`)
+                    }}
+                    className="flex items-center gap-2"
+                >
+                    <input
+                        type="date"
+                        name="start"
+                        defaultValue={customStart}
+                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-slate-300 color-scheme-dark"
+                        required
+                    />
+                    <span className="text-slate-600">-</span>
+                    <input
+                        type="date"
+                        name="end"
+                        defaultValue={customEnd}
+                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-slate-300 color-scheme-dark"
+                        required
+                    />
+                    <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-1 px-3 text-xs font-bold transition">
+                        Ir
+                    </button>
+                </form>
 
                 <button className="rounded-full border border-white/5 bg-white/5 p-2 text-slate-300 transition hover:bg-white/10 hover:text-white">
                     <Bell size={20} />

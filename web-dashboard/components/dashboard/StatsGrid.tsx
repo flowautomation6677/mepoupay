@@ -1,95 +1,155 @@
-
 'use client'
 
+import { ArrowUp, Target, TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { TrendingUp, Wallet, CreditCard, PiggyBank } from 'lucide-react'
 
-const MotionCard = motion.div
+interface StatsGridProps {
+    transactions: any[]
+    prevTransactions: any[]
+    financialGoal: number
+}
 
-export default function StatsGrid({ transactions }: { transactions: any[] }) {
-    if (!transactions) return null
-
-    // Cálculos de Receita e Despesa
-    const receitas = transactions
+export default function StatsGrid({ transactions, prevTransactions, financialGoal }: StatsGridProps) {
+    // Current Month Stats
+    const income = transactions
         .filter(t => t.tipo === 'receita')
-        .reduce((acc, t) => acc + t.valor, 0)
+        .reduce((acc, t) => acc + Number(t.valor), 0)
 
-    const despesas = transactions
-        .filter(t => t.tipo !== 'receita') // Default 'despesa' or null
-        .reduce((acc, t) => acc + t.valor, 0)
+    const expense = transactions
+        .filter(t => t.tipo === 'despesa')
+        .reduce((acc, t) => acc + Number(t.valor), 0)
 
-    const saldo = receitas - despesas
-    const mediaDiaria = despesas / 30 // Média de gastos apenas
+    const balance = income - expense
+
+    // Previous Month Stats
+    const prevIncome = prevTransactions
+        .filter(t => t.tipo === 'receita')
+        .reduce((acc, t) => acc + Number(t.valor), 0)
+
+    const prevExpense = prevTransactions
+        .filter(t => t.tipo === 'despesa')
+        .reduce((acc, t) => acc + Number(t.valor), 0)
+
+    const prevBalance = prevIncome - prevExpense
+
+    const balanceDiff = balance - prevBalance
+    const balanceGrowth = prevBalance !== 0 ? (balanceDiff / Math.abs(prevBalance)) * 100 : 0
+    const isPositiveGrowth = balanceDiff >= 0
+
+    // Cashflow
+    const cashflowHealth = income > 0 ? ((income - expense) / income) * 100 : 0
+    const commitmentRate = income > 0 ? (expense / income) * 100 : 0
+
+    // Goal
+    const goalValue = financialGoal > 0 ? financialGoal : 1; // Avoid division by zero
+    const progress = Math.min((balance / goalValue) * 100, 100)
+    const remaining = Math.max(goalValue - balance, 0)
+
+    const formatCurrency = (val: number) =>
+        val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
     return (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-            {/* Card Principal - Saldo Atual */}
-            <MotionCard
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-                className="col-span-1 md:col-span-2 relative overflow-hidden rounded-[2rem] border border-indigo-500/30 bg-gradient-to-br from-indigo-600/20 to-slate-900/50 p-8 shadow-2xl backdrop-blur-md"
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            {/* Zone 1: Balance & Health */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="glass-card relative overflow-hidden rounded-3xl p-6 border border-white/10 bg-white/5 backdrop-blur-md"
             >
-                <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-indigo-500/20 blur-3xl"></div>
-
                 <div className="flex items-start justify-between">
                     <div>
-                        <p className="text-sm font-medium text-indigo-300">Saldo Atual</p>
-                        <h2 className="mt-2 text-4xl font-bold tracking-tight text-white neon-text-indigo">
-                            {saldo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                        </h2>
-                        <div className="mt-4 flex gap-4 text-xs">
-                            <div className="flex items-center gap-1 text-emerald-400">
-                                <TrendingUp size={12} />
-                                <span>Entradas: {receitas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-red-400">
-                                <TrendingUp size={12} className="rotate-180" />
-                                <span>Saídas: {despesas.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
-                            </div>
-                        </div>
+                        <p className="text-sm font-medium text-slate-400">Saldo Disponível</p>
+                        <h3 className="mt-2 text-3xl font-bold text-white tracking-tight">
+                            {formatCurrency(balance)}
+                        </h3>
                     </div>
-                    <div className="rounded-2xl bg-indigo-500/20 p-3 text-indigo-400 ring-1 ring-white/10">
-                        <Wallet size={32} />
+                    <div className="rounded-full bg-emerald-500/20 p-3">
+                        <Wallet className="h-6 w-6 text-emerald-400" />
                     </div>
                 </div>
-            </MotionCard>
 
-            {/* Cards Secundários */}
-            <MotionCard
+                <div className="mt-6 flex items-center space-x-3">
+                    <div className={`flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${isPositiveGrowth ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                        {isPositiveGrowth ? <TrendingUp className="mr-1 h-3 w-3" /> : <TrendingDown className="mr-1 h-3 w-3" />}
+                        {Math.abs(balanceGrowth).toFixed(1)}%
+                    </div>
+                    <p className="text-xs text-slate-500">vs. mês anterior ({formatCurrency(prevBalance)})</p>
+                </div>
+            </motion.div>
+
+            {/* Zone 2: Cashflow Monitor */}
+            <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="flex flex-col justify-between rounded-[2rem] border border-white/5 bg-slate-900/50 p-6 shadow-xl backdrop-blur-md hover:bg-slate-800/50 transition-colors"
+                className="glass-card relative overflow-hidden rounded-3xl p-6 border border-white/10 bg-white/5 backdrop-blur-md"
             >
-                <div className="mb-4 rounded-xl bg-orange-500/10 p-3 w-fit text-orange-400">
-                    <CreditCard size={24} />
+                <div className="flex items-start justify-between mb-4">
+                    <div>
+                        <p className="text-sm font-medium text-slate-400">Fluxo de Caixa</p>
+                        <div className="mt-2 flex items-baseline space-x-2">
+                            <span className="text-xl font-semibold text-emerald-400">+{formatCurrency(income)}</span>
+                            <span className="text-sm text-slate-500">/</span>
+                            <span className="text-xl font-semibold text-red-400">-{formatCurrency(expense)}</span>
+                        </div>
+                    </div>
+                    <div className="rounded-full bg-blue-500/20 p-3">
+                        <ArrowUp className="h-6 w-6 text-blue-400" />
+                    </div>
                 </div>
-                <div>
-                    <p className="text-sm text-slate-400">Média de Gastos (Dia)</p>
-                    <p className="text-2xl font-bold text-white">
-                        {mediaDiaria.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                    </p>
-                </div>
-            </MotionCard>
 
-            <MotionCard
+                <div className="space-y-3">
+                    <div>
+                        <div className="flex justify-between text-xs mb-1">
+                            <span className="text-slate-400">Taxa de Comprometimento</span>
+                            <span className={commitmentRate > 80 ? 'text-red-400' : 'text-slate-300'}>{commitmentRate.toFixed(1)}%</span>
+                        </div>
+                        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                            <div
+                                className={`h-full rounded-full transition-all duration-500 ${commitmentRate > 80 ? 'bg-red-500' : 'bg-blue-500'}`}
+                                style={{ width: `${Math.min(commitmentRate, 100)}%` }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </motion.div>
+
+            {/* Zone 3: Gamified Goal */}
+            <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="flex flex-col justify-between rounded-[2rem] border border-white/5 bg-slate-900/50 p-6 shadow-xl backdrop-blur-md hover:bg-slate-800/50 transition-colors"
+                className="glass-card relative overflow-hidden rounded-3xl p-6 border border-white/10 bg-white/5 backdrop-blur-md"
             >
-                <div className="mb-4 rounded-xl bg-emerald-500/10 p-3 w-fit text-emerald-400">
-                    <PiggyBank size={24} />
+                <div className="flex items-start justify-between">
+                    <div>
+                        <p className="text-sm font-medium text-slate-400">Meta de Economia</p>
+                        <h3 className="mt-2 text-2xl font-bold text-white">
+                            {Math.round(progress)}% <span className="text-sm font-normal text-slate-500">concluído</span>
+                        </h3>
+                    </div>
+                    <div className="rounded-full bg-amber-500/20 p-3">
+                        <Target className="h-6 w-6 text-amber-400" />
+                    </div>
                 </div>
-                <div>
-                    <p className="text-sm text-slate-400">Economia Total</p>
-                    <p className="text-2xl font-bold text-white neon-text-emerald">
-                        {/* Simulação de economia baseada em 20% das receitas */}
-                        {(receitas * 0.2).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+
+                <div className="mt-6">
+                    <div className="mb-2 flex justify-between text-xs text-slate-400">
+                        <span>Faltam {formatCurrency(remaining)}</span>
+                        <span>Meta: {formatCurrency(financialGoal)}</span>
+                    </div>
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-slate-800">
+                        <div
+                            className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-1000"
+                            style={{ width: `${progress}%` }}
+                        />
+                    </div>
+                    <p className="mt-3 text-xs text-amber-400/80 flex items-center">
+                        <PiggyBank className="mr-1.5 h-3.5 w-3.5" />
+                        Mantenha o foco para atingir sua meta!
                     </p>
                 </div>
-            </MotionCard>
+            </motion.div>
         </div>
     )
 }

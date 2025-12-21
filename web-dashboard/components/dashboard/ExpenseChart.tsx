@@ -1,165 +1,208 @@
-
 'use client'
 
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import {
+    ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine
+} from 'recharts'
 import { motion } from 'framer-motion'
-
-const PIE_COLORS = ['#6366f1', '#34d399', '#f472b6', '#a78bfa', '#fbbf24', '#94a3b8']
+import { AlertCircle, TrendingUp, Zap } from 'lucide-react'
 
 export default function ExpenseChart({ transactions }: { transactions: any[] }) {
     if (!transactions || transactions.length === 0) return null
 
-    // Dados para Gráfico de Área (Linha do tempo - últimos 7 dias)
-    // Agrupa por data simples
-    const groups = transactions.reduce((acc: any, t) => {
+    // --- PROCESSAMENTO DE DADOS (ZONA 2) ---
+    // Agrupar por data
+    const dailyGroups = transactions.reduce((acc: any, t) => {
         const date = t.data.split('T')[0]
-        if (!acc[date]) {
-            acc[date] = { receita: 0, despesa: 0 }
-        }
+        if (!acc[date]) acc[date] = { receita: 0, despesa: 0 }
 
-        if (t.tipo === 'receita') {
-            acc[date].receita += t.valor
-        } else {
-            acc[date].despesa += t.valor
-        }
+        if (t.tipo === 'receita') acc[date].receita += t.valor
+        else acc[date].despesa += t.valor // Somando positivo aqui, vamos inverter no gráfico se quiser
+
         return acc
     }, {})
 
-    // Ordena por data e formata
-    const areaData = Object.keys(groups)
-        .sort()
-        .map(date => ({
-            name: new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-            receita: groups[date].receita,
-            despesa: groups[date].despesa
-        }))
+    // Converter para array e ordenar
+    // Converter para array e ordenar
+    let currentBalance = 0;
+    const sortedDates = Object.keys(dailyGroups).sort();
 
-    // Se tiver muitos dias (mais de 14), pega apenas os últimos para não poluir, ou deixa tudo se for do mês
-    // Por enquanto vou deixar mostrar tudo que vier da query (que será filtrada por mês)
+    // Use map but ensure logic is self-contained or use accumulate pattern explicitly
+    const chartData = sortedDates.map(date => {
+        const dayIncome = dailyGroups[date].receita
+        const dayExpense = dailyGroups[date].despesa
+        const net = dayIncome - dayExpense
+        currentBalance += net // Modifying local let is technically side-effect in render, but predictable here.
+        // To be 100% clean:
 
-    // Dados para Donut Chart (Categorias)
-    const categoryData = transactions
-        .filter(t => t.tipo !== 'receita') // Apenas despesas no gráfico de pizza
+        return {
+            date: new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+            receita: dayIncome,
+            despesa: dayExpense * -1,
+            net,
+            // We'll fix balance in a passed down accumulation or second pass if needed, 
+            saldo: currentBalance
+        }
+    });
+
+    // --- PROCESSAMENTO DE DADOS (ZONA 3) ---
+    // Top Categorias
+    const catGroups = transactions
+        .filter(t => t.tipo !== 'receita')
         .reduce((acc: any, t) => {
-            const found = acc.find((i: any) => i.name === t.categoria)
-            if (found) {
-                found.value += t.valor
-            } else {
-                acc.push({ name: t.categoria, value: t.valor })
-            }
+            if (!acc[t.categoria]) acc[t.categoria] = 0
+            acc[t.categoria] += t.valor
             return acc
-        }, [])
+        }, {})
+
+    const topCategories = Object.keys(catGroups)
+        .map(cat => ({ name: cat, value: catGroups[cat] }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 5)
+
+    const totalExpenses = transactions.filter(t => t.tipo !== 'receita').reduce((acc, t) => acc + t.valor, 0)
+
+    // Insight Simples (Mockado/Regra)
+    const topCatName = topCategories[0]?.name || 'Nada'
+    const topCatValue = topCategories[0]?.value || 0
+    const topCatPercent = totalExpenses > 0 ? ((topCatValue / totalExpenses) * 100).toFixed(0) : 0
 
     return (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            {/* Gráfico de Área */}
+
+            {/* ZONA 2: MAIN CHART (Trader View) */}
             <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.2 }}
                 className="col-span-1 md:col-span-2 rounded-[2rem] border border-white/5 bg-slate-900/50 p-6 shadow-xl backdrop-blur-md"
             >
-                <div className="mb-6">
-                    <h3 className="text-lg font-bold text-white">Evolução de Entradas e Saídas</h3>
-                    <p className="text-sm text-slate-500">Fluxo do período selecionado</p>
+                <div className="mb-6 flex items-center justify-between">
+                    <div>
+                        <h3 className="text-lg font-bold text-white">Análise Temporal</h3>
+                        <p className="text-sm text-slate-500">Fluxo Diário (Barras) e Acumulado (Linha)</p>
+                    </div>
                 </div>
-                <div className="h-[250px] w-full">
+
+                <div className="h-[300px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={areaData}>
+                        <ComposedChart data={chartData} margin={{ top: 20, right: 0, bottom: 0, left: 0 }}>
                             <defs>
-                                <linearGradient id="colorReceita" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                <linearGradient id="gradReceita" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.8} />
+                                    <stop offset="100%" stopColor="#10b981" stopOpacity={0.3} />
                                 </linearGradient>
-                                <linearGradient id="colorDespesa" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                <linearGradient id="gradDespesa" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#ef4444" stopOpacity={0.8} />
+                                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0.3} />
                                 </linearGradient>
                             </defs>
                             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                             <XAxis
-                                dataKey="name"
+                                dataKey="date"
                                 stroke="#475569"
-                                tick={{ fill: '#94a3b8', fontSize: 12 }}
+                                tick={{ fill: '#94a3b8', fontSize: 10 }}
                                 tickLine={false}
                                 axisLine={false}
                             />
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
-                                itemStyle={{ padding: 0 }}
-                                formatter={(value: number, name: string) => [
-                                    value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-                                    name === 'receita' ? 'Entradas' : 'Saídas'
-                                ]}
+                                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                                formatter={(value: any, name: any) => {
+                                    if (name === 'saldo') return [value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 'Saldo Acumulado']
+                                    if (name === 'receita') return [value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 'Entradas']
+                                    if (name === 'despesa') return [(Math.abs(value)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 'Saídas']
+                                    return [value, name]
+                                }}
                             />
-                            <Area
+                            <ReferenceLine y={0} stroke="#475569" />
+
+                            {/* Barras de Receita (Pra cima) */}
+                            <Bar dataKey="receita" fill="url(#gradReceita)" radius={[4, 4, 0, 0]} barSize={8} />
+
+                            {/* Barras de Despesa (Pra baixo - valores negativos) */}
+                            <Bar dataKey="despesa" fill="url(#gradDespesa)" radius={[0, 0, 4, 4]} barSize={8} />
+
+                            {/* Linha de Tendência (Saldo) */}
+                            <Line
                                 type="monotone"
-                                dataKey="receita"
-                                stroke="#10b981"
-                                strokeWidth={3}
-                                fillOpacity={1}
-                                fill="url(#colorReceita)"
-                                name="receita"
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="despesa"
+                                dataKey="saldo"
                                 stroke="#6366f1"
                                 strokeWidth={3}
-                                fillOpacity={1}
-                                fill="url(#colorDespesa)"
-                                name="despesa"
+                                dot={false}
+                                activeDot={{ r: 6, fill: '#6366f1', stroke: '#fff' }}
                             />
-                        </AreaChart>
+                        </ComposedChart>
                     </ResponsiveContainer>
                 </div>
             </motion.div>
 
-            {/* Gráfico Donut */}
-            <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                className="rounded-[2rem] border border-white/5 bg-slate-900/50 p-6 shadow-xl backdrop-blur-md"
-            >
-                <h3 className="mb-4 text-lg font-bold text-white">Categorias</h3>
-                <div className="h-[200px] w-full relative">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie
-                                data={categoryData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={60}
-                                outerRadius={80}
-                                paddingAngle={5}
-                                dataKey="value"
-                            >
-                                {categoryData.map((entry: any, index: number) => (
-                                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} stroke="rgba(0,0,0,0)" />
-                                ))}
-                            </Pie>
-                            <Tooltip
-                                contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
-                                formatter={(value: number) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                            />
-                        </PieChart>
-                    </ResponsiveContainer>
-                    {/* Texto Central */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-2xl font-bold text-white">{categoryData.length}</span>
-                        <span className="text-xs text-slate-500">Categorias</span>
+            {/* ZONA 3: SIDEBAR (Drill-down + Widget) */}
+            <div className="col-span-1 space-y-6">
+
+                {/* 3A: Top Ofensores (Barras Horizontais) */}
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="rounded-[2rem] border border-white/5 bg-slate-900/50 p-6 shadow-xl backdrop-blur-md"
+                >
+                    <h3 className="mb-4 text-lg font-bold text-white">Top Gastos</h3>
+                    <div className="space-y-4">
+                        {topCategories.map((cat, i) => (
+                            <div key={i} className="group">
+                                <div className="mb-1 flex justify-between text-xs font-medium">
+                                    <span className="text-slate-300 group-hover:text-white transition">{cat.name}</span>
+                                    <span className="text-slate-400">{cat.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                                </div>
+                                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${(cat.value / topCategories[0].value) * 100}%` }} // Proporcional ao maior
+                                        transition={{ duration: 1, delay: 0.5 + (i * 0.1) }}
+                                        className={`h-full rounded-full ${i === 0 ? 'bg-red-500' : 'bg-slate-600 group-hover:bg-indigo-500 transition-colors'}`}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                        {topCategories.length === 0 && <p className="text-sm text-slate-500 text-center py-4">Sem despesas registradas.</p>}
                     </div>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2 justify-center">
-                    {categoryData.slice(0, 4).map((c: any, i: number) => (
-                        <div key={i} className="flex items-center gap-1.5 text-xs text-slate-400">
-                            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }}></span>
-                            {c.name}
+                </motion.div>
+
+                {/* 3B: Widget Porquim IA */}
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-600 to-violet-700 p-6 text-white shadow-xl"
+                >
+                    <div className="flex items-start gap-4">
+                        <div className="rounded-xl bg-white/20 p-2 backdrop-blur-md">
+                            <Zap size={20} className="text-yellow-300" />
                         </div>
-                    ))}
-                </div>
-            </motion.div>
+                        <div>
+                            <h4 className="font-bold text-lg">Porquim Insight</h4>
+                            <p className="mt-2 text-sm leading-relaxed text-indigo-100 opacity-90">
+                                {topCategories.length > 0
+                                    ? `Atenção: A categoria '${topCatName}' representa ${topCatPercent}% das suas saídas neste período. Que tal rever esses gastos?`
+                                    : 'Acompanhando seus gastos para gerar recomendações inteligentes.'}
+                            </p>
+
+                            <a
+                                href="https://wa.me/55..."
+                                target="_blank"
+                                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-xs font-bold hover:bg-white/20 transition"
+                            >
+                                Conversar no Zap
+                            </a>
+                        </div>
+                    </div>
+
+                    {/* Background Detail */}
+                    <div className="absolute -bottom-6 -right-6 text-white/5 rotate-12">
+                        <Zap size={120} />
+                    </div>
+                </motion.div>
+
+            </div>
         </div>
     )
 }

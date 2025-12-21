@@ -11,6 +11,11 @@ const openai = new OpenAI({
  * @param {string} text 
  * @returns {Promise<number[]|null>}
  */
+
+
+/**
+ * Gera embedding para busca semântica (Single)
+ */
 async function generateEmbedding(text) {
     try {
         const response = await openai.embeddings.create({
@@ -22,6 +27,28 @@ async function generateEmbedding(text) {
     } catch (e) {
         console.error("Erro ao gerar embedding:", e);
         return null;
+    }
+}
+
+/**
+ * Gera embeddings em lote (Batch)
+ * @param {string[]} texts 
+ * @returns {Promise<Array<number[]|null>>}
+ */
+async function generateBatchEmbeddings(texts) {
+    try {
+        // Remove empty strings to avoid API errors, but keep index sync? 
+        // Better: Caller ensures valid strings.
+        const response = await openai.embeddings.create({
+            model: "text-embedding-3-small",
+            input: texts,
+            encoding_format: "float",
+        });
+        // Map back to guarantee order
+        return response.data.map(d => d.embedding);
+    } catch (e) {
+        console.error("Erro ao gerar embedding batch:", e);
+        return texts.map(() => null); // Fallback to avoid crash
     }
 }
 
@@ -50,20 +77,25 @@ async function transcribeAudio(filePath) {
  * @returns {Promise<string>} JSON string
  */
 async function analyzeImage(base64Image, mimetype) {
-    const systemPromptVision = `Atue como um extrator de dados financeiros de recibos/notas.
-    Analise a imagem e extraia os itens de gasto.
-    Retorne APENAS um JSON com este formato:
+    const systemPromptVision = `Atue como um extrator de dados financeiros de recibos, comprovantes e anotações.
+    Analise a imagem e extraia TODAS as transações (Receitas e Despesas).
+    
+    Regras:
+    1. "SALÁRIO", "VENDA", "PIX RECEBIDO", "DÍZIMO" (se for entrada), etc -> tipo: 'receita'.
+    2. "MERCADO", "COMPRA", "PAGAMENTO", "DÍZIMO" (se for saída) -> tipo: 'despesa'.
+    3. Retorne JSON no formato:
     {
-        "gastos": [
+        "transacoes": [
             {
-                "descricao": "Nome do item (NÃO use 'item', use 'descricao')",
+                "descricao": "Nome do item (Ex: 'Coca Cola', 'Salário')",
                 "valor": 10.50, 
-                "categoria": "Categoria (Alimentação, Transporte, etc)",
+                "categoria": "Alimentação, Transporte, Salário, Lazer...",
+                "tipo": "receita" | "despesa",
                 "data": "YYYY-MM-DD"
             }
         ]
     }
-    Se não visível, { "gastos": [] }.`;
+    Se nada for visível: { "transacoes": [] }`;
 
     const completion = await openai.chat.completions.create({
         messages: [
@@ -76,6 +108,60 @@ async function analyzeImage(base64Image, mimetype) {
     });
 
     return completion.choices[0].message.content;
+}
+
+/**
+ * Analisa texto extraído de PDF para buscar transações
+ * @param {string} pdfText 
+ * @returns {Promise<string>} JSON string
+ * Analisa texto de PDF/Imagem para extrair transações e totais.
+ */
+async function analyzePdfText(text) {
+    const prompt = `
+    Analise o texto desta fatura de cartão de crédito e extraia os dados.
+    
+    1. Identifique o VALOR TOTAL DA FATURA ("Total a pagar", "Valor total", "Total desta fatura") e o VENCIMENTO.
+    2. Extraia TODAS as transações novas, incluindo:
+       - Compras (Lojas, serviços)
+       - Juros, Multas, IOF, Encargos (Classifique como "Taxas/Juros")
+       - Estornos (Valores negativos)
+       - Parcelas de compras antigas (se listadas explicitamente com valor nesta fatura)
+       
+    IGNORE: "Saldo Anterior", "Pagamento Efetuado", "Pagamento Mínimo", "Total Parcelado" (apenas o total geral).
+
+    Retorne JSON estrito:
+    {
+        "total_fatura": 1234.56,
+        "vencimento": "YYYY-MM-DD",
+        "transacoes": [
+            {
+                "descricao": "Nome do estabelecimento ou taxa",
+                "valor": 10.50,
+                "categoria": "Categoria sugerida (Ex: Alimentação, Transporte, Taxas/Juros)",
+                "tipo": "despesa" (ou "receita" se for crédito/estorno),
+                "data": "YYYY-MM-DD" (se não encontrar ano, assuma próximo vencimento ou ano corrente)
+            }
+        ]
+    }
+    
+    Texto da Fatura:
+    ${text.substring(0, 15000)} // Limit to avoid token overflow
+    `;
+
+    try {
+        const completion = await openai.chat.completions.create({
+            messages: [{ role: "system", content: prompt }],
+            model: "gpt-4o",
+            response_format: { type: "json_object" },
+            temperature: 0
+        });
+
+        const result = JSON.parse(completion.choices[0].message.content);
+        return result; // Retorna { total_fatura, vencimento, transacoes }
+    } catch (error) {
+        console.error("Erro na análise de PDF (OpenAI):", error);
+        return { transacoes: [], error: "Falha na IA" };
+    }
 }
 
 /**
@@ -101,7 +187,9 @@ async function chatCompletion(messages, tools = []) {
 module.exports = {
     openai,
     generateEmbedding,
+    generateBatchEmbeddings,
     transcribeAudio,
     analyzeImage,
+    analyzePdfText,
     chatCompletion
 };
