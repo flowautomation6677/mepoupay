@@ -114,8 +114,12 @@ async function handleMessage(message) {
             const reply = async (text) => await message.reply(text);
             await processExtractedData(result.content, user.id, reply);
 
-        } else if (result.type === 'system_error') {
-            await message.reply(`❌ ${result.content}`);
+            const { AIResponseSchema } = require('../schemas/transactionSchema'); // Import at top
+
+            // ... (existing imports)
+
+            // ...
+
         } else if (result.type === 'text_command') {
             const response = await textStrategy.execute(result.content, message, user, userContext);
 
@@ -123,7 +127,8 @@ async function handleMessage(message) {
                 const text = typeof response.content === 'string' ? response.content : JSON.stringify(response.content);
                 const reply = async (text) => await message.reply(text);
 
-                // Robust JSON Extraction
+                // 1. Validar se é JSON (AI Response com 'gastos' ou 'transacoes')
+                // Tenta extrair JSON se estiver envolto em texto
                 let jsonStr = text;
                 const firstBrace = text.indexOf('{');
                 const lastBrace = text.lastIndexOf('}');
@@ -132,16 +137,36 @@ async function handleMessage(message) {
                     jsonStr = text.substring(firstBrace, lastBrace + 1);
                 }
 
-                // Check if it looks like our schema before trying to process
-                if (jsonStr.includes('"gastos"') || jsonStr.includes('"transacoes"') || jsonStr.includes('"valor"')) {
-                    try {
-                        await processExtractedData(jsonStr, user.id, reply);
-                    } catch (e) {
-                        logger.error("JSON Processing Fail", { error: e, input: text, userId: user.id });
+                try {
+                    // 2. Parse Inicial
+                    const parsedRaw = JSON.parse(jsonStr);
+
+                    // 3. Validação com Zod
+                    const validation = AIResponseSchema.safeParse(parsedRaw);
+
+                    if (validation.success) {
+                        // Dados válidos! Processar.
+                        await processExtractedData(validation.data, user.id, reply);
+                    } else {
+                        // Validação falhou. Se parecia transação, avisa o user.
+                        const isTransactionAttempt = jsonStr.includes('"gastos"') || jsonStr.includes('"transacoes"');
+
+                        if (isTransactionAttempt) {
+                            logger.warn("Falha de Validação Zod", { errors: validation.error.format(), input: text });
+                            await message.reply("😵‍💫 Fiquei confuso com os dados. Poderia repetir de forma mais clara?");
+                        } else {
+                            // Apenas texto conversacional/Recusa/Piada
+                            await message.reply(text);
+                        }
+                    }
+                } catch (e) {
+                    // Não é JSON. Se parecia, loga erro.
+                    if (jsonStr.includes('"gastos"')) {
+                        logger.error("JSON Syntax Error", { error: e.message, input: text });
+                        await message.reply("❌ Erro técnico ao processar sua solicitação.");
+                    } else {
                         await message.reply(text);
                     }
-                } else {
-                    await message.reply(text);
                 }
 
                 // Update context

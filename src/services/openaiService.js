@@ -92,24 +92,23 @@ async function analyzeImage(base64Image, mimetype) {
     }
     Se nada for visível: { "transacoes": [] }`;
 
-    try {
-        const completion = await openai.chat.completions.create({
-            messages: [
-                { role: "system", content: systemPromptVision },
-                { role: "user", content: [{ type: "image_url", image_url: { url: `data:${mimetype};base64,${base64Image}` } }] }
-            ],
-            model: "gpt-4o",
-            max_tokens: 1000,
-            response_format: { type: "json_object" }
-        });
+    const completion = await openai.chat.completions.create({
+        messages: [
+            { role: "system", content: systemPromptVision },
+            { role: "user", content: [{ type: "image_url", image_url: { url: `data:${mimetype};base64,${base64Image}` } }] }
+        ],
+        model: "gpt-4o",
+        max_tokens: 1000,
+        response_format: { type: "json_object" }
+    });
 
-        const duration = Date.now() - start;
-        logger.info('Image Analyzed', { duration, model: "gpt-4o", tokens: completion.usage?.total_tokens });
-        return completion.choices[0].message.content;
-    } catch (e) {
-        logger.error("Erro na análise de imagem", { error: e });
-        throw e;
-    }
+    const duration = Date.now() - start;
+    logger.info('Image Analyzed', { duration, model: "gpt-4o", tokens: completion.usage?.total_tokens });
+    return completion.choices[0].message.content;
+} catch (e) {
+    logger.error("Erro na análise de imagem", { error: e });
+    throw e;
+}
 }
 
 /**
