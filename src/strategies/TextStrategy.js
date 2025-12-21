@@ -120,39 +120,8 @@ class TextStrategy {
         }
 
         // 5. Final Content Processing
-        let aiContent = responseMsg.content;
-
-        // Tentativa de processar JSON para resposta amigável (Logic Layer)
-        try {
-            // Limpa md code blocks se houver
-            const cleanedContent = aiContent.replace(/```json/g, '').replace(/```/g, '').trim();
-
-            if (cleanedContent.startsWith('{')) {
-                const dados = JSON.parse(cleanedContent);
-
-                // Verifica se é registro de gastos
-                if (dados.gastos && dados.gastos.length > 0) {
-                    const gasto = dados.gastos[0]; // Simplificação para 1 gasto
-
-                    // Sanity Check
-                    if (gasto.valor <= 0) {
-                        return { type: 'ai_response', content: "🤔 Hmm, não consegui identificar um valor válido para o gasto. Pode repetir com o valor correto?" };
-                    }
-
-                    // Resposta Formatada com CoT
-                    const moeda = gasto.moeda || 'R$';
-                    const respostaAmigavel = `✅ Entendido! 
-🧠 Raciocínio: "${dados.raciocinio_logico || 'Análise direta'}"
-📝 Registrando: ${moeda} ${gasto.valor.toFixed(2)} em ${gasto.categoria} (${gasto.descricao}).
-Confirma?`;
-
-                    return { type: 'ai_response', content: respostaAmigavel, data: dados };
-                }
-            }
-        } catch (e) {
-            console.log("[TextStrategy] Resposta não é JSON ou falha no parse. Retornando texto puro.");
-        }
-
+        // Return raw content so messageHandler can detect JSON and save it.
+        const aiContent = responseMsg.content;
         return { type: 'ai_response', content: aiContent };
     }
 }

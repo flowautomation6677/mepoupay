@@ -10,11 +10,13 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@supabase/supabase-js": "^2.89.0",
+    "bullmq": "^5.66.2",
     "csv-parse": "^6.1.0",
     "dotenv": "^16.3.1",
     "ffmpeg-static": "^5.3.0",
     "ffprobe-static": "^3.1.0",
     "fluent-ffmpeg": "^2.1.2",
+    "ioredis": "^5.8.2",
     "mime-types": "^2.1.35",
     "node-ofx-parser": "^0.5.1",
     "openai": "^4.24.0",

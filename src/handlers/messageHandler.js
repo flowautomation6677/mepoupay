@@ -51,151 +51,94 @@ function formatSuccessMessage(gasto, savedTxId) {
         `🗓️ ${formatDateDisplay(gasto.data)}\n\n`;
 }
 
-// --- DATA PROCESSOR (Batch Optimization) ---
-async function processExtractedData(content, message, userId) {
-    let data;
-    try {
-        data = typeof content === 'string' ? JSON.parse(content.replace(/```json|```/g, '').trim()) : content;
-        if (typeof data === 'string') data = JSON.parse(data);
-    } catch { return; }
-
-    if (data.pergunta) return message.reply(data.pergunta);
-    if (data.ignorar) return message.reply(data.resposta || "🤖 Olá!");
-
-    const transacoes = data.transacoes || data.gastos || (data.valor ? [data] : []);
-    const totalFatura = data.total_fatura;
-
-    // Se não achou transações mas achou TOTAL DA FATURA, sugere registrar o pagamento da fatura
-    if (!transacoes.length && totalFatura) {
-        transacoes.push({
-            descricao: `Pagamento de Fatura (Venc: ${data.vencimento || '?'})`,
-            valor: totalFatura,
-            categoria: "Pagamento de Fatura",
-            tipo: "despesa",
-            data: data.vencimento || new Date().toISOString().split('T')[0]
-        });
-    }
-
-    if (!transacoes.length) return message.reply("🤔 Não encontrei transações nem valor total nesta fatura.");
-
-    // 1. Prepare Data & Descriptions
-    const validItems = [];
-    const textsForEmbedding = [];
-
-    for (const g of transacoes) {
-        if (!g.valor) continue;
-        g.descricao = g.descricao || "Item";
-        g.categoria = g.categoria || "Outros";
-        g.dataFormatted = parseDate(g.data);
-
-        validItems.push(g);
-        textsForEmbedding.push(`${g.descricao} - ${g.categoria}`);
-    }
-
-    if (validItems.length === 0) return message.reply("🤔 Nenhum valor válido encontrado.");
-
-    // 2. Batch Embeddings (Optimized API Call)
-    const embeddings = await generateBatchEmbeddings(textsForEmbedding);
-
-    // 3. Prepare Batch Insert payload
-    const payload = validItems.map((g, idx) => ({
-        user_id: userId,
-        valor: g.valor,
-        categoria: g.categoria,
-        descricao: g.descricao,
-        data: g.dataFormatted || parseDate(g.data), // Ensure ISO YYYY-MM-DD for DB
-        tipo: g.tipo || 'despesa',
-        embedding: embeddings[idx] // Match index
-    }));
-
-    // 4. Perform Batch Insert (Optimized DB Call)
-    const savedTxs = await transactionRepo.createMany(payload);
-
-    // 5. Build Response
-    let response = "";
-    if (savedTxs && savedTxs.length > 0) {
-        savedTxs.forEach((tx, idx) => {
-            response += formatSuccessMessage(payload[idx], tx.id);
-        });
-        await message.reply(response.trim());
-    } else {
-        await message.reply("❌ Erro ao salvar dados.");
-    }
-}
-
 // --- MAIN CONTROLLER ---
-const userContexts = {};
+const sessionService = require('../services/sessionService');
+const queueService = require('../services/queueService');
+const { processExtractedData } = require('../services/dataProcessor');
 
-// MEMORY CLEANUP (Garbage Collection)
-// Cleans inactive contexts every hour to prevent Memory Leaks
-setInterval(() => {
-    // For MVP, brute force clear to ensure stability
-    for (const userId in userContexts) {
-        delete userContexts[userId];
-    }
-    console.log("🧹 Garbage Collector ran: Memory Cleared.");
-}, 1000 * 60 * 60 * 4); // 4 Hours
 
 async function handleMessage(message) {
     try {
-        console.log(`\n--- MSG: ${message.from} ---`);
+        if (message.from === 'status@broadcast') return;
 
         const user = await userRepo.findByPhone(message.from) || await userRepo.create(message.from);
         if (!user) return message.reply('❌ Erro de Perfil.');
 
-        // Memory Init
-        if (!userContexts[user.id]) userContexts[user.id] = [];
+        // Initialize/Fetch Context from Redis
+        let userContext = await sessionService.getContext(user.id);
 
         // Strategy Selection
         let result = null;
 
         // 0. State Check: Waiting for PDF Password?
-        if (userContexts[user.id] && userContexts[user.id].pendingPdf) {
+        const pendingPdfBase64 = await sessionService.getPdfState(user.id);
+
+        if (pendingPdfBase64) {
             // Assume text is password
             const password = message.body.trim();
-            const pendingFile = userContexts[user.id].pendingPdf;
 
-            console.log(`[PDF] Tentando desbloquear com senha: ${password}`);
-            const retryResult = await pdfStrategy.retryWithPassword(pendingFile, password);
+            // Offload Password Retry to Worker
+            await message.reply("⏳ Verificando senha e processando...");
 
-            if (retryResult.success) {
-                // Sucesso: Limpa estado e processa
-                delete userContexts[user.id].pendingPdf;
-                await message.reply("🔓 PDF Desbloqueado! Processando...");
-                await processExtractedData(retryResult.data, message, user.id);
-                return; // Fim do fluxo de senha
-            } else {
-                // Falha: Pede de novo ou cancela? Manda msg de erro
-                return message.reply(`❌ ${retryResult.error || "Senha incorreta."} Tente novamente ou envie outro arquivo.`);
-            }
+            await queueService.addJob('RETRY_PDF_PASSWORD', {
+                chatId: message.from,
+                userId: user.id,
+                mediaData: pendingPdfBase64, // The locked file
+                password: password,
+                filename: 'locked.pdf'
+            });
+
+            // We optimistically clear state or wait? 
+            // Better to let the worker clear it on success, 
+            // OR we clear it now and if it fails user has to re-upload.
+            // The instructions said "pendingPdf... should be serialized/deserialized in Redis". 
+            // If we remove it here, and worker fails, user has to re-send file.
+            // Let's keep it in Redis. If worker succeeds, worker should clear it?
+            // Shared state modification from worker ok.
+
+            return;
         }
 
         if (message.hasMedia) {
-            // MIME TYPE CHECK
-            // WhatsApp Web JS docs: message.mimetype might be available?
-            // Or detect by type 'document'
-            if (message.type === 'image') {
-                result = await imageStrategy.execute(message);
-            } else if (message.type === 'ptt' || message.type === 'audio') {
-                result = await audioStrategy.execute(message);
-            } else if (message.type === 'document' && (message._data.mimetype === 'application/pdf' || message.body.endsWith('.pdf'))) {
-                // PDF Strategy
-                await message.reply("⏳ Processando PDF...");
-                result = await pdfStrategy.execute(message);
-            } else if (message.type === 'document') {
-                const mime = message._data.mimetype || '';
-                const filename = message.body ? message.body.toLowerCase() : '';
 
+            const media = await message.downloadMedia();
+            if (!media) {
+                return message.reply("❌ Não consegui baixar a mídia. Tente novamente.");
+            }
+
+            const base64Data = media.data;
+            const mime = media.mimetype;
+            const filename = media.filename || message.body || 'unknown';
+
+            let jobType = null;
+
+            if (message.type === 'image') {
+                jobType = 'PROCESS_IMAGE';
+            } else if (message.type === 'ptt' || message.type === 'audio') {
+                jobType = 'PROCESS_AUDIO';
+            } else if (message.type === 'document' && (mime === 'application/pdf' || filename.endsWith('.pdf'))) {
+                jobType = 'PROCESS_PDF';
+            } else if (message.type === 'document') {
                 if (filename.endsWith('.ofx') || mime.includes('ofx')) {
-                    await message.reply("⏳ Processando OFX... Aguarde.");
-                    result = await ofxStrategy.execute(message);
+                    jobType = 'PROCESS_OFX';
                 } else if (filename.endsWith('.csv') || mime.includes('csv')) {
-                    await message.reply("⏳ Baixando e analisando CSV... Isso pode levar alguns segundos.");
-                    result = await csvStrategy.execute(message);
+                    jobType = 'PROCESS_CSV';
                 } else if (filename.endsWith('.xlsx') || filename.endsWith('.xls') || mime.includes('excel') || mime.includes('spreadsheet')) {
-                    await message.reply("⏳ Convertendo e analisando Excel... Aguarde.");
-                    result = await xlsxStrategy.execute(message);
+                    jobType = 'PROCESS_XLSX';
                 }
+            }
+
+            if (jobType) {
+                await message.reply("⏳ Recebi seu arquivo! Estou processando e te aviso em instantes...");
+                await queueService.addJob(jobType, {
+                    chatId: message.from,
+                    userId: user.id,
+                    mediaData: base64Data,
+                    mimeType: mime,
+                    filename: filename,
+                    body: message.body
+                });
+                return;
             }
         } else {
             result = { type: 'text_command', content: message.body };
@@ -203,31 +146,22 @@ async function handleMessage(message) {
 
         if (!result) return;
 
-        // --- Result Handling ---
-        if (result.type === 'pdf_password_request') {
-            // Salva estado para esperar senha
-            userContexts[user.id].pendingPdf = result.fileBuffer; // Base64
-            // Define timeout para limpar memória (5 min)
-            setTimeout(() => {
-                if (userContexts[user.id] && userContexts[user.id].pendingPdf) {
-                    delete userContexts[user.id].pendingPdf;
-                    console.log(`[PDF] Timeout senha user ${user.id}`);
-                }
-            }, 5 * 60 * 1000);
-
-            return message.reply("🔒 Este arquivo PDF é protegido por senha.\nDigite a senha para que eu possa ler:");
-        }
+        // --- Result Handling (Text Only) ---
+        // Media results are now handled by Worker/Queue
 
         if (result.type === 'data_extraction') {
-            await processExtractedData(result.content, message, user.id);
+            // Wrapper for reply to match signature
+            const reply = async (text) => await message.reply(text);
+            await processExtractedData(result.content, user.id, reply);
+
         } else if (result.type === 'system_error') {
-            // Reply directly with error, do NOT send to AI
             await message.reply(`❌ ${result.content}`);
         } else if (result.type === 'text_command') {
-            const response = await textStrategy.execute(result.content, message, user, userContexts[user.id]);
+            const response = await textStrategy.execute(result.content, message, user, userContext);
 
             if (response.type === 'ai_response' || response.type === 'tool_response') {
                 const text = typeof response.content === 'string' ? response.content : JSON.stringify(response.content);
+                const reply = async (text) => await message.reply(text);
 
                 // Robust JSON Extraction
                 let jsonStr = text;
@@ -241,9 +175,8 @@ async function handleMessage(message) {
                 // Check if it looks like our schema before trying to process
                 if (jsonStr.includes('"gastos"') || jsonStr.includes('"transacoes"') || jsonStr.includes('"valor"')) {
                     try {
-                        await processExtractedData(jsonStr, message, user.id);
+                        await processExtractedData(jsonStr, user.id, reply);
                     } catch (e) {
-                        // Fallback: If processing fails, reply with text (or maybe error msg)
                         console.error("JSON Processing Fail:", e);
                         await message.reply(text);
                     }
@@ -251,9 +184,17 @@ async function handleMessage(message) {
                     await message.reply(text);
                 }
 
-                userContexts[user.id].push({ role: "user", content: result.content });
-                userContexts[user.id].push({ role: "assistant", content: text });
-                if (userContexts[user.id].length > 10) userContexts[user.id] = userContexts[user.id].slice(-10);
+                // Update context
+                userContext.push({ role: "user", content: result.content });
+                userContext.push({ role: "assistant", content: text });
+
+                // Keep only last 10 messages
+                if (userContext.length > 10) {
+                    userContext = userContext.slice(-10);
+                }
+
+                // Save updated context to Redis with 24h TTL
+                await sessionService.setContext(user.id, userContext, 86400);
             }
         }
 
