@@ -20,7 +20,15 @@ if (missingEnv.length > 0) {
 
 const client = require('./src/services/whatsappClient');
 const { handleMessage } = require('./src/handlers/messageHandler');
-require('./src/workers/mediaWorker'); // Initialize Worker
+
+// Initialize Outbound Worker (Handling responses from specialized workers)
+require('./src/workers/outboundWorker');
+
+// Initialize Local Media Worker (Default: true, unless running in Split Mode)
+if (process.env.RUN_WORKER_LOCALLY !== 'false') {
+    require('./src/workers/mediaWorker');
+    logger.info("🔧 Local Media Worker Started");
+}
 
 
 logger.info("🚀 Iniciando Porquim 360 (V2 - Modular)...");

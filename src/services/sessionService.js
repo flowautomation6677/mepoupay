@@ -1,16 +1,6 @@
-const Redis = require('ioredis');
+const redis = require('./redisClient');
 
-// Ensure REDIS_URL is present or default to localhost if not strict
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-const redis = new Redis(redisUrl);
-
-redis.on('error', (err) => {
-    console.error('❌ Redis Client Error', err);
-});
-
-redis.on('connect', () => {
-    console.log('✅ Connected to Redis');
-});
+/* Shared Client handles listeners now */
 
 const CONTEXT_PREFIX = 'session:context:';
 const PDF_PREFIX = 'session:pendingPdf:';
@@ -100,6 +90,50 @@ const sessionService = {
             await redis.del(key);
         } catch (error) {
             console.error(`Error clearing PDF state for user ${userId}:`, error);
+        }
+    },
+
+    /**
+     * Set pending correction state
+     * @param {string} userId 
+     * @param {object} data { last_input, ai_response, confidence, transactionIds } 
+     * @param {number} ttlInSeconds 
+     */
+    async setPendingCorrection(userId, data, ttlInSeconds = 300) {
+        try {
+            const key = `session:pendingCorrection:${userId}`;
+            await redis.set(key, JSON.stringify(data), 'EX', ttlInSeconds);
+        } catch (error) {
+            console.error(`Error setting pending correction for ${userId}:`, error);
+        }
+    },
+
+    /**
+     * Get pending correction state
+     * @param {string} userId 
+     * @returns {Promise<object|null>}
+     */
+    async getPendingCorrection(userId) {
+        try {
+            const key = `session:pendingCorrection:${userId}`;
+            const data = await redis.get(key);
+            return data ? JSON.parse(data) : null;
+        } catch (error) {
+            console.error(`Error getting pending correction for ${userId}:`, error);
+            return null;
+        }
+    },
+
+    /**
+     * Clear pending correction state
+     * @param {string} userId 
+     */
+    async clearPendingCorrection(userId) {
+        try {
+            const key = `session:pendingCorrection:${userId}`;
+            await redis.del(key);
+        } catch (error) {
+            console.error(`Error clearing pending correction for ${userId}:`, error);
         }
     }
 };

@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # Main Bot (Whatsapp Client + Outbound Worker)
+  finance-bot:
+    build: .
+    container_name: finance_bot_main
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - RUN_WORKER_LOCALLY=false # Disable internal media worker
+      - REDIS_URL=redis://redis_evo:6379
+      - POSTGRES_URL=postgresql://postgres:postgres@postgres:5432/finance
+    depends_on:
+      - redis_evo
+      - postgres
+    volumes:
+      - ./.wwebjs_auth:/app/.wwebjs_auth
+      - ./.wwebjs_cache:/app/.wwebjs_cache
+
+  # Scalable Media Worker
+  media-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    deploy:
+      mode: replicated
+      replicas: 2 # Start with 2 workers, scale as needed
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis_evo:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+    depends_on:
+      - redis_evo
+
+  redis_evo:
+    image: redis:alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: finance
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  redis_data:
+  pg_data:

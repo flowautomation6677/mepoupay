@@ -1,26 +1,47 @@
 const { Queue } = require('bullmq');
+const redis = require('./redisClient'); // Shared connection
+const logger = require('./loggerService');
 
-const connection = {
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
-};
+// Define Queues
+const mediaQueue = new Queue('media-processing', { connection: redis });
+const outboundQueue = new Queue('outbound-messages', { connection: redis });
 
-const mediaQueue = new Queue('media-processing', { connection });
-
-async function addJob(type, data) {
-    return await mediaQueue.add(type, data, {
-        attempts: 3, // Retry 3 times
-        backoff: {
-            type: 'exponential',
-            delay: 1000 // 1s, 2s, 4s
-        },
-        removeOnComplete: true, // Keep Redis clean
-        removeOnFail: {
-            age: 24 * 3600 // Keep failed jobs for 24h for inspection
+const queueService = {
+    /**
+     * Add job to media processing queue
+     */
+    async addJob(type, data) {
+        try {
+            // Options can be tuned (attempts, backoff)
+            await mediaQueue.add(type, data, {
+                removeOnComplete: true,
+                removeOnFail: 100
+            });
+            logger.info(`[Queue] Job added: ${type}`);
+        } catch (error) {
+            logger.error('[Queue] Failed to add media job', error);
         }
-    });
-}
+    },
 
-module.exports = {
-    mediaQueue,
-    addJob
+    /**
+     * Add job to outbound message queue
+     * @param {string} chatId 
+     * @param {string|MessageMedia} textOrMedia 
+     * @param {object} options 
+     */
+    async addOutbound(chatId, textOrMedia, options = {}) {
+        try {
+            await outboundQueue.add('send-message', {
+                chatId,
+                text: textOrMedia,
+                options
+            }, {
+                removeOnComplete: true
+            });
+        } catch (error) {
+            logger.error('[Queue] Failed to add outbound job', error);
+        }
+    }
 };
+
+module.exports = queueService;

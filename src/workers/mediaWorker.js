@@ -1,6 +1,6 @@
 const { Worker } = require('bullmq');
-const client = require('../services/whatsappClient');
-const sessionService = require('../services/sessionService'); // Needed for context
+const queueService = require('../services/queueService'); // Use QueueService for outbound
+const sessionService = require('../services/sessionService');
 const { processExtractedData } = require('../services/dataProcessor');
 const imageStrategy = require('../strategies/ImageStrategy');
 const audioStrategy = require('../strategies/AudioStrategy');
@@ -8,11 +8,11 @@ const pdfStrategy = require('../strategies/PdfStrategy');
 const ofxStrategy = require('../strategies/OfxStrategy');
 const csvStrategy = require('../strategies/CsvStrategy');
 const xlsxStrategy = require('../strategies/XlsxStrategy');
-const textStrategy = require('../strategies/TextStrategy'); // Needed for processing audio text
+const textStrategy = require('../strategies/TextStrategy');
+const redis = require('../services/redisClient');
 
-const connection = {
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
-};
+// No connection object needed locally, passed to Worker ctor
+
 
 const mediaWorker = new Worker('media-processing', async (job) => {
     const { chatId, userId, mediaData, mimeType, filename, body } = job.data;
@@ -20,12 +20,12 @@ const mediaWorker = new Worker('media-processing', async (job) => {
 
     console.log(`[Worker] Processing Job ${job.id}: ${type} for user ${userId}`);
 
-    // Helper to send messages
+    // Helper to send messages (Decoupled via Queue)
     const reply = async (text) => {
         try {
-            await client.sendMessage(chatId, text);
+            await queueService.addOutbound(chatId, text);
         } catch (err) {
-            console.error(`[Worker] Failed to send message to ${chatId}:`, err);
+            console.error(`[Worker] Failed to queue outbound message to ${chatId}:`, err);
         }
     };
 
@@ -171,7 +171,7 @@ const mediaWorker = new Worker('media-processing', async (job) => {
         throw err; // Trigger BullMQ retry
     }
 
-}, { connection });
+}, { connection: redis });
 
 // Event Listeners
 mediaWorker.on('completed', (job) => {

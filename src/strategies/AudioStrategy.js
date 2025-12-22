@@ -21,6 +21,12 @@ class AudioStrategy {
             await this.transcodeToMp3(tempOgg, tempMp3);
             const text = await transcribeAudio(tempMp3);
 
+            if (!text || text.trim().length === 0) {
+                console.warn("[AudioStrategy] Empty transcription received.");
+                await message.reply("🔇 Não consegui ouvir nada no áudio. Tente falar mais perto do microfone.");
+                return null;
+            }
+
             await message.reply(`📝: "${text}"`);
 
             // Transcrição vira input para a TextStrategy

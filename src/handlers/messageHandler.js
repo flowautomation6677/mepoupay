@@ -92,6 +92,58 @@ async function handleMessage(message) {
             return;
         }
 
+        // 0-B. Check for Pending Correction (Feedback Loop)
+        const pendingCorrection = await sessionService.getPendingCorrection(user.id);
+
+        if (pendingCorrection && !pendingCorrection.is_processed) {
+            const isConfirmation = ['sim', 's', 'correto', 'ok', 'confirmado'].includes(bodyLower);
+            const isDenial = ['nao', 'não', 'n', 'errado', 'erro', '!'].includes(bodyLower) || bodyLower.startsWith('!');
+
+            if (isConfirmation) {
+                // User confirmed the low-confidence transaction
+                await Promise.all(pendingCorrection.transactionIds.map(id =>
+                    transactionRepo.update(id, { status: 'confirmed', is_validated: true })
+                ));
+                await sessionService.clearPendingCorrection(user.id);
+                return message.reply("✅ Confirmado! Já registrei.");
+            }
+
+            if (isDenial) {
+                // User says it's wrong. Log it and ask for correction.
+                await supabase.from('transaction_learning').insert({
+                    original_input: pendingCorrection.last_input,
+                    ai_response: pendingCorrection.ai_response,
+                    user_correction: message.body, // Inicialmente capturamos a negação, mas o ideal é que ele DIGA o certo.
+                    confidence_at_time: pendingCorrection.confidence
+                });
+
+                // If they just said "Wrong", ask for the right data. 
+                // If they sent data (e.g. "Foi 50 reais"), we should process it as new.
+                // For simplicity: Clear pending, and let the message flow continue as a new text processing? 
+                // User: "Errado" -> Bot: "Ops. Qual o certo?"
+                // User: "Foi 50 mercado" -> Process as normal.
+
+                // If message is JUST "Errado", ask for input.
+                if (bodyLower.length < 10) {
+                    await sessionService.clearPendingCorrection(user.id); // Clear lock
+                    return message.reply("Ops! Entendi errado. 😅\nComo foi o gasto correto? (Ex: '50 mercado')");
+                }
+
+                // If message is longer, treat as the correction itself
+                await sessionService.clearPendingCorrection(user.id);
+                // Flow fallthrough to normal processing below...
+            }
+        }
+
+        // Quick Action: "!" or "Errado" on ANY message (Manual Drift Trigger)
+        if (bodyLower === '!' || bodyLower === 'errado') {
+            // Logic for manual correction of PREVIOUS message?
+            // Need context of last bot message. Hard without ID tracking of bot messages.
+            // For now, simpler implementation:
+            return message.reply("Opa! Se eu errei algo anterior, por favor digite o gasto correto novamente.");
+        }
+
+
         // Safeguard: Ignore 'chat' type even if hasMedia is true (prevents bugs)
         if (message.hasMedia && message.type !== 'chat') {
 
@@ -146,7 +198,9 @@ async function handleMessage(message) {
         // Media results are now handled by Worker/Queue
 
         if (result.type === 'data_extraction') {
-            // Wrapper for reply to match signature
+            // DEPRECATED path? TextStrategy usually returns 'ai_response'.
+            // This block might never be hit if TextStrategy is used for everything.
+            // Keeping for safety but `processExtractedData` call is duplicated below.
             const reply = async (text) => await message.reply(text);
             await processExtractedData(result.content, user.id, reply);
 
@@ -187,7 +241,32 @@ async function handleMessage(message) {
 
                     if (validation.success) {
                         // Dados válidos! Processar.
-                        await processExtractedData(validation.data, user.id, reply);
+                        const dataToProcess = {
+                            ...validation.data,
+                            prompt_version: response.metadata?.prompt_version || 'v1_stable'
+                        };
+                        const processingResult = await processExtractedData(dataToProcess, user.id, reply);
+
+                        // HITL Check
+                        if (processingResult && processingResult.status === 'pending_review') {
+                            const txs = processingResult.transactions;
+                            const mainTx = txs[0]; // Take first as example
+
+                            // Save Session State
+                            await sessionService.setPendingCorrection(user.id, {
+                                last_input: result.content,
+                                ai_response: validation.data,
+                                confidence: processingResult.confidence,
+                                transactionIds: txs.map(t => t.id)
+                            });
+
+                            // Interactive Reply
+                            const confirmText = `Fiquei na dúvida sobre esse gasto. 🤔\n\n` +
+                                `Entendi: *${mainTx.descricao}* - *R$ ${mainTx.valor.toFixed(2)}*\n\n` +
+                                `Confirma? (Sim/Não)`;
+                            await message.reply(confirmText);
+                        }
+
                     } else {
                         // Validação falhou. Se parecia transação, avisa o user.
                         const isTransactionAttempt = jsonStr.includes('"gastos"') || jsonStr.includes('"transacoes"');

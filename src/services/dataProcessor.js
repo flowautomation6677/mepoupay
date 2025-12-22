@@ -75,9 +75,13 @@ async function processExtractedData(content, userId, replyCallback) {
     // 2. Batch Embeddings (Optimized API Call)
     const embeddings = await generateBatchEmbeddings(textsForEmbedding);
 
-    // 3. Prepare Batch Insert payload
+    // 4. Prepare Batch Insert payload
+    const confidenceScore = typeof data.confidence_score === 'number' ? data.confidence_score : 1.0;
+    const status = confidenceScore < 0.7 ? 'pending_review' : 'confirmed';
+
     const payload = validItems.map((g, idx) => ({
         user_id: userId,
+        prompt_version: data.prompt_version || 'v1_stable', // A/B Testing Version
         valor: g.valor, // Convertido em BRL
         valor_original: g.valor_original,
         moeda_original: g.moeda_original,
@@ -86,26 +90,32 @@ async function processExtractedData(content, userId, replyCallback) {
         descricao: g.descricao,
         data: formatToISO(g.data), // Use new ISO formatter
         tipo: g.tipo || 'despesa',
-        embedding: embeddings[idx] // Match index
+        embedding: embeddings[idx], // Match index
+
+        // Reliability Fields
+        confidence_score: confidenceScore,
+        status: status,
+        is_validated: status === 'confirmed' // If high confidence, auto-validate? Or just keep false? Let's say false unless explicitly confirmed. Actually, if >= 0.7, we might assume it's good but let user validate in dashboard. But per user requirements "Se input for ambíguo (<0.7) ... se > 0.7 segue normal".
     }));
 
     // 4. Perform Batch Insert (Optimized DB Call)
     const savedTxs = await transactionRepo.createMany(payload);
 
-    // 5. Build Response
+    // 5. Build Response or Return State
+    if (status === 'pending_review') {
+        // Return info for handlers to ask confirmation
+        return {
+            status: 'pending_review',
+            transactions: savedTxs,
+            confidence: confidenceScore,
+            original_data: data
+        };
+    }
+
+    // Normal Flow (High Confidence)
     let response = "";
     if (savedTxs && savedTxs.length > 0) {
         savedTxs.forEach((tx, idx) => {
-            // Nota: Se houve conversão, podemos mostrar no sucesso
-            // Mas o formatterService atual usa o que está no payload.
-            // O payload tem `valor` (BRL) e `moeda_original`.
-            // Vamos ajustar o objeto passado ao formatter para ele saber lidar se quiser, 
-            // mas o user pediu só para exibir BRL no dashboard.
-            // Para a msg do whatsapp, seria legal mostrar BRL.
-            // O formatterService.formatSuccessMessage usa `gasto.valor` e `gasto.moeda`.
-            // O payload não tem mais `moeda` explicitamente como antes da migração, 
-            // agora é `moeda_original`.
-            // Vou hackear o objeto de visualização para o formatter entender BRL.
             const displayObj = {
                 ...payload[idx],
                 moeda: 'BRL' // Exibe em BRL pois já foi convertido
@@ -113,8 +123,11 @@ async function processExtractedData(content, userId, replyCallback) {
             response += FormatterService.formatSuccessMessage(displayObj);
         });
         await replyCallback(response.trim());
+
+        return { status: 'success', transactions: savedTxs };
     } else {
         await replyCallback(FormatterService.formatErrorMessage("Erro ao salvar dados."));
+        return { status: 'error' };
     }
 }
 

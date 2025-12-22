@@ -3,7 +3,8 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { Coffee, ShoppingBag, Car, Home, HeartPulse, MoreHorizontal, GraduationCap, TrendingUp, DollarSign, Briefcase } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Coffee, ShoppingBag, Car, Home, HeartPulse, MoreHorizontal, GraduationCap, TrendingUp, DollarSign, Briefcase, CheckCircle, AlertTriangle } from 'lucide-react'
 
 // Mapeamento de ícones por categoria simples
 const getIcon = (categoria: string, tipo: string) => {
@@ -60,6 +61,20 @@ const formatDateGroup = (dateStr: string) => {
 }
 
 export default function TransactionFeed({ transactions }: { transactions: any[] }) {
+    const router = useRouter()
+
+    const handleApprove = async (id: string) => {
+        try {
+            await fetch(`/api/transactions/${id}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ is_validated: true }),
+            })
+            router.refresh()
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     // Agrupamento por Data
     const groups = transactions.reduce((acc: any, t) => {
         const dateKey = t.data.split('T')[0]
@@ -111,24 +126,38 @@ export default function TransactionFeed({ transactions }: { transactions: any[] 
                                             <div className="flex items-center gap-2">
                                                 <span className="text-xs text-slate-500 capitalize">{t.categoria}</span>
 
-                                                {/* Mock de Badges Inteligentes (Lógica futura veria se é recorrente) */}
-                                                {((t.descricao || '').toLowerCase().includes('netflix') || (t.descricao || '').toLowerCase().includes('spotify')) && (
-                                                    <span className="rounded bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-bold text-indigo-300">ASSINATURA</span>
+                                                {/* Reliability Badges */}
+                                                {!t.is_validated && t.confidence_score < 0.8 && (
+                                                    <span className="flex items-center gap-1 rounded bg-yellow-500/20 px-1.5 py-0.5 text-[10px] font-bold text-yellow-500 border border-yellow-500/30">
+                                                        <AlertTriangle size={10} /> REVISAR
+                                                    </span>
                                                 )}
-                                                {((t.descricao || '').toLowerCase().includes('parcela')) && (
-                                                    <span className="rounded bg-orange-500/20 px-1.5 py-0.5 text-[10px] font-bold text-orange-300">1/12</span>
+
+                                                {!t.is_validated && t.confidence_score >= 0.8 && (
+                                                    <button
+                                                        onClick={() => handleApprove(t.id)}
+                                                        className="group-hover:opacity-100 opacity-0 transition-opacity flex items-center gap-1 rounded bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-bold text-indigo-400 hover:bg-indigo-500/40"
+                                                    >
+                                                        APROVAR
+                                                    </button>
                                                 )}
+
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="text-right">
+                                    <div className="text-right flex flex-col items-end">
                                         <span className={`block font-bold text-lg ${t.tipo === 'receita' ? 'text-emerald-400' : 'text-slate-200'}`}>
                                             {t.tipo === 'receita' ? '+' : '-'} {t.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                                         </span>
-                                        <span className="text-[10px] text-slate-600">
-                                            {new Date(t.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] text-slate-600">
+                                                {new Date(t.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                            {t.is_validated && (
+                                                <CheckCircle size={12} className="text-emerald-500/50" />
+                                            )}
+                                        </div>
                                     </div>
                                 </motion.div>
                             ))}

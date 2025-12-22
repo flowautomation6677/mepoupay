@@ -65,9 +65,12 @@ async function _analyzeImage(base64Image, mimetype) {
                 "tipo": "receita" | "despesa",
                 "data": "YYYY-MM-DD"
             }
-        ]
+                "data": "YYYY-MM-DD"
+            }
+        ],
+        "confidence_score": 0.95 // 0 a 1. Se o input for ambíguo ou imagem ruim, use valores abaixo de 0.7.
     }
-    Se nada for visível: { "transacoes": [] }`;
+    Se nada for visível: { "transacoes": [], "confidence_score": 0.0 }`;
 
     const completion = await openai.chat.completions.create({
         messages: [
@@ -117,7 +120,8 @@ async function _analyzePdfText(text) {
                 "tipo": "despesa" | "receita",
                 "data": "YYYY-MM-DD"
             }
-        ]
+        ],
+        "confidence_score": 0.95 // 0.0 - 1.0 (Low if text is garbled or missing dates)
     }
     
     Texto do Documento:
@@ -142,6 +146,10 @@ async function _chatCompletion(messages, tools = [], model = "gpt-4o") {
 
     // 1. Governance: Redact PII from User Messages
     const safeMessages = messages.map(m => {
+        // Inject Confidence Instruction into System Prompt if present
+        if (m.role === 'system') {
+            return { ...m, content: m.content + `\n\n[IMPORTANTE] Adicione ao JSON de retorno o campo confidence_score: um valor de 0 a 1 indicando sua certeza sobre os dados extraídos. Se o input for ambíguo, use valores abaixo de 0.7.` };
+        }
         if (m.role === 'user' && typeof m.content === 'string') {
             return { ...m, content: securityService.redactPII(m.content) };
         }

@@ -20,7 +20,16 @@ const AIResponseSchema = z.object({
     valor: z.number().optional().describe("Campo legado para valor único (será convertido para transação)"),
     pergunta: z.string().optional(),
     ignorar: z.boolean().optional(),
-    resposta: z.string().optional()
+    resposta: z.string().optional(),
+
+    // Reliability & HITL Fields
+    confidence_score: z.number().min(0).max(1).optional().describe("0.0 to 1.0 score of AI confidence"),
+    is_validated: z.boolean().default(false).describe("If human validated this data"),
+    raw_ai_metadata: z.record(z.any()).optional().describe("Drift analysis metadata"),
+
+    // A/B Testing & Tracking
+    prompt_version: z.string().optional().default('v1_stable'),
+    is_human_corrected: z.boolean().default(false).describe("If manually corrected by user")
 });
 
 module.exports = {

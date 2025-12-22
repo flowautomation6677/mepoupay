@@ -3,23 +3,28 @@
 O Porquim 360 é um bot financeiro inteligente para WhatsApp que utiliza IA para automatizar a gestão de finanças pessoais. Ele permite que os usuários registrem transações enviando mensagens de texto, áudios, imagens de comprovantes ou arquivos bancários, processando tudo automaticamente e exibindo os dados em um dashboard web moderno.
 
 🚀 Funcionalidades Principais
-Processamento Inteligente (IA): Integração com OpenAI para entender intenções em mensagens de texto e transcrições de áudio.
+### 🧠 Inteligência Artificial & Aprendizado (Machine Learning Loop)
+O Porquim 360 não apenas "lê" dados, ele evolui com o uso graças à arquitetura de **Shadow Prompting** e **Human-in-the-Loop (HITL)**:
+- **Shadow Prompting (Teste A/B):** O sistema executa múltiplas versões de prompts (Ex: `v1_stable` vs `v2_experimental`) em paralelo para medir eficiência. Atualmente testa prompts capazes de entender gírias brasileiras ("breja", "gasosa").
+- **Auto-Correção (Feedback Loop):** Se a confiança da IA for baixa (< 70%), o bot solicita confirmação do usuário. As correções são salvas e usadas para "re-treinar" o modelo (Fine-Tuning), criando um dataset ouro.
+- **Detecção de Fraude/Anomalia (Vision):** Análise avançada de imagens para distinguir recibos reais de fotos aleatórias.
 
-Suporte Multi-Formato: Estratégias modulares para processar diferentes tipos de arquivos:
+### 🏢 Nexus Command Center (Admin Dashboard)
+Painel administrativo "C-Level" para monitoramento total:
+- **The Lab:** Acompanhe a batalha entre prompts e a matriz de confusão da IA.
+- **The CFO:** Gráficos de custos operacionais (OpenAI Tokens) e economia gerada.
+- **The SRE:** Monitoramento de latência e saúde das filas (BullMQ).
 
-📄 PDF & Imagens: Leitura de comprovantes e notas fiscais.
+### 📂 Suporte Multi-Formato Modulo
+Estratégias modulares para processar diferentes arquivos:
+- **📄 PDF & Imagens:** Leitura de comprovantes e documentos protegidos por senha.
+- **📊 Bancários:** Suporte nativo para OFX e CSV.
+- **📑 Planilhas:** Importação direta de XLSX.
+- **🎙️ Áudio:** Transcrição via Whisper (OpenAI) com extração estruturada.
 
-📊 Extratos Bancários: Suporte nativo para arquivos OFX e CSV.
-
-📑 Planilhas: Importação de dados via arquivos XLSX.
-
-🎙️ Áudio: Transcrição e extração de dados de mensagens de voz.
-
-Dashboard Web: Interface visual construída em Next.js para acompanhamento de gastos, gráficos e métricas em tempo real.
-
-Arquitetura de Mensageria: Utiliza BullMQ e Redis para processamento assíncrono e resiliente de mídias pesadas.
-
-Segurança Avançada: Implementação de Row Level Security (RLS) no Supabase para garantir a privacidade total dos dados por usuário.
+### 🛡️ Segurança & Privacidade
+- **RLS (Row Level Security):** Dados isolados nível banco de dados no Supabase.
+- **PII Redaction:** Governança automática para remover dados sensíveis antes de enviar para a IA.
 
 🛠️ Stack Tecnológica
 Backend (Bot)

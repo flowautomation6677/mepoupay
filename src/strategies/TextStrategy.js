@@ -1,6 +1,8 @@
 const openaiService = require('../services/openaiService'); // Lazy access ensures mocks work
 const transactionRepo = require('../repositories/TransactionRepository');
 const userRepo = require('../repositories/UserRepository');
+const routerService = require('../services/routerService');
+const cacheService = require('../services/cacheService');
 
 class TextStrategy {
     async execute(text, message, user, memory) {
@@ -24,6 +26,14 @@ class TextStrategy {
         if (isMalicious) {
             console.warn(`[SECURITY] Bloqueado input malicioso do usuário ${user.id}: "${text}"`);
             return { type: 'ai_response', content: "🚫 Desculpe, não posso atender a essa solicitação por motivos de segurança." };
+        }
+
+
+        // 0.5. Semantic Cache (Optimization)
+        const cachedResponse = await cacheService.get(text);
+        if (cachedResponse) {
+            console.log(`[Optimization] Serving from Cache: "${text}"`);
+            return cachedResponse; // Return fully formed AI response from cache
         }
 
         // 1. RAG Context
@@ -54,9 +64,11 @@ class TextStrategy {
             }
         ];
 
-        // 3. System Prompt
+        // 3. System Prompt (SHADOW PROMPTING A/B TEST)
         const today = new Date();
-        const systemPrompt = `Você é o Porquim 360, um assistente financeiro focado e sério.
+
+        const PROMPTS = {
+            v1_stable: `Você é o Porquim 360, um assistente financeiro focado e sério.
         🧠 Contexto: ${contextStr || "N/D"}
         📅 Data de Hoje: ${today.toLocaleDateString('pt-BR')} (${today.toISOString().split('T')[0]})
 
@@ -85,46 +97,81 @@ class TextStrategy {
            - A data de hoje é ${today.toLocaleDateString('pt-BR')}.
            - SE o usuário disser "Ontem", CALCULE a data (Dataset - 1 dia) e PREENCHA o campo 'data' no JSON.
            - SE disser "Anteontem", CALCULE (Dataset - 2 dias).
-           - SE disser uma data específica (ex: "dia 19" ou "19/10"), use o ano corrente se não especificado.
-           - O campo 'data' ("YYYY-MM-DD") é OBRIGATÓRIO no JSON. Se não mencionado, use a data de hoje.
+           - O campo 'data' ("YYYY-MM-DD") é OBRIGATÓRIO no JSON.
 
         2. FALSA CORREÇÃO (SEMÂNTICA):
-           - Nem todo "não" é correção. Analise o contexto.
-           - "Não me arrependi" -> O "não" nega o arrependimento, mas NÃO o valor. O valor mantem-se.
+           - "Não me arrependi" -> Valor mantem-se.
            - "Não foi caro" -> Comentário, não correção.
-           - SE for falsa correção, IGNORE a palavra "não" como operador lógico e siga para extração normal.
 
         3. ANÁLISE CRONOLÓGICA (CORREÇÕES):
-           - Leia a frase da esquerda para a direita.
-           - Palavras-chave: "quer dizer", "não", "espera", "digo", "minto", "esquece", "cancelar".
-           - Se encontrar uma correção GENUÍNA, o VALOR ou LOCAL imediatamente ANTERIOR é INVALIDADO.
-           - Exemplo: "20, não 30" -> O "não" cancela o 20. O 30 é o novo candidato.
+           - "20, não 30" -> O "não" cancela o 20. O 30 é o novo candidato.
         
         4. CANCELAMENTO TOTAL:
-           - Se o usuário disser "esquece", "deixa pra lá", "não anota nada", "cancelar tudo" APÓS mencionar valores, IGNORE tudo.
-           - Retorne JSON vazio ou uma mensagem explicando que nada foi anotado.
-           - Exemplo: "Gastei 50... ah, esquece." -> NADA registrado.
+           - "esquece", "cancelar tudo" -> NADA registrado.
 
-        5. AMBIGUIDADE CAÓTICA: Se disser APENAS um substantivo (Ex: "Abacaxi"), responda: "Quanto custou o(a) [item]? Quer registrar?".
-        6. POLIGLOTA: "twenty bucks" -> 20.00. Se disser "bucks/dollars", assuma USD ou explique no raciocínio. Se não disser moeda, BRL.
-        7. FICÇÃO/RPG: "Peças de ouro" -> PERGUNTE: "Isso é um gasto em jogo ou dinheiro real?".
-        8. TOM DE VOZ: 
-           - Para erros simples (Culinária, Poema): Brinque com "massas monetárias".
-           - Para coisas SÉRIAS: SEJA SÉRIO.
+        5. AMBIGUIDADE CAÓTICA: "Abacaxi" -> Responda: "Quanto custou?".
+        6. POLIGLOTA: "twenty bucks" -> 20.00.
+        7. FICÇÃO: "Peças de ouro" -> Pergunte se é jogo.
+        8. TOM DE VOZ: Sério para coisas sérias, leve para erros simples.
 
         FUNCIONALIDADES:
         1. Registro: Retorne JSON: 
         { 
-            "raciocinio_logico": "Explique o cálculo da data usado.",
+            "raciocinio_logico": "Explique o cálculo.",
             "gastos": [{ "descricao": "...", "valor": 10.00, "moeda": "BRL", "categoria": "...", "tipo": "receita/despesa", "data": "YYYY-MM-DD" }] 
         }
         2. Receitas: Valor POSITIVO, tipo "receita".
-        3. Use Tools para consultas.
-        4. IMPORTANTE: JAMAIS converse se for para registrar gastos. Retorne APENAS o JSON.`;
+        3. IMPORTANTE: JAMAIS converse se for para registrar gastos. Retorne APENAS o JSON.`,
+
+            v2_experimental: `Você é o Porquim 360, versão Sherlock Holmes (Experimental). 🕵️‍♂️💸
+        🧠 Contexto: ${contextStr || "N/D"}
+        📅 Data de Hoje: ${today.toLocaleDateString('pt-BR')} (${today.toISOString().split('T')[0]})
+        
+        SUA MISSÃO: Além de extrair dados, você deve inferir o contexto oculto.
+        
+        NOVA LÓGICA DEDUTIVA (V2):
+        1. INFERÊNCIA DE CATEGORIA E GÍRIAS (BR):
+            - "Gasosa", "Gasolina", "Abastecer" = 'Transporte'.
+            - "Breja", "Cerveja", "Happy Hour" = 'Lazer'.
+            - Final de Semana + Restaurante = 'Lazer' (Contexto de diversão).
+            - "Ubêr" (erro de digitação) = 'Transporte'.
+            - Valores quebrados pequenos (< 15.00) sem descrição = Verifique 'Taxas' ou 'Lanche'.
+        
+        2. CORREÇÃO DE VALORES (BRASIL):
+            - Se o usuário digitar "1.200" o ponto é milhar. Se digitar "1,200" a vírgula é decimal.
+            - "1k" = 1000. "50 conto" = 50.00.
+            
+        3. TOM DE VOZ EMPÁTICO:
+            - Se o gasto parecer supérfluo e alto: "Curtiu pelo menos? 😅 Registrado."
+            - Se for conta básica: "Registrado. Contas em dia! 👊"
+            - (Mas mantenha o JSON rigoroso).
+
+        ESTRUTURA DE RESPOSTA (JSON OBRIGATÓRIO):
+        {
+            "confidence_score": 0.0 a 1.0 (Seja crítico. < 0.7 se for ambíguo),
+            "prompt_version": "v2_experimental",
+            "raciocinio_logico": "Dedução Sherlock: [Explique sua inferência]",
+            "gastos": [...]
+        }`
+        };
+
+        // SHADOW PROMPTING: 50/50 Split
+        const promptVersion = Math.random() < 0.5 ? 'v1_stable' : 'v2_experimental';
+        const systemPrompt = PROMPTS[promptVersion];
+
+        // Inject prompt version info into v1 as well for consistency, or handle via merging
+        // Ideally the prompt text itself isn't dynamic beyond context, but we need to track it.
+        // We will attach promptVersion to the result object returned by this strategy.
+
+        console.log(`[Shadow Prompting] User: ${user.id} | Selected: ${promptVersion}`);
 
         const messages = [{ role: "system", content: systemPrompt }, ...memory, { role: "user", content: text }];
-        // Use GPT-4o-mini for better speed/cost on text messages
-        const completion = await openaiService.chatCompletion(messages, tools, "gpt-4o-mini");
+
+        // 3.5 Model Routing (Optimization)
+        const modelToUse = routerService.route(text);
+        console.log(`[Optimization] Router Selected Model: ${modelToUse} for input: "${text}"`);
+
+        const completion = await openaiService.chatCompletion(messages, tools, modelToUse);
 
         // Circuit Breaker Fallback Handling
         if (completion.error && completion.type === 'fallback') {
@@ -191,7 +238,20 @@ class TextStrategy {
         // Return raw content so messageHandler can detect JSON and save it.
         const aiContent = responseMsg.content;
         // console.log("[DEBUG] AI RAW CONTENT:", aiContent); // Removed
-        return { type: 'ai_response', content: aiContent };
+
+        const finalResponse = {
+            type: 'ai_response',
+            content: aiContent,
+            metadata: { prompt_version: promptVersion }
+        };
+
+        // 6. Cache Update (Optimization)
+        // Only cache if it's a valid JSON transaction or simple response, avoid caching tools calls pending state
+        if (!responseMsg.tool_calls) {
+            await cacheService.set(text, finalResponse);
+        }
+
+        return finalResponse;
     }
 }
 

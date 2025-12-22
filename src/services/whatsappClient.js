@@ -3,9 +3,19 @@ const qrcode = require('qrcode-terminal');
 const QRCode = require('qrcode');
 const fs = require('fs');
 
+// Force-load the root puppeteer which we validated with check_puppeteer.js
+let puppeteer;
+try {
+    puppeteer = require('puppeteer');
+} catch (e) {
+    console.warn("Could not load root puppeteer:", e);
+}
+
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
+        // Explicitly use the executablePath from the root puppeteer package
+        executablePath: puppeteer ? puppeteer.executablePath() : undefined,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -18,6 +28,12 @@ const client = new Client({
         headless: false
     }
 });
+
+if (puppeteer) {
+    console.log("✅ Using Puppeteer Executable at:", puppeteer.executablePath());
+} else {
+    console.log("⚠️ Puppeteer not found, using wwebjs default (Risk of failure)");
+}
 
 client.on('qr', (qr) => {
     // Generate terminal QR

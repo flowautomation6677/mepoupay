@@ -1,0 +1,49 @@
+[
+    {
+        "id": "text_simple_1",
+        "type": "text",
+        "input": "Almoço no Restaurante Silva R$ 25,00",
+        "expected": {
+            "transacoes": [
+                {
+                    "descricao": "Almoço no Restaurante Silva",
+                    "valor": 25.00,
+                    "tipo": "despesa"
+                }
+            ]
+        }
+    },
+    {
+        "id": "text_complex_1",
+        "type": "text",
+        "input": "Gastei 50 pila na gasolina e 200 no mercado",
+        "expected": {
+            "transacoes": [
+                {
+                    "descricao": "Gasolina",
+                    "valor": 50.00,
+                    "tipo": "despesa"
+                },
+                {
+                    "descricao": "Mercado",
+                    "valor": 200.00,
+                    "tipo": "despesa"
+                }
+            ]
+        }
+    },
+    {
+        "id": "text_ambiguous_1",
+        "type": "text",
+        "input": "Recebi 500 do pix do joao",
+        "expected": {
+            "transacoes": [
+                {
+                    "descricao": "Pix do Joao",
+                    "valor": 500.00,
+                    "tipo": "receita"
+                }
+            ]
+        }
+    }
+]
