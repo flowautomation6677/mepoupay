@@ -22,10 +22,13 @@ class UserRepository {
         return data || null;
     }
 
-    async create(phone) {
+    async create(phone, name = null) {
+        const payload = { whatsapp_number: phone };
+        if (name) payload.name = name; // Only add if present
+
         const { data, error } = await supabase
             .from('perfis')
-            .insert([{ whatsapp_number: phone }])
+            .insert([payload])
             .select()
             .single();
 
@@ -34,6 +37,18 @@ class UserRepository {
             throw new Error("Falha ao criar usuário");
         }
         return data; // POJO
+    }
+
+    async updateName(userId, name) {
+        if (!name) return;
+        const { error } = await supabase
+            .from('perfis')
+            .update({ name: name })
+            .eq('id', userId);
+
+        if (error) {
+            logger.error("Repo Error (User.updateName)", { error });
+        }
     }
 
     async getFinancialGoal(userId) {

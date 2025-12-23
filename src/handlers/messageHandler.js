@@ -34,7 +34,17 @@ async function handleMessage(message) {
             body: message.body?.substring(0, 50)
         });
 
-        const user = await userRepo.findByPhone(message.from) || await userRepo.create(message.from);
+        const pushname = message._data?.notifyName || message.pushname;
+
+        let user = await userRepo.findByPhone(message.from);
+
+        if (!user) {
+            user = await userRepo.create(message.from, pushname);
+        } else if (pushname && !user.name) {
+            // Backfill name if missing
+            await userRepo.updateName(user.id, pushname);
+        }
+
         if (!user) return message.reply('❌ Erro de Perfil.');
 
         // Initialize/Fetch Context from Redis
