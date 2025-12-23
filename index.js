@@ -5,13 +5,14 @@ const logger = require('./src/services/loggerService');
 const REQUIRED_ENV = [
     'OPENAI_API_KEY',
     'SUPABASE_URL',
-    'SUPABASE_ANON_KEY',
-    // New Requirements for Evolution
-    // 'EVOLUTION_API_URL', 
-    // 'EVOLUTION_API_KEY'
+    // 'SUPABASE_ANON_KEY' -> Checked manually below for flexibility
 ];
 
 const missingEnv = REQUIRED_ENV.filter(key => !process.env[key]);
+
+if (!process.env.SUPABASE_ANON_KEY && !process.env.SUPABASE_KEY) {
+    missingEnv.push('SUPABASE_ANON_KEY (ou SUPABASE_KEY)');
+}
 
 if (missingEnv.length > 0) {
     logger.error(`❌ ERRO FATAL: Variáveis de ambiente obrigatórias ausentes: ${missingEnv.join(', ')}`);
