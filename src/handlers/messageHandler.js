@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const { AIResponseSchema } = require('../schemas/transactionSchema');
+// We need the client to send the access denied message specifically
+const client = require('../services/whatsappClient');
 const ffmpegPath = require('ffmpeg-static');
 const supabase = require('../services/supabaseClient');
 const { chatCompletion, analyzeImage, transcribeAudio, generateEmbedding, generateBatchEmbeddings } = require('../services/openaiService');
@@ -39,13 +41,14 @@ async function handleMessage(message) {
         let user = await userRepo.findByPhone(message.from);
 
         if (!user) {
-            user = await userRepo.create(message.from, pushname);
+            // SECURITY: Only allow registered users
+            logger.warn(`🚫 Acesso Negado: ${message.from}`);
+            await client.sendMessage(message.from, "❌ *Acesso Negado*\n\nEste bot é privado e exclusivo para usuários convidados.\n\nPeça seu convite ao administrador para começar.");
+            return;
         } else if (pushname && !user.name) {
-            // Backfill name if missing
+            // Backfill name if missing for existing users
             await userRepo.updateName(user.id, pushname);
         }
-
-        if (!user) return message.reply('❌ Erro de Perfil.');
 
         // Initialize/Fetch Context from Redis
         let userContext = await sessionService.getContext(user.id);
