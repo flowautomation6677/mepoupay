@@ -13,10 +13,44 @@ import {
     TableCell,
     Badge,
     TextInput,
-    Icon
+    Icon,
+    Button
 } from "@tremor/react";
-import { Search, UserCog, User, ShieldCheck, Trash2 } from 'lucide-react';
+import { Search, UserCog, User, ShieldCheck, Trash2, CheckCircle, X } from 'lucide-react';
 import { createBrowserClient } from "@supabase/ssr";
+
+// UX/UI Animation Component
+const SuccessModal = ({ isOpen, onClose, email }: { isOpen: boolean; onClose: () => void; email: string }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full transform transition-all animate-in zoom-in-95 duration-300 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+                <div className="flex flex-col items-center text-center space-y-4 pt-4">
+                    <div className="rounded-full bg-green-100 p-3 ring-4 ring-green-50 animate-pulse">
+                        <CheckCircle className="w-12 h-12 text-green-600" />
+                    </div>
+                    <div>
+                        <h3 className="text-xl font-bold text-gray-900">Convite Enviado! 🚀</h3>
+                        <p className="text-gray-500 mt-2 text-sm">
+                            O link de acesso mágico foi enviado para <br />
+                            <span className="font-semibold text-indigo-600">{email}</span>
+                        </p>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-indigo-500/30 active:scale-95 translate-y-0"
+                    >
+                        Maravilha!
+                    </button>
+                    <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">
+                        Fechar janela
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function UsersPage() {
     const supabase = createBrowserClient(
@@ -35,24 +69,65 @@ export default function UsersPage() {
 
     async function fetchUsers() {
         setLoading(true);
-        // Supabase RLS should allow admins to read all profiles.
-        // If RLS blocks this, we need to update RLS policies.
-        const { data, error } = await supabase
-            .from('perfis')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (error) {
+        try {
+            // Fetch from our new API (Auth + Profiles)
+            const res = await fetch('/api/admin/users');
+            const data = await res.json();
+            if (data.users) {
+                setUsers(data.users);
+            } else {
+                console.error("Error fetching users:", data.error);
+            }
+        } catch (error) {
             console.error("Error fetching users:", error);
-        } else {
-            setUsers(data || []);
         }
         setLoading(false);
     }
 
+    // Role Toggle Logic
+    async function toggleRole(userId: string, currentStatus: boolean) {
+        if (!confirm(`Tem certeza que deseja mudar o status deste usuário para ${currentStatus ? 'USER' : 'ADMIN'}?`)) return;
+
+        try {
+            const res = await fetch('/api/admin/users', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, isAdmin: !currentStatus })
+            });
+            const data = await res.json();
+            if (data.success) {
+                // Optimistic Update
+                setUsers(users.map(u => u.id === userId ? { ...u, is_admin: !currentStatus } : u));
+                alert("Role atualizada com sucesso!");
+            } else {
+                alert("Erro ao atualizar: " + data.error);
+            }
+        } catch (e) {
+            alert("Erro desconhecido ao atualizar role.");
+        }
+    }
+
+    // Utils
+    const formatPhoneNumber = (phone: string) => {
+        if (!phone) return "Sem número";
+        // Remove @c.us or other suffixes
+        const clean = phone.replace('@c.us', '');
+        // Format +55 (21) 99999-9999
+        if (clean.length === 12 || clean.length === 13) {
+            // Assuming 55 + 2 digits DDD + 8 or 9 digits number
+            const ddd = clean.substring(2, 4);
+            const part1 = clean.substring(4, 9);
+            const part2 = clean.substring(9);
+            return `+55 (${ddd}) ${part1}-${part2}`;
+        }
+        return clean; // Fallback
+    };
+
     // Invite Logic
     const [inviteEmail, setInviteEmail] = useState("");
     const [isInviting, setIsInviting] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [lastInvitedEmail, setLastInvitedEmail] = useState("");
 
     async function handleInvite() {
         if (!inviteEmail) return alert("Digite um email");
@@ -65,7 +140,8 @@ export default function UsersPage() {
             });
             const data = await res.json();
             if (data.success) {
-                alert("Convite enviado com sucesso! 🎟️");
+                setLastInvitedEmail(inviteEmail);
+                setShowSuccessModal(true);
                 setInviteEmail("");
             } else {
                 alert("Erro ao enviar: " + data.error);
@@ -78,12 +154,20 @@ export default function UsersPage() {
 
     // Filter Users
     const filteredUsers = users.filter((user) =>
-        user.whatsapp_number?.toLowerCase().includes(search.toLowerCase()) ||
-        user.id?.toLowerCase().includes(search.toLowerCase())
+        (user.whatsapp_number && user.whatsapp_number.toLowerCase().includes(search.toLowerCase())) ||
+        (user.email && user.email.toLowerCase().includes(search.toLowerCase())) ||
+        (user.name && user.name.toLowerCase().includes(search.toLowerCase())) ||
+        user.id.toLowerCase().includes(search.toLowerCase())
     );
 
     return (
         <div className="space-y-6">
+            <SuccessModal
+                isOpen={showSuccessModal}
+                onClose={() => setShowSuccessModal(false)}
+                email={lastInvitedEmail}
+            />
+
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <Title className="text-white text-2xl font-bold flex items-center gap-2">
@@ -112,7 +196,7 @@ export default function UsersPage() {
 
                     <TextInput
                         icon={Search}
-                        placeholder="Buscar por WhatsApp..."
+                        placeholder="Buscar por Nome, Email ou Zap..."
                         value={search}
                         onValueChange={setSearch}
                         className="sm:w-64"
@@ -124,23 +208,24 @@ export default function UsersPage() {
                 <Table className="mt-5">
                     <TableHead>
                         <TableRow>
-                            <TableHeaderCell className="text-slate-300">WhatsApp / ID</TableHeaderCell>
+                            <TableHeaderCell className="text-slate-300">Usuário</TableHeaderCell>
+                            <TableHeaderCell className="text-slate-300">Contato</TableHeaderCell>
                             <TableHeaderCell className="text-slate-300">Meta Financeira</TableHeaderCell>
                             <TableHeaderCell className="text-slate-300">Role</TableHeaderCell>
-                            <TableHeaderCell className="text-slate-300">Data Cadastro</TableHeaderCell>
                             <TableHeaderCell className="text-slate-300">Status</TableHeaderCell>
+                            <TableHeaderCell className="text-slate-300">Ações</TableHeaderCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {loading ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center text-slate-500 py-8">
-                                    Carregando usuários...
+                                <TableCell colSpan={6} className="text-center text-slate-500 py-8">
+                                    Carregando dados completos...
                                 </TableCell>
                             </TableRow>
                         ) : filteredUsers.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="text-center text-slate-500 py-8">
+                                <TableCell colSpan={6} className="text-center text-slate-500 py-8">
                                     Nenhum usuário encontrado.
                                 </TableCell>
                             </TableRow>
@@ -149,12 +234,18 @@ export default function UsersPage() {
                                 <TableRow key={user.id} className="hover:bg-white/5 transition-colors">
                                     <TableCell>
                                         <div className="flex flex-col">
-                                            <Text className="text-white font-medium">{user.whatsapp_number}</Text>
-                                            <Text className="text-xs text-slate-500 font-mono">{user.email || user.id.substring(0, 8)}</Text>
+                                            <Text className="text-white font-medium">{user.name || "Sem Nome"}</Text>
+                                            <Text className="text-xs text-slate-500 font-mono">ID: {user.id.substring(0, 8)}...</Text>
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        <Text className="text-slate-300">{user.financial_goal || "Não definida"}</Text>
+                                        <div className="flex flex-col">
+                                            <Text className="text-slate-300 text-sm">{user.email}</Text>
+                                            <Text className="text-xs text-slate-500">{formatPhoneNumber(user.whatsapp_number)}</Text>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Text className="text-slate-300">{user.financial_goal || "—"}</Text>
                                     </TableCell>
                                     <TableCell>
                                         {user.is_admin ? (
@@ -164,14 +255,20 @@ export default function UsersPage() {
                                         )}
                                     </TableCell>
                                     <TableCell>
-                                        <Text className="text-slate-400">
-                                            {user.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR') : '-'}
-                                        </Text>
+                                        <div className="flex gap-2">
+                                            <Badge size="xs" color="emerald">Ativo</Badge>
+                                        </div>
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex gap-2">
-                                            {/* Actions Placeholder */}
-                                            <Badge size="xs" color="emerald">Ativo</Badge>
+                                            <Button
+                                                size="xs"
+                                                variant="secondary"
+                                                color="indigo"
+                                                onClick={() => toggleRole(user.id, user.is_admin)}
+                                            >
+                                                {user.is_admin ? 'Virar User' : 'Virar Admin'}
+                                            </Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>
