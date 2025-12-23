@@ -13,6 +13,8 @@ class UserRepository {
             .eq('whatsapp_number', phone)
             .single();
 
+        console.log(`[DEBUG] UserRepository findByPhone: ${phone}`, data); // Debug Log
+
         if (error && error.code !== 'PGRST116') {
             logger.error("Repo Error (User.find)", { error });
             return null;

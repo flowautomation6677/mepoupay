@@ -83,6 +83,12 @@ class TextStrategy {
         - Para relatórios PDF e análises, use a tool 'generate_report'.
         - Se o usuário disser "relatório de janeiro", infira o ano atual se não disser.
 
+        CATEGORIAS PERMITIDAS (USE APENAS ESTAS):
+        [Despesas]: Alimentação, Moradia, Transporte, Saúde, Educação, Lazer, Pessoal, Taxas/Juros, Investimentos, Outros.
+        [Receitas]: Salário, Renda Extra, Investimentos, Presentes/Prêmios, Estorno.
+        * Se não couber em nenhuma, use "Outros".
+
+
         EXEMPLOS (FEW-SHOT):
         User: "Gastei vintão no busão"
         Assistant: { "gastos": [{ "descricao": "Ônibus (Busão)", "valor": 20.00, "categoria": "Transporte" }] }
@@ -131,7 +137,8 @@ class TextStrategy {
         SUA MISSÃO: Além de extrair dados, você deve inferir o contexto oculto.
         
         NOVA LÓGICA DEDUTIVA (V2):
-        1. INFERÊNCIA DE CATEGORIA E GÍRIAS (BR):
+        1. INFERÊNCIA DE CATEGORIA (USE APENAS DA LISTA):
+            - Lista: Alimentação, Moradia, Transporte, Saúde, Educação, Lazer, Pessoal, Taxas/Juros, Salário, Renda Extra, Investimentos, Outros.
             - "Gasosa", "Gasolina", "Abastecer" = 'Transporte'.
             - "Breja", "Cerveja", "Happy Hour" = 'Lazer'.
             - Final de Semana + Restaurante = 'Lazer' (Contexto de diversão).
