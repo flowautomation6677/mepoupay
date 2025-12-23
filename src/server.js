@@ -17,6 +17,14 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// QR Code Endpoint
+app.get('/qr', (req, res) => {
+    const path = require('path');
+    // The file is saved in the root (where index.js runs)
+    const qrPath = path.join(process.cwd(), 'qrcode.png');
+    res.sendFile(qrPath);
+});
+
 // Evolution API Webhook Endpoint
 app.post('/webhook/evolution', async (req, res) => {
     try {
