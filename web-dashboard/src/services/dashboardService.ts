@@ -34,7 +34,7 @@ export async function getDashboardData(userId: string, startDate: string, endDat
 
     return {
         profile,
-        transactions: (transactions as Transaction[]) || [],
-        prevTransactions: (prevTransactions as Partial<Transaction>[]) || []
+        transactions: transactions as Transaction[] || [],
+        prevTransactions: prevTransactions as Partial<Transaction>[] || []
     }
 }
