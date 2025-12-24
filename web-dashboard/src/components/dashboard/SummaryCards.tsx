@@ -1,9 +1,11 @@
-
 // import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { DollarSign, Calendar, TrendingUp } from 'lucide-react'
+import { DollarSign, Calendar, TrendingUp, LucideIcon } from 'lucide-react'
 
 // Simple Card replacement since we didn't install Shadcn components via CLI
-function SimpleCard({ title, value, icon: Icon, color }: any) {
+import { Transaction } from '@/types/dashboard';
+
+// Helper Component
+function SimpleCard({ title, value, icon: Icon, color }: { title: string, value: string, icon: LucideIcon, color: string }) {
     return (
         <div className="rounded-xl border bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between space-y-0 pb-2">
@@ -15,7 +17,7 @@ function SimpleCard({ title, value, icon: Icon, color }: any) {
     )
 }
 
-export default function SummaryCards({ transactions }: { transactions: any[] }) {
+export default function SummaryCards({ transactions }: { transactions: Transaction[] }) {
     if (!transactions) return null
 
     const today = new Date().toISOString().slice(0, 10)

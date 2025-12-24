@@ -7,12 +7,19 @@ import { motion } from 'framer-motion'
 import { AlertCircle, TrendingUp, Zap } from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
 
-export default function ExpenseChart({ transactions }: { transactions: any[] }) {
+import { Transaction } from '@/types/dashboard'
+
+export default function ExpenseChart({ transactions }: { transactions: Transaction[] }) {
     if (!transactions || transactions.length === 0) return null
 
     // --- PROCESSAMENTO DE DADOS (ZONA 2) ---
-    // Agrupar por data
-    const dailyGroups = transactions.reduce((acc: any, t) => {
+    // Group transactions by date
+    // Create an object with all dates in the range
+    // Then fill with transaction data
+    // For simplicity, let's just group existing transactions first
+    // Note: Ideally we should use the full date range like in StatsGrid
+
+    const dailyGroups = transactions.reduce((acc: Record<string, { receita: number; despesa: number }>, t) => {
         const date = t.data.split('T')[0]
         if (!acc[date]) acc[date] = { receita: 0, despesa: 0 }
 
@@ -49,7 +56,7 @@ export default function ExpenseChart({ transactions }: { transactions: any[] }) 
     // Top Categorias
     const catGroups = transactions
         .filter(t => t.tipo !== 'receita')
-        .reduce((acc: any, t) => {
+        .reduce((acc: Record<string, number>, t) => {
             if (!acc[t.categoria]) acc[t.categoria] = 0
             acc[t.categoria] += t.valor
             return acc
@@ -107,7 +114,8 @@ export default function ExpenseChart({ transactions }: { transactions: any[] }) 
                             />
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                                formatter={(value: any, name: any) => {
+                                formatter={(value: number | undefined, name: string | undefined) => {
+                                    if (value === undefined) return ['-', name];
                                     if (name === 'saldo') return [formatCurrency(value), 'Saldo Acumulado']
                                     if (name === 'receita') return [formatCurrency(value), 'Entradas']
                                     if (name === 'despesa') return [formatCurrency(Math.abs(value)), 'Saídas']

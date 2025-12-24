@@ -9,6 +9,8 @@ export interface Transaction {
     categoria: string;
     data: string;
     created_at?: string;
+    is_validated?: boolean;
+    confidence_score?: number;
 }
 
 export interface UserProfile {

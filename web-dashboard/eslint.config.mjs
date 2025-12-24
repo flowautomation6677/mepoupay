@@ -15,10 +15,10 @@ const eslintConfig = defineConfig([
   ]),
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-unused-vars": "off",
-      "react-hooks/exhaustive-deps": "off",
-      "react-hooks/rules-of-hooks": "off",
+      // "@typescript-eslint/no-explicit-any": "off",  <-- Re-enabled
+      // "@typescript-eslint/no-unused-vars": "off",   <-- Re-enabled
+      // "react-hooks/exhaustive-deps": "off",         <-- Suggest keeping enabled too
+      // "react-hooks/rules-of-hooks": "off",          <-- Critical to keep enabled
       "@next/next/no-img-element": "off"
     }
   }

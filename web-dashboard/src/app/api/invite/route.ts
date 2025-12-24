@@ -50,7 +50,7 @@ export async function POST(request: Request) {
         // 3. Profile Pre-provisioning
         // Insert/Update profile with Name and Phone immediately
         if (data.user) {
-            const updates: any = {
+            const updates: Record<string, string> = {
                 updated_at: new Date().toISOString()
             };
             // Name is stored in metadata now
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ success: true, user: data.user })
 
-    } catch (err: any) {
+    } catch (err) {
         console.error('Invite API Error:', err)
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
     }

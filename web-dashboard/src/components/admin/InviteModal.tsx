@@ -2,7 +2,13 @@ import { useState } from 'react';
 import { Title, Text, TextInput, Button } from "@tremor/react";
 import { X, Phone } from 'lucide-react';
 
-export const InviteModal = ({ isOpen, onClose, onInvite }: any) => {
+interface InviteModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onInvite: (email: string, name: string, whatsapp: string) => Promise<void>;
+}
+
+export const InviteModal = ({ isOpen, onClose, onInvite }: InviteModalProps) => {
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
     const [whatsapp, setWhatsapp] = useState("");

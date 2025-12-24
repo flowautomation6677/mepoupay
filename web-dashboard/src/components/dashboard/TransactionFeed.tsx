@@ -60,7 +60,9 @@ const formatDateGroup = (dateStr: string) => {
     return date.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })
 }
 
-export default function TransactionFeed({ transactions }: { transactions: any[] }) {
+import { Transaction } from '@/types/dashboard'
+
+export default function TransactionFeed({ transactions }: { transactions: Transaction[] }) {
     const router = useRouter()
 
     const handleApprove = async (id: string) => {
@@ -76,7 +78,7 @@ export default function TransactionFeed({ transactions }: { transactions: any[] 
     }
 
     // Agrupamento por Data
-    const groups = transactions.reduce((acc: any, t) => {
+    const groups = transactions.reduce((acc: Record<string, Transaction[]>, t) => {
         const dateKey = t.data.split('T')[0]
         if (!acc[dateKey]) acc[dateKey] = []
         acc[dateKey].push(t)
@@ -107,7 +109,7 @@ export default function TransactionFeed({ transactions }: { transactions: any[] 
                         </h4>
 
                         <div className="space-y-3">
-                            {groups[dateKey].map((t: any, i: number) => (
+                            {groups[dateKey].map((t: Transaction, i: number) => (
                                 <motion.div
                                     key={t.id}
                                     initial={{ opacity: 0, x: -10 }}
@@ -127,13 +129,13 @@ export default function TransactionFeed({ transactions }: { transactions: any[] 
                                                 <span className="text-xs text-slate-500 capitalize">{t.categoria}</span>
 
                                                 {/* Reliability Badges */}
-                                                {!t.is_validated && t.confidence_score < 0.8 && (
+                                                {!t.is_validated && (t.confidence_score || 0) < 0.8 && (
                                                     <span className="flex items-center gap-1 rounded bg-yellow-500/20 px-1.5 py-0.5 text-[10px] font-bold text-yellow-500 border border-yellow-500/30">
                                                         <AlertTriangle size={10} /> REVISAR
                                                     </span>
                                                 )}
 
-                                                {!t.is_validated && t.confidence_score >= 0.8 && (
+                                                {!t.is_validated && (t.confidence_score || 0) >= 0.8 && (
                                                     <button
                                                         onClick={() => handleApprove(t.id)}
                                                         className="group-hover:opacity-100 opacity-0 transition-opacity flex items-center gap-1 rounded bg-indigo-500/20 px-1.5 py-0.5 text-[10px] font-bold text-indigo-400 hover:bg-indigo-500/40"

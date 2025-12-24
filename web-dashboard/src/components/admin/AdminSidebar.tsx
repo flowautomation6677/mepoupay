@@ -29,7 +29,9 @@ const MenuGroup = ({ label, children }: { label: string, children: React.ReactNo
     </div>
 );
 
-const MenuItem = ({ href, icon: Icon, label, active = false }: { href: string, icon: any, label: string, active?: boolean }) => {
+import { LucideIcon } from 'lucide-react';
+
+const MenuItem = ({ href, icon: Icon, label, active = false }: { href: string, icon: LucideIcon, label: string, active?: boolean }) => {
     const pathname = usePathname();
     const isActive = pathname === href || pathname.startsWith(href + '/');
 
@@ -37,8 +39,8 @@ const MenuItem = ({ href, icon: Icon, label, active = false }: { href: string, i
         <Link
             href={href}
             className={`flex items-center gap-3 px-4 py-2 mx-2 rounded-lg text-sm transition-all duration-200 group ${isActive
-                    ? 'bg-indigo-600/10 text-indigo-400 border-l-2 border-indigo-500'
-                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                ? 'bg-indigo-600/10 text-indigo-400 border-l-2 border-indigo-500'
+                : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                 }`}
         >
             <Icon size={18} className={isActive ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-300'} />

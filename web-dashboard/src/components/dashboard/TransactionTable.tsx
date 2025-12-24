@@ -1,8 +1,9 @@
+import { memo } from 'react'
 import { Edit2, Trash2 } from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
 import { Transaction } from '@/types/dashboard'
 
-export default function TransactionTable({ transactions }: { transactions: Transaction[] }) {
+const TransactionTable = memo(function TransactionTable({ transactions }: { transactions: Transaction[] }) {
     return (
         <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
             <div className="p-6 border-b">
@@ -34,10 +35,6 @@ export default function TransactionTable({ transactions }: { transactions: Trans
                                 <td className="px-6 py-4 font-medium text-gray-900">
                                     {formatCurrency(t.valor)}
                                 </td>
-                                {/* <td className="px-6 py-4 flex gap-2 text-gray-400">
-                                    <button className="hover:text-blue-600"><Edit2 size={16} /></button>
-                                    <button className="hover:text-red-600"><Trash2 size={16} /></button>
-                                </td> */}
                             </tr>
                         ))}
                     </tbody>
@@ -45,4 +42,6 @@ export default function TransactionTable({ transactions }: { transactions: Trans
             </div>
         </div>
     )
-}
+})
+
+export default TransactionTable
