@@ -1,3 +1,5 @@
+'use client'
+
 import dynamic from 'next/dynamic'
 import StatsGrid from '@/components/dashboard/StatsGrid'
 import TransactionFeed from '@/components/dashboard/TransactionFeed'
