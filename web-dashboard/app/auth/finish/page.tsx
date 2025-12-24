@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
-export default function AuthFinishPage() {
+function AuthContent() {
     const [status, setStatus] = useState('Verificando autenticação...');
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -58,7 +58,7 @@ export default function AuthFinishPage() {
 
                         if (!setSessionError && data.session) {
                             setStatus('Token válido! Redirecionando...');
-                            const next = searchParams.get('next') || '/dashboard';
+                            const next = searchParams.get('next') || '/setup'; // Forcing setup for safety/update password
                             router.replace(next);
                             return;
                         } else if (setSessionError) {
@@ -86,11 +86,19 @@ export default function AuthFinishPage() {
     }, [router, searchParams, supabase]);
 
     return (
+        <div className="text-center space-y-4">
+            <Loader2 className="h-10 w-10 animate-spin text-indigo-500 mx-auto" />
+            <p className="text-slate-400 text-sm animate-pulse">{status}</p>
+        </div>
+    );
+}
+
+export default function AuthFinishPage() {
+    return (
         <div className="flex min-h-screen items-center justify-center bg-[#020617] text-white">
-            <div className="text-center space-y-4">
-                <Loader2 className="h-10 w-10 animate-spin text-indigo-500 mx-auto" />
-                <p className="text-slate-400 text-sm animate-pulse">{status}</p>
-            </div>
+            <Suspense fallback={<Loader2 className="h-10 w-10 animate-spin text-indigo-500 mx-auto" />}>
+                <AuthContent />
+            </Suspense>
         </div>
     );
 }
