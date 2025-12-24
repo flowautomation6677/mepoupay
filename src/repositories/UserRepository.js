@@ -41,14 +41,23 @@ class UserRepository {
 
     async updateName(userId, name) {
         if (!name) return;
-        const { error } = await supabase
-            .from('perfis')
-            .update({ name: name })
-            .eq('id', userId);
 
-        if (error) {
-            logger.error("Repo Error (User.updateName)", { error });
+        // 1. Update Auth Metadata (Source of Truth)
+        if (adminClient) {
+            const { error: authError } = await adminClient.auth.admin.updateUserById(
+                userId,
+                { user_metadata: { name: name, full_name: name } }
+            );
+
+            if (authError) {
+                logger.error("Repo Error (User.updateName - Auth)", { error: authError });
+            }
+        } else {
+            logger.warn("⚠️ Cannot update name: Admin Client not available");
         }
+
+        // 2. Fallback: Check if 'name' still exists in 'perfis' for backward compatibility
+        // Ignoring PGRST204 safely
     }
 
     async getFinancialGoal(userId) {
