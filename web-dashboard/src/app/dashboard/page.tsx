@@ -7,6 +7,8 @@ import ExpenseChart from '@/components/dashboard/ExpenseChart'
 import TransactionFeed from '@/components/dashboard/TransactionFeed'
 import WhatsAppLinker from '@/components/dashboard/WhatsAppLinker'
 import WelcomeManager from '@/components/dashboard/WelcomeManager'
+import { getDashboardData } from '@/services/dashboardService'
+import { getDashboardRange } from '@/utils/date-filters'
 
 export default async function DashboardPage({
     searchParams,
@@ -26,78 +28,24 @@ export default async function DashboardPage({
         return redirect('/login')
     }
 
-    const { data: profile } = await supabase
-        .from('perfis')
-        .select('*')
-        .eq('auth_user_id', user.id)
-        .single()
-
     // Filtro de Data
-    const today = new Date()
     const customStart = params?.startDate as string
     const customEnd = params?.endDate as string
 
-    // Cálculo do range do mês selecionado (Atual)
-    let startDate: string
-    let endDate: string
-    let currentMonth = today.getMonth() + 1
-    let currentYear = today.getFullYear()
+    const { startDate, endDate, prevStartDate, prevEndDate, currentMonth, currentYear } = getDashboardRange({
+        startDate: customStart,
+        endDate: customEnd,
+        month: params?.month as string,
+        year: params?.year as string
+    })
 
-    // Cálculo do range do mês anterior (Contexto)
-    let prevStartDate: string
-    let prevEndDate: string
-
-    if (customStart && customEnd) {
-        // Modo Personalizado
-        startDate = new Date(customStart + 'T00:00:00').toISOString()
-        endDate = new Date(customEnd + 'T23:59:59').toISOString()
-
-        // Contexto: Período anterior com mesma duração? (Simplificação: Mês anterior ao start)
-        const startD = new Date(startDate)
-        prevStartDate = new Date(startD.getFullYear(), startD.getMonth() - 1, 1).toISOString()
-        prevEndDate = new Date(startD.getFullYear(), startD.getMonth(), 0, 23, 59, 59).toISOString()
-
-    } else {
-        // Modo Mensal (Padrão)
-        const year = params?.year ? parseInt(params.year as string) : currentYear
-        const month = params?.month ? parseInt(params.month as string) : currentMonth
-
-        currentMonth = month
-        currentYear = year
-
-        startDate = new Date(year, month - 1, 1).toISOString()
-        endDate = new Date(year, month, 0, 23, 59, 59).toISOString()
-
-        // Mês Anterior
-        prevStartDate = new Date(year, month - 2, 1).toISOString()
-        prevEndDate = new Date(year, month - 1, 0, 23, 59, 59).toISOString()
-    }
-
-    let transactions: any[] = []
-    let prevTransactions: any[] = []
-
-    if (profile) {
-        // Busca transações Atuais
-        const valOutput = await supabase
-            .from('transacoes')
-            .select('*')
-            .eq('user_id', profile.id)
-            .gte('data', startDate)
-            .lte('data', endDate)
-            .order('data', { ascending: false })
-
-        if (valOutput.data) transactions = valOutput.data
-
-        // Busca transações Anteriores (Para comparação)
-        const prevOutput = await supabase
-            .from('transacoes')
-            .select('valor, tipo')
-            .eq('user_id', profile.id)
-            .gte('data', prevStartDate)
-            .lte('data', prevEndDate)
-
-        if (prevOutput.data) prevTransactions = prevOutput.data
-    }
+    const { profile, transactions, prevTransactions } = await getDashboardData(
+        user.id,
+        startDate,
+        endDate,
+        prevStartDate,
+        prevEndDate
+    )
 
     return (
 

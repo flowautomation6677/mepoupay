@@ -2,10 +2,12 @@
 
 import { ArrowUp, Target, TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { formatCurrency } from '@/utils/formatters'
+import { Transaction } from '@/types/dashboard'
 
 interface StatsGridProps {
-    transactions: any[]
-    prevTransactions: any[]
+    transactions: Transaction[]
+    prevTransactions: Partial<Transaction>[]
     financialGoal: number
 }
 
@@ -24,11 +26,11 @@ export default function StatsGrid({ transactions, prevTransactions, financialGoa
     // Previous Month Stats
     const prevIncome = prevTransactions
         .filter(t => t.tipo === 'receita')
-        .reduce((acc, t) => acc + Number(t.valor), 0)
+        .reduce((acc, t) => acc + Number(t.valor || 0), 0)
 
     const prevExpense = prevTransactions
         .filter(t => t.tipo === 'despesa')
-        .reduce((acc, t) => acc + Number(t.valor), 0)
+        .reduce((acc, t) => acc + Number(t.valor || 0), 0)
 
     const prevBalance = prevIncome - prevExpense
 
@@ -44,9 +46,6 @@ export default function StatsGrid({ transactions, prevTransactions, financialGoa
     const goalValue = financialGoal > 0 ? financialGoal : 1; // Avoid division by zero
     const progress = Math.min((balance / goalValue) * 100, 100)
     const remaining = Math.max(goalValue - balance, 0)
-
-    const formatCurrency = (val: number) =>
-        val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
     return (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

@@ -1,7 +1,8 @@
-
 import { Edit2, Trash2 } from 'lucide-react'
+import { formatCurrency } from '@/utils/formatters'
+import { Transaction } from '@/types/dashboard'
 
-export default function TransactionTable({ transactions }: { transactions: any[] }) {
+export default function TransactionTable({ transactions }: { transactions: Transaction[] }) {
     return (
         <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
             <div className="p-6 border-b">
@@ -31,7 +32,7 @@ export default function TransactionTable({ transactions }: { transactions: any[]
                                 </td>
                                 <td className="px-6 py-4 text-gray-500">{t.descricao}</td>
                                 <td className="px-6 py-4 font-medium text-gray-900">
-                                    {t.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                    {formatCurrency(t.valor)}
                                 </td>
                                 {/* <td className="px-6 py-4 flex gap-2 text-gray-400">
                                     <button className="hover:text-blue-600"><Edit2 size={16} /></button>

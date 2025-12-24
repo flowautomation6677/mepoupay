@@ -5,6 +5,7 @@ import {
 } from 'recharts'
 import { motion } from 'framer-motion'
 import { AlertCircle, TrendingUp, Zap } from 'lucide-react'
+import { formatCurrency } from '@/utils/formatters'
 
 export default function ExpenseChart({ transactions }: { transactions: any[] }) {
     if (!transactions || transactions.length === 0) return null
@@ -107,9 +108,9 @@ export default function ExpenseChart({ transactions }: { transactions: any[] }) 
                             <Tooltip
                                 contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
                                 formatter={(value: any, name: any) => {
-                                    if (name === 'saldo') return [value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 'Saldo Acumulado']
-                                    if (name === 'receita') return [value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 'Entradas']
-                                    if (name === 'despesa') return [(Math.abs(value)).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), 'Saídas']
+                                    if (name === 'saldo') return [formatCurrency(value), 'Saldo Acumulado']
+                                    if (name === 'receita') return [formatCurrency(value), 'Entradas']
+                                    if (name === 'despesa') return [formatCurrency(Math.abs(value)), 'Saídas']
                                     return [value, name]
                                 }}
                             />
@@ -151,7 +152,7 @@ export default function ExpenseChart({ transactions }: { transactions: any[] }) 
                             <div key={i} className="group">
                                 <div className="mb-1 flex justify-between text-xs font-medium">
                                     <span className="text-slate-300 group-hover:text-white transition">{cat.name}</span>
-                                    <span className="text-slate-400">{cat.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                                    <span className="text-slate-400">{formatCurrency(cat.value)}</span>
                                 </div>
                                 <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
                                     <motion.div
