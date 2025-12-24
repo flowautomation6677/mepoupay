@@ -25,14 +25,13 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Email is required' }, { status: 400 })
         }
 
-        // 1. Generate Invite Link (Do NOT send email via Supabase)
-        const { origin } = new URL(request.url);
+        const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
         const { data, error } = await supabaseAdmin.auth.admin.generateLink({
             type: 'invite',
             email: email,
             options: {
-                redirectTo: `${origin}/auth/finish?next=/setup`,
+                redirectTo: `${siteUrl}/auth/finish?next=/setup`,
                 data: { full_name: name }
             }
         });
