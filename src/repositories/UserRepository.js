@@ -23,9 +23,11 @@ class UserRepository {
     }
 
     async create(phone, name = null) {
+        // 1. Prepare Payload (Without 'name' as it was removed from schema)
         const payload = { whatsapp_number: phone };
-        if (name) payload.name = name; // Only add if present
 
+        // 2. Insert into Perfis (ID triggered by trigger or we need to fetch user first?)
+        // Note: Perfis uses `id` unrelated to phone usually, but let's assume standard flow
         const { data, error } = await supabase
             .from('perfis')
             .insert([payload])
@@ -36,6 +38,16 @@ class UserRepository {
             logger.error("Repo Error (User.create)", { error });
             throw new Error("Falha ao criar usuário");
         }
+
+        // 3. Update Auth Metadata if name is provided (Best Effort)
+        if (name && adminClient) {
+            const { error: authError } = await adminClient.auth.admin.updateUserById(
+                data.id, // Assuming trigger links perfis.id to auth.id or we just inserted
+                { user_metadata: { name: name, full_name: name } }
+            );
+            if (authError) logger.warn("Failed to set name on create", authError);
+        }
+
         return data; // POJO
     }
 
