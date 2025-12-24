@@ -15,26 +15,25 @@ export async function getDashboardData(userId: string, startDate: string, endDat
         return { profile: null, transactions: [], prevTransactions: [] }
     }
 
-    // 2. Get Current Transactions
-    const { data: transactions } = await supabase
-        .from('transacoes')
-        .select('*')
-        .eq('user_id', profile.id)
-        .gte('data', startDate)
-        .lte('data', endDate)
-        .order('data', { ascending: false })
+    // 2. Busca paralela de transações (Performance: Promise.all)
+    const [currRes, prevRes] = await Promise.all([
+        supabase.from('transacoes')
+            .select('*')
+            .eq('user_id', profile.id)
+            .gte('data', startDate)
+            .lte('data', endDate)
+            .order('data', { ascending: false }),
 
-    // 3. Get Previous Transactions
-    const { data: prevTransactions } = await supabase
-        .from('transacoes')
-        .select('valor, tipo')
-        .eq('user_id', profile.id)
-        .gte('data', prevStartDate)
-        .lte('data', prevEndDate)
+        supabase.from('transacoes')
+            .select('valor, tipo')
+            .eq('user_id', profile.id)
+            .gte('data', prevStartDate)
+            .lte('data', prevEndDate)
+    ])
 
     return {
         profile,
-        transactions: transactions as Transaction[] || [],
-        prevTransactions: prevTransactions as Partial<Transaction>[] || []
+        transactions: (currRes.data as Transaction[]) || [],
+        prevTransactions: (prevRes.data as Partial<Transaction>[]) || []
     }
 }
