@@ -17,44 +17,8 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// QR Code HTML Page (Auto-Refresh)
-app.get('/qr', (req, res) => {
-    const html = `
-        <!DOCTYPE html>
-        <html>
-            <head>
-                <title>WhatsApp OR Code</title>
-                <meta http-equiv="refresh" content="10">
-                <style>
-                    body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; background: #f0f2f5; }
-                    h1 { margin-bottom: 20px; color: #128c7e; }
-                    img { box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; }
-                    p { color: #666; margin-top: 15px; }
-                </style>
-            </head>
-            <body>
-                <h1>Escaneie para Conectar 🐷</h1>
-                <img src="/qr-image?t=${Date.now()}" alt="QR Code" width="300" height="300">
-                <p>Atualizando automaticamente a cada 10 segundos...</p>
-            </body>
-        </html>
-    `;
-    res.send(html);
-});
+// QR Code Endpoint Removed (Responsibility moved to Web Dashboard)
 
-// Raw QR Image File
-app.get('/qr-image', (req, res) => {
-    const path = require('path');
-    const qrPath = path.join(process.cwd(), 'qrcode.png');
-
-    // Check if file exists
-    const fs = require('fs');
-    if (fs.existsSync(qrPath)) {
-        res.sendFile(qrPath);
-    } else {
-        res.status(404).send('QR Code not generated yet. Wait a moment.');
-    }
-});
 
 // Evolution API Webhook Endpoint
 app.post('/webhook/evolution', async (req, res) => {
