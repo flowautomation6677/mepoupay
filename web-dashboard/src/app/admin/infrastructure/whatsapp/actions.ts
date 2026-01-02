@@ -85,7 +85,38 @@ export async function createInstanceAction(instanceName: string) {
             throw new Error(`API Error: ${res.status} ${text}`);
         }
 
-        return await res.json();
+        // ... success response
+        const newInstance = await res.json();
+
+        // AUTOMATION: Configure Webhook immediately
+        try {
+            console.log("🔗 Auto-configuring Webhook...");
+            // Use host.docker.internal so container can reach host app
+            // TODO: Make this URL configurable via ENV
+            const WEBHOOK_URL = 'http://host.docker.internal:4001/webhook/evolution';
+
+            await fetch(`${EVOLUTION_API_URL}/webhook/set/${cleanName}`, {
+                method: 'POST',
+                headers: {
+                    'apikey': EVOLUTION_API_KEY || '',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    webhook: {
+                        enabled: true,
+                        url: WEBHOOK_URL,
+                        webhookUrl: WEBHOOK_URL,
+                        webhookByEvents: true,
+                        events: ["MESSAGES_UPSERT", "MESSAGES_UPDATE", "SEND_MESSAGE"]
+                    }
+                })
+            });
+            console.log("✅ Webhook Auto-configured!");
+        } catch (webhookErr) {
+            console.error("⚠️ Webhook auto-config failed (bot might be silent):", webhookErr);
+        }
+
+        return newInstance;
     } catch (e: any) {
         console.error("❌ Fetch Exception:", e.message);
         return { error: "FetchError", message: e.message };
