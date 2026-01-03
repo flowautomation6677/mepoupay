@@ -1,0 +1,30 @@
+name: OWASP ZAP Security Scan
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 4 * * 1' # Weekly scan on Mondays
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    name: Scan the web application
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.11.0
+        with:
+          # Target URL to scan (Update this with your staging/production URL)
+          # For now, we assume a placeholder or localhost if using a service container
+          # But ZAP needs a reachable URL. 
+          # PRO TIP: Configure this secret in GitHub Repo Settings
+          target: 'https://finance-bot-staging.up.railway.app' 
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+          
+      # Alternative: Validates docker container scan if needed

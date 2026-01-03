@@ -1,0 +1,6 @@
+# Example rules file for ZAP
+# ID	Level	Action
+# 10096	WARN	IGNORE	# Timestamp Disclosure - Unix
+10015	WARN	IGNORE	# Incomplete or No Cache-control Header
+10027	WARN	IGNORE	# Information Disclosure - Suspicious Comments
+10098	WARN	IGNORE	# Cross-Domain Misconfiguration
