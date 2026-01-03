@@ -1,4 +1,4 @@
-const xlsx = require('xlsx');
+const ExcelJS = require('exceljs');
 const { analyzePdfText } = require('../services/openaiService');
 
 class XlsxStrategy {
@@ -10,17 +10,29 @@ class XlsxStrategy {
 
             const buffer = Buffer.from(media.data, 'base64');
 
-            // Parse Workbook
-            const workbook = xlsx.read(buffer, { type: 'buffer' });
+            // Parse Workbook with ExcelJS
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.load(buffer);
 
             // Get first sheet
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
+            const worksheet = workbook.worksheets[0];
+            if (!worksheet) {
+                return { type: 'system_error', content: "O arquivo Excel parece vazio." };
+            }
 
-            // Convert to CSV text for AI analysis
-            const csvText = xlsx.utils.sheet_to_csv(worksheet);
+            // Convert Processed Rows to CSV-like string
+            let csvText = "";
+            worksheet.eachRow((row, rowNumber) => {
+                const rowValues = row.values;
+                if (Array.isArray(rowValues)) {
+                    // ExcelJS row.values is 1-based, index 0 is sometimes null or empty
+                    // We join legitimate values
+                    const line = rowValues.slice(1).join(',');
+                    csvText += line + "\n";
+                }
+            });
 
-            console.log("[XLSX] Convertido para texto. Enviando para IA...");
+            console.log("[XLSX] Convertido para texto (ExcelJS). Enviando para IA...");
             const aiResult = await analyzePdfText(csvText);
 
             if (aiResult.error) {
