@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { fetchInstances, createInstanceAction, connectInstanceAction, logoutInstanceAction, deleteInstanceAction, InstanceData } from './actions';
-import { Title, Text, Card, Metric, Badge, Button, Dialog, DialogPanel } from "@tremor/react";
+import { Title, Text, Card, Badge, Button, Dialog, DialogPanel } from "@tremor/react";
 import { Smartphone, RefreshCw, QrCode, Plus, Trash2, Power, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

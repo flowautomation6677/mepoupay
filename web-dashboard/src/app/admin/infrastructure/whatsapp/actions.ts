@@ -41,10 +41,10 @@ export async function fetchInstances() {
                 status: item.connectionStatus, // 'close', 'open', 'connecting'
                 serverUrl: EVOLUTION_API_URL,
                 apikey: EVOLUTION_API_KEY
-            })) as any[];
+            })) as InstanceData[];
         }
         return [];
-    } catch (e) {
+    } catch (e: any) {
         console.error("Error fetching instances", e);
         return [];
     }

@@ -1,6 +1,6 @@
 'use client'
 
-import { Bell, Calendar, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Bell, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 

@@ -10,7 +10,6 @@ import {
     Target,
     BrainCircuit,
     FileText,
-    ShieldCheck,
     Menu,
     X,
     LogOut,
@@ -174,7 +173,7 @@ export default function Sidebar() {
     );
 }
 
-function NavLinks({ pathname, items, onClick, isCollapsed = false }: { pathname: string, items: any[], onClick?: () => void, isCollapsed?: boolean }) {
+function NavLinks({ pathname, items, onClick, isCollapsed = false }: { pathname: string, items: { name: string, href: string, icon: React.ElementType }[], onClick?: () => void, isCollapsed?: boolean }) {
     return (
         <>
             {items.map((item) => {

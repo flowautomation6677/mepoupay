@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, Title, Text, Metric, ProgressBar, Badge } from "@tremor/react";
-import { Terminal, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import { Terminal, Clock } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 
 // Mock Console Component

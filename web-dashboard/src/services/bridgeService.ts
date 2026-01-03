@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/client'
+// import { createClient } from '@/utils/supabase/client'
 
 const EVOLUTION_API_URL = process.env.NEXT_PUBLIC_EVOLUTION_API_URL || 'http://localhost:8080';
 const EVOLUTION_API_KEY = process.env.NEXT_PUBLIC_EVOLUTION_API_KEY;
@@ -38,7 +38,7 @@ export const bridgeService = {
                 headers: { 'apikey': EVOLUTION_API_KEY || '' }
             });
             return await res.json();
-        } catch (e) {
+        } catch {
             return { instance: { state: 'close' } };
         }
     },

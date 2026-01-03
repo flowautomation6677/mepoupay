@@ -7,12 +7,18 @@ import { Activity, DollarSign, Cpu, Users } from 'lucide-react';
 
 import ThePO from '@/components/admin/sections/ThePO';
 
+interface BehaviorItem {
+    day_of_week: number;
+    hour_of_day: number;
+    activity_count: number;
+}
+
 export default function AdminDashboard() {
     const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-    const [behaviorData, setBehaviorData] = useState<any[]>([]);
+    const [behaviorData, setBehaviorData] = useState<BehaviorItem[]>([]);
 
     // KPIs (Simulated for Overview)
     const kpis = [

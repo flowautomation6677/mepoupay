@@ -1,5 +1,4 @@
 const { parse, format, isValid, parseISO } = require('date-fns');
-const { ptBR } = require('date-fns/locale');
 
 /**
  * Tenta converter uma string de data (DD/MM/YYYY ou YYYY-MM-DD) para Objeto Date.

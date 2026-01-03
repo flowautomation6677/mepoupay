@@ -1,12 +1,22 @@
-const { publicClient, adminClient } = require('../services/supabaseClient');
+// Client is now injected via constructor for Security (RLS Segregation)
 const logger = require('../services/loggerService');
 
-// Use Admin Client for Bot operations to bypass RLS (Bot is trusted)
-const supabase = adminClient || publicClient;
-
 class TransactionRepository {
+    constructor(supabaseClient) {
+        if (!supabaseClient) {
+            // Fallback to public client if service key is missing, 
+            // OR log error if strict isolation is needed. sw
+            // For now, logging warning and falling back to check what was passed.
+            const { supabase } = require('../services/supabaseClient');
+            this.supabase = supabase;
+            logger.warn("TransactionRepository initialized with NULL client. Falling back to public client.");
+        } else {
+            this.supabase = supabaseClient;
+        }
+    }
+
     async create(transactionData) {
-        const { data, error } = await supabase
+        const { data, error } = await this.supabase
             .from('transacoes')
             .insert([transactionData])
             .select()
@@ -16,13 +26,13 @@ class TransactionRepository {
             logger.error("Repo Error (Tx.create)", { error, data: transactionData });
             throw error;
         }
-        return data; // POJO
+        return data;
     }
 
     async createMany(transactionsData) {
         if (!transactionsData || transactionsData.length === 0) return [];
 
-        const { data, error } = await supabase
+        const { data, error } = await this.supabase
             .from('transacoes')
             .insert(transactionsData)
             .select();
@@ -35,13 +45,13 @@ class TransactionRepository {
     }
 
     async findByUserAndDateRange(userId, startDate, endDate) {
-        const { data, error } = await supabase
+        const { data, error } = await this.supabase
             .from('transacoes')
             .select('*')
             .eq('user_id', userId)
             .gte('data', startDate)
             .lt('data', endDate)
-            .order('data', { ascending: false }); // Ordenação útil
+            .order('data', { ascending: false });
 
         if (error) {
             logger.error("Repo Error (Tx.findRange)", { error });
@@ -51,7 +61,7 @@ class TransactionRepository {
     }
 
     async findTopCategories(userId, startDate) {
-        const { data, error } = await supabase
+        const { data, error } = await this.supabase
             .from('transacoes')
             .select('valor, categoria')
             .eq('user_id', userId)
@@ -66,7 +76,7 @@ class TransactionRepository {
     }
 
     async searchSimilar(embedding) {
-        const { data, error } = await supabase.rpc('match_transacoes', {
+        const { data, error } = await this.supabase.rpc('match_transacoes', {
             query_embedding: embedding,
             match_threshold: 0.5,
             match_count: 5
@@ -78,6 +88,11 @@ class TransactionRepository {
         }
         return data || [];
     }
+
+    // Static helper if needed, or factory
+    static withClient(client) {
+        return new TransactionRepository(client);
+    }
 }
 
-module.exports = new TransactionRepository();
+module.exports = TransactionRepository;

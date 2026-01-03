@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button, Title, Text, Card } from "@tremor/react"; // Assuming Tremor usage or similar UI
-import { X, Sparkles, ArrowRight } from 'lucide-react';
+import { X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function WelcomeManager({ userName }: { userName: string }) {

@@ -5,7 +5,13 @@ import { Zap } from 'lucide-react';
 import ConfusionRadar from '@/components/admin/ConfusionRadar';
 import ABComparisonCard from '@/components/admin/ABComparisonCard';
 
-export default function TheLab({ efficiencyData }: { efficiencyData: any[] }) {
+export interface EfficiencyItem {
+    prompt_version: string;
+    error_rate_percent: number;
+    avg_confidence: number;
+}
+
+export default function TheLab({ efficiencyData }: { efficiencyData: EfficiencyItem[] }) {
     return (
         <div className="mt-6">
             {/* Hero Section of Lab */}

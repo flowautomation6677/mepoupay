@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, Title, Text, Metric, Grid, Badge, Button } from "@tremor/react";
-import { CreditCard, CheckCircle, ExternalLink, Webhook } from 'lucide-react';
+import { CheckCircle, ExternalLink, Webhook } from 'lucide-react';
 import { useState } from 'react';
 
 export default function SubscriptionPage() {

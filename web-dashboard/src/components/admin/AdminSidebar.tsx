@@ -13,11 +13,8 @@ import {
     Activity,
     DollarSign,
     Settings,
-    LogOut,
-    ChevronDown,
-    ChevronRight
+    LogOut
 } from 'lucide-react';
-import { useState } from 'react';
 import { Title, Text } from "@tremor/react";
 
 const MenuGroup = ({ label, children }: { label: string, children: React.ReactNode }) => (
@@ -31,7 +28,7 @@ const MenuGroup = ({ label, children }: { label: string, children: React.ReactNo
 
 import { LucideIcon } from 'lucide-react';
 
-const MenuItem = ({ href, icon: Icon, label, active = false }: { href: string, icon: LucideIcon, label: string, active?: boolean }) => {
+const MenuItem = ({ href, icon: Icon, label }: { href: string, icon: LucideIcon, label: string }) => {
     const pathname = usePathname();
     const isActive = pathname === href || pathname.startsWith(href + '/');
 

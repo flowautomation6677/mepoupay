@@ -8,9 +8,9 @@ const evolutionService = require('./services/evolutionService');
 const app = express();
 const PORT = process.env.PORT || 4001; // Railway requires process.env.PORT
 
-// Increase limit for media payloads
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+// Limit reduced to 20mb to mitigate DoS risks while allowing WhatsApp video uploads.
+app.use(bodyParser.json({ limit: '20mb' }));
+app.use(bodyParser.urlencoded({ limit: '20mb', extended: true }));
 
 // Health Check
 app.get('/health', (req, res) => {
@@ -23,9 +23,27 @@ app.get('/health', (req, res) => {
 // Evolution API Webhook Endpoint
 app.post('/webhook/evolution', async (req, res) => {
     try {
+        // 🛡️ Security: Validate API Key if configured
+        const apiKey = req.headers['apikey'] || req.query.apikey;
+        // We expect the Evolution instance to send its API Key via 'apikey' header
+        if (process.env.AUTHENTICATION_API_KEY && apiKey !== process.env.AUTHENTICATION_API_KEY) {
+            logger.warn(`⛔ Webhook Unauthorized Attempt: ${req.ip || 'Unknown IP'} - Invalid Key`);
+            return res.status(403).send('Unauthorized');
+        }
+
         const eventType = req.body.event;
-        console.log("📥 WEBHOOK PAYLOAD RECEBIDO [v2]:", JSON.stringify(req.body, null, 2));
-        console.log(`[DEBUG] Check Event Type: "${eventType}" | Upper: "${eventType?.toUpperCase()}"`);
+        // Structured logging for observability
+        logger.info("📥 Webhook Payload Received", {
+            event: eventType,
+            instance: req.body.instance,
+            remoteJid: req.body.data?.key?.remoteJid
+        });
+
+        // Detailed debug log (only visible if level=debug)
+        logger.debug("Webhook Payload Details", {
+            fullBody: req.body,
+            eventTypeCheck: eventType?.toUpperCase()
+        });
         const instance = req.body.instance;
 
         // Log incoming event (Debug)

@@ -1,12 +1,17 @@
 const openaiService = require('../services/openaiService'); // Lazy access ensures mocks work
-const transactionRepo = require('../repositories/TransactionRepository');
+const logger = require('../services/loggerService');
+const TransactionRepository = require('../repositories/TransactionRepository');
+const { adminClient } = require('../services/supabaseClient');
+
+// Inject Admin Client (Bot context)
+const transactionRepo = new TransactionRepository(adminClient);
 const userRepo = require('../repositories/UserRepository');
 const routerService = require('../services/routerService');
 const cacheService = require('../services/cacheService');
 
 class TextStrategy {
     async execute(text, message, user, memory) {
-        console.log(`[DEBUG] TextStrategy execute input: "${text}"`);
+        logger.debug(`TextStrategy execute input`, { text, userId: user.id });
         // 0. Security / Guardrails (Pre-flight)
         const blocklist = [
             /ignore\s+todas\s+as\s+instruções/i,
@@ -21,10 +26,9 @@ class TextStrategy {
         ];
 
         const isMalicious = blocklist.some(regex => regex.test(text));
-        console.log(`[DEBUG] isMalicious: ${isMalicious}`);
 
         if (isMalicious) {
-            console.warn(`[SECURITY] Bloqueado input malicioso do usuário ${user.id}: "${text}"`);
+            logger.warn(`[SECURITY] Bloqueado input malicioso`, { userId: user.id, text });
             return { type: 'ai_response', content: "🚫 Desculpe, não posso atender a essa solicitação por motivos de segurança." };
         }
 
@@ -32,9 +36,13 @@ class TextStrategy {
         // 0.5. Semantic Cache (Optimization)
         const cachedResponse = await cacheService.get(text);
         if (cachedResponse) {
-            console.log(`[Optimization] Serving from Cache: "${text}"`);
+            logger.info(`[Optimization] Serving from Cache`, { text });
             return cachedResponse; // Return fully formed AI response from cache
         }
+
+        // ... (truncated for brevity in replacement search if needed, but here I'm replacing the block)
+        // Actually, replacing small chunks is safer.
+
 
         // 1. RAG Context
         const embedding = await openaiService.generateEmbedding(text);
@@ -171,13 +179,13 @@ class TextStrategy {
         // Ideally the prompt text itself isn't dynamic beyond context, but we need to track it.
         // We will attach promptVersion to the result object returned by this strategy.
 
-        console.log(`[Shadow Prompting] User: ${user.id} | Selected: ${promptVersion}`);
+        logger.info(`[Shadow Prompting] Selected Version`, { userId: user.id, version: promptVersion });
 
         const messages = [{ role: "system", content: systemPrompt }, ...memory, { role: "user", content: text }];
 
         // 3.5 Model Routing (Optimization)
         const modelToUse = routerService.route(text);
-        console.log(`[Optimization] Router Selected Model: ${modelToUse} for input: "${text}"`);
+        logger.debug(`[Optimization] Router Selected Model`, { model: modelToUse, input: text });
 
         const completion = await openaiService.chatCompletion(messages, tools, modelToUse);
 

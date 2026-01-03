@@ -1,32 +1,37 @@
-const transactionRepo = require('../repositories/TransactionRepository');
-const { generateBatchEmbeddings } = require('../services/openaiService');
-const { formatToISO } = require('../utils/dateUtility');
-const FormatterService = require('../services/formatterService');
+const TransactionRepository = require('../repositories/TransactionRepository');
+const { adminClient } = require('./supabaseClient');
 
+// Inject Admin Client (Bot context)
+const transactionRepo = new TransactionRepository(adminClient);
+
+const transactionEmbeddingService = require('./transactionEmbeddingService');
 const currencyService = require('./currencyService');
+const FormatterService = require('../services/formatterService');
+const { formatToISO } = require('../utils/dateUtility');
 
 // --- DATA PROCESSOR (Batch Optimization) ---
-// replyCallback(text) -> Promise<void>
-async function processExtractedData(content, userId, replyCallback) {
-    let data;
+
+// --- Helpers ---
+
+function _parseContent(content) {
     try {
-        data = typeof content === 'string' ? JSON.parse(content.replace(/```json|```/g, '').trim()) : content;
+        let data = typeof content === 'string' ? JSON.parse(content.replace(/```json|```/g, '').trim()) : content;
         if (typeof data === 'string') data = JSON.parse(data);
-    } catch { return; }
+        return data;
+    } catch {
+        return null;
+    }
+}
 
-    if (data.pergunta) return replyCallback(data.pergunta);
-    if (data.ignorar) return replyCallback(data.resposta || "🤖 Olá!");
-
-    // Merge arrays to avoid shadowing (Zod might default transacoes to [])
+function _normalizeTransactions(data) {
+    // Merge arrays to avoid shadowing
     const txA = data.transacoes || [];
     const txB = data.gastos || [];
-    // Also support legacy single 'valor' object
     const legacySingle = data.valor ? [data] : [];
 
     const transacoes = [...txA, ...txB, ...legacySingle];
     const totalFatura = data.total_fatura;
 
-    // Se não achou transações mas achou TOTAL DA FATURA, sugere registrar o pagamento da fatura
     if (!transacoes.length && totalFatura) {
         transacoes.push({
             descricao: `Pagamento de Fatura (Venc: ${data.vencimento || '?'})`,
@@ -36,74 +41,58 @@ async function processExtractedData(content, userId, replyCallback) {
             data: data.vencimento || new Date().toISOString().split('T')[0]
         });
     }
+    return transacoes;
+}
 
-    if (!transacoes.length) return replyCallback("🤔 Não encontrei transações nem valor total nesta fatura.");
-
-    // 1. Prepare Data & Descriptions with Currency Conversion
+async function _processItems(transacoes) {
     const validItems = [];
-    const textsForEmbedding = [];
-
     for (const g of transacoes) {
         if (!g.valor) continue;
         g.descricao = g.descricao || "Item";
         g.categoria = g.categoria || "Outros";
 
-        // Lógica de Conversão
-        const taxa = await currencyService.getExchangeRate(g.moeda);
-        let valorFinal = g.valor;
+        const { convertedValue, exchangeRate } = await currencyService.convertValue(g.valor, g.moeda);
 
-        // Se a taxa for diferente de 1, converte
-        if (taxa !== 1.0) {
-            valorFinal = g.valor * taxa;
-        }
-
-        const itemProcessed = {
+        validItems.push({
             ...g,
-            valor: valorFinal, // Valor em BRL
+            valor: convertedValue, // Valor em BRL
             valor_original: g.valor, // Valor original
             moeda_original: g.moeda || 'BRL',
-            taxa_cambio: taxa,
+            taxa_cambio: exchangeRate,
             data: g.data // Mantém data original para formatação posterior
-        };
-
-        validItems.push(itemProcessed);
-        textsForEmbedding.push(`${g.descricao} - ${g.categoria}`);
+        });
     }
+    return validItems;
+}
 
-    if (validItems.length === 0) return replyCallback("🤔 Nenhum valor válido encontrado.");
-
-    // 2. Batch Embeddings (Optimized API Call)
-    const embeddings = await generateBatchEmbeddings(textsForEmbedding);
-
-    // 4. Prepare Batch Insert payload
+function _generatePayload(validItems, embeddings, userId, data) {
     const confidenceScore = typeof data.confidence_score === 'number' ? data.confidence_score : 1.0;
     const status = confidenceScore < 0.7 ? 'pending_review' : 'confirmed';
 
     const payload = validItems.map((g, idx) => ({
         user_id: userId,
-        prompt_version: data.prompt_version || 'v1_stable', // A/B Testing Version
-        valor: g.valor, // Convertido em BRL
+        prompt_version: data.prompt_version || 'v1_stable',
+        valor: g.valor,
         valor_original: g.valor_original,
         moeda_original: g.moeda_original,
         taxa_cambio: g.taxa_cambio,
         categoria: g.categoria,
         descricao: g.descricao,
-        data: formatToISO(g.data), // Use new ISO formatter
+        data: formatToISO(g.data),
         tipo: g.tipo || 'despesa',
-        embedding: embeddings[idx], // Match index
-
-        // Reliability Fields
+        embedding: embeddings[idx],
         confidence_score: confidenceScore,
         status: status,
-        is_validated: status === 'confirmed' // If high confidence, auto-validate? Or just keep false? Let's say false unless explicitly confirmed. Actually, if >= 0.7, we might assume it's good but let user validate in dashboard. But per user requirements "Se input for ambíguo (<0.7) ... se > 0.7 segue normal".
+        is_validated: status === 'confirmed'
     }));
 
-    // 4. Perform Batch Insert (Optimized DB Call)
-    const savedTxs = await transactionRepo.createMany(payload);
+    return { payload, status, confidenceScore };
+}
 
-    // 5. Build Response or Return State
+async function _handleResponse(savedTxs, payloadDetails, data, replyCallback) {
+    const { status, payload, confidenceScore } = payloadDetails;
+
     if (status === 'pending_review') {
-        // Return info for handlers to ask confirmation
         return {
             status: 'pending_review',
             transactions: savedTxs,
@@ -112,18 +101,16 @@ async function processExtractedData(content, userId, replyCallback) {
         };
     }
 
-    // Normal Flow (High Confidence)
-    let response = "";
     if (savedTxs && savedTxs.length > 0) {
+        let response = "";
         savedTxs.forEach((tx, idx) => {
             const displayObj = {
-                ...payload[idx],
-                moeda: 'BRL' // Exibe em BRL pois já foi convertido
+                ...payload[idx], // Use payload for formatting as it has transformed data
+                moeda: 'BRL'
             };
             response += FormatterService.formatSuccessMessage(displayObj);
         });
         await replyCallback(response.trim());
-
         return { status: 'success', transactions: savedTxs };
     } else {
         await replyCallback(FormatterService.formatErrorMessage("Erro ao salvar dados."));
@@ -131,4 +118,38 @@ async function processExtractedData(content, userId, replyCallback) {
     }
 }
 
-module.exports = { processExtractedData };
+
+// --- Main Function ---
+
+// replyCallback(text) -> Promise<void>
+async function processExtractedData(content, userId, replyCallback) {
+    const data = _parseContent(content);
+    if (!data) return;
+
+    if (data.pergunta) return replyCallback(data.pergunta);
+    if (data.ignorar) return replyCallback(data.resposta || "🤖 Olá!");
+
+    const transacoes = _normalizeTransactions(data);
+    if (!transacoes.length) return replyCallback("🤔 Não encontrei transações nem valor total nesta fatura.");
+
+    const validItems = await _processItems(transacoes);
+    if (validItems.length === 0) return replyCallback("🤔 Nenhum valor válido encontrado.");
+
+    const embeddings = await transactionEmbeddingService.generateForTransactions(validItems);
+
+    const payloadDetails = _generatePayload(validItems, embeddings, userId, data); // { payload, status, confidenceScore }
+
+    const savedTxs = await transactionRepo.createMany(payloadDetails.payload);
+
+    return _handleResponse(savedTxs, payloadDetails, data, replyCallback);
+}
+
+module.exports = {
+    processExtractedData,
+    // Exporting helpers for testing purposes
+    _parseContent,
+    _normalizeTransactions,
+    _processItems,
+    _generatePayload,
+    _handleResponse
+};

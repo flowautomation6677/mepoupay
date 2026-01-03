@@ -1,4 +1,5 @@
 const { analyzePdfText } = require('../services/openaiService');
+const logger = require('../services/loggerService');
 
 class CsvStrategy {
     async execute(message) {
@@ -17,7 +18,7 @@ class CsvStrategy {
             // For now, let's try using analyzePdfText as it handles "Text Analysis".
             // If it fails, we will create a dedicated analyzeFinancialStatement method.
 
-            console.log("[CSV] Enviando para análise IA...");
+            logger.info("[CSV] Enviando para análise IA...");
             const aiResult = await analyzePdfText(csvText);
 
             if (aiResult.error) {
@@ -30,7 +31,7 @@ class CsvStrategy {
             };
 
         } catch (error) {
-            console.error("CSV Strategy Error:", error);
+            logger.error("CSV Strategy Error:", error);
             return { type: 'system_error', content: "Erro ao ler arquivo CSV." };
         }
     }

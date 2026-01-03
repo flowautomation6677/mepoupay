@@ -1,4 +1,5 @@
 const { analyzePdfText } = require('../services/openaiService');
+const logger = require('../services/loggerService');
 
 class PdfStrategy {
 
@@ -9,14 +10,21 @@ class PdfStrategy {
      * @param {string} [password] 
      */
     async processPdf(buffer, password) {
+        let loadingTask = null;
         try {
+            // Check Size (Warn if > 10MB)
+            const mbSize = buffer.length / 1024 / 1024;
+            if (mbSize > 10) {
+                logger.warn("Processing Large PDF", { sizeMB: mbSize.toFixed(2) });
+            }
+
             // Dynamic Import for ESM compatibility (pdfjs-dist v5+)
             const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
             // Convertendo Buffer para Uint8Array (formato esperado pelo PDF.js)
             const data = new Uint8Array(buffer);
 
-            const loadingTask = pdfjsLib.getDocument({
+            loadingTask = pdfjsLib.getDocument({
                 data: data,
                 password: password || '', // Se vazio, tenta abrir sem senha
                 // Opções para desativar features de browser que quebram no Node
@@ -31,10 +39,16 @@ class PdfStrategy {
 
             // Paralelizar extração? Melhor sequencial para garantir ordem.
             for (let i = 1; i <= doc.numPages; i++) {
-                const page = await doc.getPage(i);
-                const tokenizedText = await page.getTextContent();
-                const pageText = tokenizedText.items.map(token => token.str).join(' ');
-                fullText += `\n--- Pág ${i} ---\n${pageText}`;
+                let page = null;
+                try {
+                    page = await doc.getPage(i);
+                    const tokenizedText = await page.getTextContent();
+                    const pageText = tokenizedText.items.map(token => token.str).join(' ');
+                    fullText += `\n--- Pág ${i} ---\n${pageText}`;
+                } finally {
+                    // Explicit Page Cleanup to free memory
+                    if (page) page.cleanup();
+                }
             }
 
             return { success: true, text: fullText };
@@ -42,10 +56,11 @@ class PdfStrategy {
         } catch (error) {
             // Tratamento de Erro de Senha
             if (error.name === 'PasswordException' || error.message.includes('Password') || error.name === 'MissingPDFException') {
+                logger.info("PDF Password Required", { error: error.message });
                 return { success: false, needsPassword: true, error: "Senha necessária ou incorreta." };
             }
 
-            console.error("PdfStrategy (PDFJS) Error:", error);
+            logger.error("PdfStrategy (PDFJS) Error", { error });
 
             // Se tiver senha e falhou, é incorreta
             if (password) {
@@ -53,6 +68,11 @@ class PdfStrategy {
             }
 
             return { success: false, error: `Erro ao processar PDF: ${error.message}` };
+        } finally {
+            // Document Cleanup
+            if (loadingTask && loadingTask.destroy) {
+                await loadingTask.destroy().catch(e => logger.warn("Error destroying PDF task", { error: e }));
+            }
         }
     }
 

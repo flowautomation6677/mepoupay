@@ -13,7 +13,7 @@ class UserRepository {
             .eq('whatsapp_number', phone)
             .single();
 
-        console.log(`[DEBUG] UserRepository findByPhone: ${phone}`, data); // Debug Log
+        logger.debug(`UserRepository findByPhone: ${phone}`, { data });
 
         if (error && error.code !== 'PGRST116') {
             logger.error("Repo Error (User.find)", { error });
@@ -62,7 +62,12 @@ class UserRepository {
             );
 
             if (authError) {
-                logger.error("Repo Error (User.updateName - Auth)", { error: authError });
+                // If user doesn't exist in Auth (e.g. manually inserted in DB), regular Error log is too noisy.
+                if (authError.code === 'user_not_found' || authError.status === 404) {
+                    logger.warn(`User.updateName - Skipped (Auth User Not Found): ${userId}`);
+                } else {
+                    logger.error("Repo Error (User.updateName - Auth)", { error: authError });
+                }
             }
         } else {
             logger.warn("⚠️ Cannot update name: Admin Client not available");

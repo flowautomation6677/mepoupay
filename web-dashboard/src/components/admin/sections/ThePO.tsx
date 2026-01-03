@@ -1,7 +1,7 @@
 'use client';
 
-import { Card, Title, Text, Metric, Grid, BarList, DonutChart, Legend } from "@tremor/react";
-import { Users, Clock, Zap, MessageCircle } from 'lucide-react';
+import { Card, Title, Text, Grid, BarList, DonutChart, Legend } from "@tremor/react";
+import { Clock } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
 
 // Mock Funnel Data (Simulated for Demo)
@@ -19,7 +19,13 @@ const featuresData = [
     { name: 'Relatórios', value: 80 },
 ];
 
-export default function ThePO({ behaviorData }: { behaviorData: any[] }) {
+interface BehaviorItem {
+    day_of_week: number;
+    hour_of_day: number;
+    activity_count: number;
+}
+
+export default function ThePO({ behaviorData }: { behaviorData: BehaviorItem[] }) {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -44,7 +50,7 @@ export default function ThePO({ behaviorData }: { behaviorData: any[] }) {
     }, [behaviorData]);
 
     const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    const hours = [0, 6, 12, 18, 23];
+    // const hours = [0, 6, 12, 18, 23];
 
     // Helper for color intensity
     const getIntensity = (val: number, max: number) => {

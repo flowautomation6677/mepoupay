@@ -21,5 +21,13 @@ class CurrencyService {
             return 1.0;
         }
     }
+
+    async convertValue(amount, currency) {
+        const rate = await this.getExchangeRate(currency);
+        return {
+            convertedValue: amount * rate,
+            exchangeRate: rate
+        };
+    }
 }
 module.exports = new CurrencyService();

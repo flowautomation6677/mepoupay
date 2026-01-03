@@ -1,9 +1,15 @@
 'use client';
 
-import { Trophy, ArrowUpRight, Zap } from 'lucide-react';
+import { Trophy, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function ABComparisonCard({ efficiencyData }: { efficiencyData: any[] }) {
+interface EfficiencyItem {
+    prompt_version: string;
+    error_rate_percent: number;
+    avg_confidence: number;
+}
+
+export default function ABComparisonCard({ efficiencyData }: { efficiencyData: EfficiencyItem[] }) {
     // Find Winner (lowest error rate)
     const winner = efficiencyData.reduce((prev, current) =>
         (prev.error_rate_percent < current.error_rate_percent) ? prev : current

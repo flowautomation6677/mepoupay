@@ -1,11 +1,10 @@
-
 'use client'
 
-import { startTransition, useState } from 'react'
+
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { login } from './actions'
 import { Loader2, ArrowRight } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
@@ -31,7 +30,7 @@ export default function AuthPage() {
             if (res?.error) {
                 setMessage({ text: res.error, type: 'error' })
             }
-        } catch (e) {
+        } catch {
             setMessage({ text: 'Erro inesperado. Tente novamente.', type: 'error' })
         } finally {
             setLoading(false)

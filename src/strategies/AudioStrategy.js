@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const ffmpegPath = require('ffmpeg-static');
 const { transcribeAudio } = require('../services/openaiService');
+const logger = require('../services/loggerService');
 
 // Configuração Local
 process.env.FFMPEG_PATH = ffmpegPath;
@@ -22,7 +23,7 @@ class AudioStrategy {
             const text = await transcribeAudio(tempMp3);
 
             if (!text || text.trim().length === 0) {
-                console.warn("[AudioStrategy] Empty transcription received.");
+                logger.warn("[AudioStrategy] Empty transcription received.");
                 await message.reply("🔇 Não consegui ouvir nada no áudio. Tente falar mais perto do microfone.");
                 return null;
             }
@@ -33,7 +34,7 @@ class AudioStrategy {
             return { type: 'text_command', content: text };
 
         } catch (e) {
-            console.error("AudioStrategy Error:", e);
+            logger.error("AudioStrategy Error:", e);
             await message.reply("❌ Erro no áudio.");
             return null;
         } finally {
@@ -43,7 +44,7 @@ class AudioStrategy {
                 const tempMp3 = path.join(__dirname, `../../temp_${message.id.id}.mp3`);
                 if (fs.existsSync(tempOgg)) fs.unlinkSync(tempOgg);
                 if (fs.existsSync(tempMp3)) fs.unlinkSync(tempMp3);
-            } catch (e) { console.error("Cleanup Error:", e); }
+            } catch (e) { logger.error("Cleanup Error:", e); }
         }
     }
 

@@ -39,7 +39,6 @@ export default function StatsGrid({ transactions, prevTransactions, financialGoa
     const isPositiveGrowth = balanceDiff >= 0
 
     // Cashflow
-    const cashflowHealth = income > 0 ? ((income - expense) / income) * 100 : 0
     const commitmentRate = income > 0 ? (expense / income) * 100 : 0
 
     // Goal

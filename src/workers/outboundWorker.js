@@ -7,7 +7,7 @@ const redis = require('../services/redisClient');
 logger.info("🔧 Outbound Message Worker Initializing...");
 
 const outboundWorker = new Worker('outbound-messages', async (job) => {
-    const { chatId, text, options } = job.data;
+    const { chatId, text } = job.data;
     logger.info(`[Outbound] PREPARING to send to ${chatId}: ${typeof text === 'string' ? text.substring(0, 30) : 'Media Object'}`);
 
 

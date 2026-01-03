@@ -24,7 +24,7 @@ export async function PATCH(
     const { is_validated, is_human_corrected, descricao, valor, categoria } = body
 
     // Prepare update object dynamically
-    const updates: any = {}
+    const updates: Record<string, any> = {}
     if (is_validated !== undefined) updates.is_validated = is_validated
     if (is_human_corrected !== undefined) updates.is_human_corrected = is_human_corrected
     if (descricao !== undefined) updates.descricao = descricao

@@ -12,7 +12,12 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function GET() {
     try {
-        // 1. Fetch all Auth Users (Email, Metadata)
+        console.log("🔍 API Debug: Start fetching users");
+        console.log("🔑 Service Key Length:", process.env.SUPABASE_SERVICE_ROLE_KEY ? process.env.SUPABASE_SERVICE_ROLE_KEY.length : "UNDEFINED");
+
+        if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            throw new Error("SUPABASE_SERVICE_ROLE_KEY is missing in process.env");
+        }
         const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers();
         if (authError) throw authError;
 
@@ -39,9 +44,10 @@ export async function GET() {
 
         return NextResponse.json({ users: mergedUsers });
 
-    } catch (error: any) {
-        console.error('Error fetching users:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Error fetching users:', err);
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }
 
@@ -79,9 +85,10 @@ export async function PATCH(request: Request) {
 
         return NextResponse.json({ success: true });
 
-    } catch (error: any) {
-        console.error('Error updating role:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Error updating role:', err);
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }
 
@@ -122,8 +129,9 @@ export async function DELETE(request: Request) {
 
         return NextResponse.json({ success: true });
 
-    } catch (error: any) {
-        console.error('Error deleting user:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        const err = error as Error;
+        console.error('Error deleting user:', err);
+        return NextResponse.json({ error: err.message }, { status: 500 });
     }
 }

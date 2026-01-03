@@ -13,10 +13,9 @@ import {
     TableCell,
     Badge,
     TextInput,
-    Icon,
     Button
 } from "@tremor/react";
-import { Search, UserCog, User, ShieldCheck, Trash2, CheckCircle, X } from 'lucide-react';
+import { Search, UserCog, User, ShieldCheck, Trash2, CheckCircle } from 'lucide-react';
 import { createBrowserClient } from "@supabase/ssr";
 import { InviteModal } from "@/components/admin/InviteModal";
 import { DeleteModal } from "@/components/admin/DeleteModal";
@@ -55,15 +54,24 @@ const SuccessModal = ({ isOpen, onClose, email }: { isOpen: boolean; onClose: ()
 };
 
 
+interface UserData {
+    id: string;
+    name: string;
+    email: string;
+    whatsapp_number: string;
+    financial_goal: string;
+    is_admin: boolean;
+    created_at: string;
+}
+
 export default function UsersPage() {
     // ... scope continues ...
-    const supabase = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+
+    // supabase removed - unused
 
 
-    const [users, setUsers] = useState<any[]>([]);
+
+    const [users, setUsers] = useState<UserData[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
 
@@ -100,7 +108,6 @@ export default function UsersPage() {
             });
             const data = await res.json();
             if (data.success) {
-                // Defensive update: verify prev exists
                 setUsers(prev => (prev || []).map(u => u.id === userId ? { ...u, is_admin: !currentStatus } : u));
                 alert("Role atualizada com sucesso!");
             } else {
@@ -182,7 +189,7 @@ export default function UsersPage() {
             } else {
                 alert("Erro ao deletar: " + data.error);
             }
-        } catch (e) {
+        } catch {
             alert("Erro de conexão ao deletar.");
         } finally {
             setIsDeleting(false);

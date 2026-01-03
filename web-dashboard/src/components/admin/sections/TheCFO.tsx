@@ -29,7 +29,7 @@ const Gauge = ({ value }: { value: number }) => {
                         dataKey="value"
                         stroke="none"
                     >
-                        <Cell key="used" fill={color} cornerRadius={10} />
+                        <Cell key="used" fill={color} />
                         <Cell key="remaining" fill="#334155" />
                     </Pie>
                 </PieChart>
@@ -42,7 +42,12 @@ const Gauge = ({ value }: { value: number }) => {
     );
 };
 
-export default function TheCFO({ financeData }: { financeData: any[] }) {
+interface FinanceItem {
+    est_cost_usd: number;
+    date: string;
+}
+
+export default function TheCFO({ financeData }: { financeData: FinanceItem[] }) {
     // Calculate pseudo-trends
     const currentCost = financeData[financeData.length - 1]?.est_cost_usd || 0;
     const prevCost = financeData[financeData.length - 2]?.est_cost_usd || 0;

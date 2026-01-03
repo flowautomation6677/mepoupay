@@ -1,6 +1,9 @@
 const sessionService = require('../services/sessionService');
-const transactionRepo = require('../repositories/TransactionRepository');
-const supabase = require('../services/supabaseClient');
+const TransactionRepository = require('../repositories/TransactionRepository');
+const { adminClient } = require('../services/supabaseClient');
+
+// Inject Admin Client (Bot context)
+const transactionRepo = new TransactionRepository(adminClient);
 const queueService = require('../services/queueService');
 const logger = require('../services/loggerService');
 
@@ -42,7 +45,7 @@ class FeedbackHandler {
             }
 
             if (isDenial) {
-                await supabase.from('transaction_learning').insert({
+                await adminClient.from('transaction_learning').insert({
                     original_input: pendingCorrection.last_input,
                     ai_response: pendingCorrection.ai_response,
                     user_correction: message.body,

@@ -111,13 +111,12 @@ class EvolutionAdapter {
      */
     async downloadMedia() {
         try {
-            console.log(`[DEBUG] Adapter: downloadMedia called. Type: ${this.type}, MsgType: ${this.messageType}`);
-            // console.log(`[DEBUG] Raw Message Keys: ${Object.keys(this.rawMessage)}`);
+            logger.debug(`Adapter: downloadMedia called`, { type: this.type, msgType: this.messageType });
 
             const msgContent = this.rawMessage[this.messageType];
 
             if (!msgContent) {
-                console.error("❌ No message content found for type:", this.messageType);
+                logger.error("❌ No message content found for type", { type: this.messageType });
                 return undefined;
             }
 
@@ -135,7 +134,7 @@ class EvolutionAdapter {
 
             // If we have base64, return the object expected by MessageHandler
             if (base64) {
-                console.log(`[DEBUG] Base64 found! Length: ${base64.length}`);
+                logger.debug("Base64 found in payload", { length: base64.length });
                 return {
                     data: base64,
                     mimetype: mimetype,
@@ -145,13 +144,13 @@ class EvolutionAdapter {
 
             // If no base64, normally we would fetch from Evolution API using ID.
             if (!base64) {
-                console.log("[DEBUG] Fetching Base64 from API...");
+                logger.debug("Fetching Base64 from API...");
                 // Fix: Pass full WAMessage object (this.data.data) not just content
                 base64 = await evolutionService.getBase64FromMedia(this.data.data, this.instanceName);
             }
 
             if (base64) {
-                console.log(`[DEBUG] Base64 found/fetched! Length: ${base64.length}`);
+                logger.debug("Base64 fetched from API", { length: base64.length });
                 return {
                     data: base64,
                     mimetype: mimetype,
@@ -159,11 +158,11 @@ class EvolutionAdapter {
                 };
             }
 
-            console.warn("⚠️ No Base64 found in payload or API.");
+            logger.warn("⚠️ No Base64 found in payload or API.");
             return undefined;
 
         } catch (error) {
-            console.error("❌ Error in downloadMedia:", error);
+            logger.error("❌ Error in downloadMedia", { error });
             return undefined;
         }
     }

@@ -5,12 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, ArrowRight, ArrowLeft, Mail, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { requestPasswordReset } from './actions';
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs));
-}
 
 export default function ForgotPasswordPage() {
     const [loading, setLoading] = useState(false);

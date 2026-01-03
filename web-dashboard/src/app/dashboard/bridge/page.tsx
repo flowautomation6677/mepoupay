@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { bridgeService, Instance } from '@/services/bridgeService'
-import { Card, Title, Text, Metric, Button, Badge } from '@tremor/react'
-import { RefreshCw, Plus, Trash2, Smartphone, QrCode } from 'lucide-react'
+import { Card, Title, Text, Button, Badge } from '@tremor/react'
+import { Plus, Trash2, Smartphone, QrCode } from 'lucide-react'
 import { motion } from 'framer-motion'
-import DashboardHeader from '@/components/dashboard/DashboardHeader'
 
 export default function BridgePage() {
     const [instances, setInstances] = useState<Instance[]>([])

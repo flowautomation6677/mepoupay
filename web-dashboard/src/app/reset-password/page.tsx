@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Title, Card, TextInput, Button } from "@tremor/react";
 import { createBrowserClient } from "@supabase/ssr";
-import { Lock, CheckCircle, ArrowRight, Loader2, ArrowLeft } from 'lucide-react';
+import { Lock, CheckCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -25,17 +24,16 @@ export default function ResetPasswordPage() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        const checkSession = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                router.replace('/login');
+                return;
+            }
+            setLoading(false);
+        };
         checkSession();
-    }, []);
-
-    const checkSession = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            router.replace('/login');
-            return;
-        }
-        setLoading(false);
-    };
+    }, [router, supabase]);
 
     const validatePassword = (pass: string) => {
         if (pass.length < 8) return false;
@@ -68,8 +66,9 @@ export default function ResetPasswordPage() {
             if (authError) throw authError;
 
             setSuccess(true);
-        } catch (error: any) {
-            setError("Erro ao salvar: " + error.message);
+        } catch (error: unknown) {
+            const err = error as Error;
+            setError("Erro ao salvar: " + err.message);
         } finally {
             setSaving(false);
         }

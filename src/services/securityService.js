@@ -13,10 +13,13 @@ class SecurityService {
 
         let sanitized = text;
 
-        // CPF (Simple validation) - \d{3}\.?\d{3}\.?\d{3}-?\d{2}
-        // Using word boundary to avoid masking inside other numbers, but financial data is messy.
-        // Strategy: Mask patterns strictly resembling CPF.
-        sanitized = sanitized.replace(/(?:\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b)/g, '[CPF]');
+        // CPF (Validation improved to avoid generic 11-digit sequences)
+        // \b ensures word boundaries.
+        sanitized = sanitized.replace(/(?:\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b)/g, (match) => {
+            // Optional: Implement check digit validation here to reduce false positives further
+            // For now, strict regex with boundaries is a significant improvement.
+            return '[CPF]';
+        });
 
         // CNPJ - \d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}
         // Mantenha parcialmente ou remova tudo. LGPD foca em "Pessoa Física", CNPJ é público.

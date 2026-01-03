@@ -1,10 +1,10 @@
 'use client'
 
 import {
-    ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine
+    ComposedChart, Line, Bar, XAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine
 } from 'recharts'
 import { motion } from 'framer-motion'
-import { AlertCircle, TrendingUp, Zap } from 'lucide-react'
+import { Zap } from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
 
 import { Transaction } from '@/types/dashboard'

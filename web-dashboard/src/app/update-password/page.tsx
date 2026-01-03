@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Title, Text, Card, TextInput, Button } from "@tremor/react";
 import { createBrowserClient } from "@supabase/ssr";
-import { Lock, ArrowRight, Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Lock, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export default function UpdatePasswordPage() {
     const supabase = createBrowserClient(
@@ -30,17 +30,18 @@ export default function UpdatePasswordPage() {
     const isValid = hasMinLength && hasLetter && hasNumber && (password === confirmPassword);
 
     useEffect(() => {
+        const checkSession = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                router.replace('/login');
+                return;
+            }
+            setLoading(false);
+        };
         checkSession();
-    }, []);
+    }, [supabase, router]);
 
-    const checkSession = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            router.replace('/login');
-            return;
-        }
-        setLoading(false);
-    };
+
 
     const handleSave = async () => {
         if (!isValid) return;
@@ -50,8 +51,9 @@ export default function UpdatePasswordPage() {
             const { error: authError } = await supabase.auth.updateUser({ password: password });
             if (authError) throw authError;
             setSuccess(true);
-        } catch (error: any) {
-            alert("Erro ao salvar: " + error.message);
+        } catch (error: unknown) {
+            const err = error as Error;
+            alert("Erro ao salvar: " + err.message);
         } finally {
             setSaving(false);
         }
@@ -122,7 +124,7 @@ export default function UpdatePasswordPage() {
                             placeholder="Repita a senha"
                             icon={Lock}
                             className="mt-1"
-                            error={confirmPassword && password !== confirmPassword}
+                            error={!!confirmPassword && password !== confirmPassword}
                             errorMessage="As senhas não coincidem"
                         />
                     </div>

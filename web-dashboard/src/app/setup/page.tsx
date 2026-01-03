@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import { Title, Text, Card, TextInput, Button } from "@tremor/react";
 import { createBrowserClient } from "@supabase/ssr";
-import { Lock, User, Phone, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
+import { Lock, User, Phone, ArrowRight, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
 
 export default function SetupPage() {
     const supabase = createBrowserClient(
@@ -29,35 +28,36 @@ export default function SetupPage() {
     const isValid = hasMinLength && (password === confirmPassword);
 
     useEffect(() => {
+        const checkSession = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) {
+                router.replace('/login');
+                return;
+            }
+
+            setEmail(user.email || "");
+
+            // Try to fetch existing profile data to pre-fill
+            const { data: profile } = await supabase
+                .from('perfis')
+                .select('*')
+                .eq('auth_user_id', user.id)
+                .single();
+
+            if (profile) {
+                setWhatsapp(profile.whatsapp_number || "");
+            }
+
+            // Name comes from Auth Metadata
+            if (user.user_metadata?.full_name) {
+                setName(user.user_metadata.full_name);
+            }
+            setLoading(false);
+        };
         checkSession();
-    }, []);
+    }, [supabase, router]);
 
-    const checkSession = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            router.replace('/login');
-            return;
-        }
 
-        setEmail(user.email || "");
-
-        // Try to fetch existing profile data to pre-fill
-        const { data: profile } = await supabase
-            .from('perfis')
-            .select('*')
-            .eq('auth_user_id', user.id)
-            .single();
-
-        if (profile) {
-            setWhatsapp(profile.whatsapp_number || "");
-        }
-
-        // Name comes from Auth Metadata
-        if (user.user_metadata?.full_name) {
-            setName(user.user_metadata.full_name);
-        }
-        setLoading(false);
-    };
 
     const handleSave = async () => {
         if (!isValid) return;
@@ -94,14 +94,15 @@ export default function SetupPage() {
             // Success! Redirect to Dashboard with welcome flag
             router.push('/dashboard?welcome=true');
 
-        } catch (error: any) {
-            alert("Erro ao salvar: " + error.message);
+        } catch (error: unknown) {
+            const err = error as Error;
+            alert("Erro ao salvar: " + err.message);
         } finally {
             setSaving(false);
         }
     };
 
-    const handlePhoneChange = (e: any) => {
+    const handlePhoneChange = (e: string | { target: { value: string } }) => {
         // Handle both event (Tremor v3?) and direct value (Tremor v4?)
         // Tremor TextInput onValueChange gives string, onChange gives event.
         // We used onValueChange={handlePhoneChange} in JSX below.

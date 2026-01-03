@@ -31,7 +31,7 @@ function AuthContent() {
             }
 
             // 1. Tenta pegar sessão existente
-            const { data: { session: existingSession }, error } = await supabase.auth.getSession();
+            const { data: { session: existingSession } } = await supabase.auth.getSession();
 
             if (existingSession) {
                 setStatus('Autenticado! Redirecionando...');

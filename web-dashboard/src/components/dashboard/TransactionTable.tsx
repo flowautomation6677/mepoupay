@@ -1,5 +1,4 @@
-import { memo } from 'react'
-import { Edit2, Trash2 } from 'lucide-react'
+// import { Edit2, Trash2 } from 'lucide-react'
 import { formatCurrency } from '@/utils/formatters'
 import { Transaction } from '@/types/dashboard'
 

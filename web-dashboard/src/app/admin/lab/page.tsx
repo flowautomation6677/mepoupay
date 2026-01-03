@@ -3,12 +3,19 @@ import { useState, useEffect } from 'react';
 import TheLab from '@/components/admin/sections/TheLab';
 import { createBrowserClient } from "@supabase/ssr";
 
+interface EfficiencyItem {
+    prompt_version: string;
+    error_rate_percent: number;
+    avg_confidence: number;
+    total_samples: number;
+}
+
 export default function LabPage() {
     const supabase = createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-    const [efficiencyData, setEfficiencyData] = useState<any[]>([]);
+    const [efficiencyData, setEfficiencyData] = useState<EfficiencyItem[]>([]);
 
     useEffect(() => {
         async function load() {

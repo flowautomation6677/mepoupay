@@ -1,5 +1,9 @@
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
-const transactionRepo = require('../repositories/TransactionRepository');
+const TransactionRepository = require('../repositories/TransactionRepository');
+const { adminClient } = require('./supabaseClient');
+
+// Inject Admin Client (Bot context)
+const transactionRepo = new TransactionRepository(adminClient);
 const { format } = require('date-fns');
 const { ptBR } = require('date-fns/locale');
 const logger = require('./loggerService');

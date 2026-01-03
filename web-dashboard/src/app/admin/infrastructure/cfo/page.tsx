@@ -8,7 +8,7 @@ export default function CFOPage() {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
-    const [financeData, setFinanceData] = useState<any[]>([]);
+    const [financeData, setFinanceData] = useState<{ date: string; est_cost_usd: number }[]>([]);
 
     useEffect(() => {
         async function load() {
