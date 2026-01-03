@@ -24,7 +24,7 @@
     "ffprobe-static": "^3.1.0",
     "fluent-ffmpeg": "^2.1.2",
     "ioredis": "^5.8.2",
-    "mime-types": "^2.1.35",
+    "mime-types": "^3.0.2",
     "node-ofx-parser": "^0.5.1",
     "openai": "^4.24.0",
     "opossum": "^9.0.0",
