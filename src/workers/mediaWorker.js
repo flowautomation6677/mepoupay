@@ -4,7 +4,7 @@ const queueService = require('../services/queueService');
 const sessionService = require('../services/sessionService');
 const { processExtractedData } = require('../services/dataProcessor');
 const mediaStrategyFactory = require('../factories/MediaStrategyFactory');
-const textStrategy = require('../strategies/TextStrategy');
+const { TextStrategy: textStrategy } = require('../strategies/TextStrategy');
 const redis = require('../services/redisClient');
 const { AIResponseSchema } = require('../schemas/transactionSchema');
 
@@ -61,6 +61,50 @@ async function _processAIResponse(responseContent, userId, replyCallback) {
     return text; // Return text for context update
 }
 
+async function _handleTextCommand(text, userId, replyCallback, mockMessage) {
+    const userContext = await sessionService.getContext(userId);
+    const mockUser = { id: userId };
+
+    const response = await textStrategy.execute(text, mockMessage, mockUser, userContext);
+
+    if (response.type === 'ai_response' || response.type === 'tool_response') {
+        const responseText = await _processAIResponse(response.content, userId, replyCallback);
+
+        userContext.push({ role: "user", content: text });
+        userContext.push({ role: "assistant", content: responseText });
+        if (userContext.length > 10) userContext.splice(0, userContext.length - 10);
+        await sessionService.setContext(userId, userContext, 86400);
+    }
+}
+
+async function _handlePdfPasswordRequest(result, userId, replyCallback) {
+    const base64Data = Buffer.isBuffer(result.fileBuffer)
+        ? result.fileBuffer.toString('base64')
+        : result.fileBuffer;
+
+    await sessionService.setPdfState(userId, base64Data, 300);
+    await replyCallback("🔒 Este arquivo PDF é protegido por senha.\nDigite a senha para que eu possa ler:");
+}
+
+async function _processStrategyResult(result, userId, replyCallback, mockMessage) {
+    if (!result) return;
+
+    switch (result.type) {
+        case 'data_extraction':
+            await processExtractedData(result.content, userId, replyCallback);
+            break;
+        case 'text_command':
+            await _handleTextCommand(result.content, userId, replyCallback, mockMessage);
+            break;
+        case 'system_error':
+            await replyCallback(`❌ ${result.content}`);
+            break;
+        case 'pdf_password_request':
+            await _handlePdfPasswordRequest(result, userId, replyCallback);
+            break;
+    }
+}
+
 // --- Worker ---
 
 const mediaWorker = new Worker('media-processing', async (job) => {
@@ -84,40 +128,7 @@ const mediaWorker = new Worker('media-processing', async (job) => {
         const strategy = mediaStrategyFactory.getStrategy(type);
         const result = await strategy.execute(mockMessage, job.data);
 
-        if (!result) return;
-
-        // Handle Results
-        if (result.type === 'data_extraction') {
-            await processExtractedData(result.content, userId, reply);
-
-        } else if (result.type === 'text_command') {
-            // Audio/Image converted to text -> AI Conversation
-            const userContext = await sessionService.getContext(userId);
-            const mockUser = { id: userId };
-
-            const response = await textStrategy.execute(result.content, mockMessage, mockUser, userContext);
-
-            if (response.type === 'ai_response' || response.type === 'tool_response') {
-                const responseText = await _processAIResponse(response.content, userId, reply);
-
-                // Update Context
-                userContext.push({ role: "user", content: result.content });
-                userContext.push({ role: "assistant", content: responseText });
-                if (userContext.length > 10) userContext.splice(0, userContext.length - 10);
-                await sessionService.setContext(userId, userContext, 86400);
-            }
-
-        } else if (result.type === 'system_error') {
-            await reply(`❌ ${result.content}`);
-
-        } else if (result.type === 'pdf_password_request') {
-            const base64Data = Buffer.isBuffer(result.fileBuffer)
-                ? result.fileBuffer.toString('base64')
-                : result.fileBuffer;
-
-            await sessionService.setPdfState(userId, base64Data, 300);
-            await reply("🔒 Este arquivo PDF é protegido por senha.\nDigite a senha para que eu possa ler:");
-        }
+        await _processStrategyResult(result, userId, reply, mockMessage);
 
     } catch (err) {
         logger.error(`[Worker] Job ${job.id} failed`, { error: err });
@@ -138,5 +149,8 @@ mediaWorker.on('failed', (job, err) => {
 // Export worker mostly, but expose helpers for testing
 mediaWorker._createMockMessage = _createMockMessage;
 mediaWorker._processAIResponse = _processAIResponse;
+mediaWorker._processStrategyResult = _processStrategyResult;
+mediaWorker._handleTextCommand = _handleTextCommand;
+mediaWorker._handlePdfPasswordRequest = _handlePdfPasswordRequest;
 
 module.exports = mediaWorker;
