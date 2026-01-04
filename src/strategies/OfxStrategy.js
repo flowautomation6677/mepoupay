@@ -127,4 +127,14 @@ class OfxStrategy {
     }
 }
 
-module.exports = new OfxStrategy();
+module.exports = {
+    OfxStrategy: new OfxStrategy(),
+    // Exporting helpers for testing
+    _downloadAndValidateMedia,
+    _parseOfxData,
+    _extractTransactionList,
+    _formatOfxDate,
+    _mapTransaction,
+    _processTransactions,
+    _calculateBalance
+};

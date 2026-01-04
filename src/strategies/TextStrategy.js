@@ -284,4 +284,13 @@ class TextStrategy {
     }
 }
 
-module.exports = new TextStrategy();
+module.exports = {
+    TextStrategy: new TextStrategy(),
+    // Exporting helpers for testing
+    _checkMaliciousInput,
+    _buildRAGContext,
+    _getToolsDefinition,
+    _buildSystemPrompts,
+    _selectPromptVersion,
+    _handleToolCall
+};
