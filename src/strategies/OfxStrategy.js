@@ -1,78 +1,128 @@
 const ofx = require('node-ofx-parser');
 const securityService = require('../services/securityService');
+const logger = require('../services/loggerService');
+
+// ===== HELPER FUNCTIONS =====
+
+async function _downloadAndValidateMedia(message) {
+    logger.debug("[OFX] Downloading media...");
+    const media = await message.downloadMedia();
+
+    logger.debug("[OFX] Download result:", media ? "Success" : "Failed");
+    if (media) {
+        logger.debug("[OFX] Mimetype:", media.mimetype);
+        logger.debug("[OFX] Data length:", media.data ? media.data.length : 0);
+    }
+
+    if (!media || !media.data) {
+        return null;
+    }
+
+    return media;
+}
+
+function _parseOfxData(mediaData) {
+    const buffer = Buffer.from(mediaData, 'base64');
+    const ofxString = buffer.toString('utf-8');
+    return ofx.parse(ofxString);
+}
+
+function _extractTransactionList(parsedData) {
+    // Navigate through OFX structure
+    // Bank: OFX -> BANKMSGSRSV1 -> STMTTRNRS -> STMTRS -> BANKTRANLIST
+    // Credit: OFX -> CREDITCARDMSGSRSV1 -> CCSTMTTRNRS -> CCSTMTRS -> BANKTRANLIST
+
+    const bankMsg = parsedData.OFX?.BANKMSGSRSV1?.STMTTRNRS?.STMTRS?.BANKTRANLIST;
+    const creditMsg = parsedData.OFX?.CREDITCARDMSGSRSV1?.CCSTMTTRNRS?.CCSTMTRS?.BANKTRANLIST;
+
+    return bankMsg || creditMsg;
+}
+
+function _formatOfxDate(rawDate) {
+    // DTPOSTED format: YYYYMMDD
+    const dateStr = rawDate.substring(0, 8);
+    return `${dateStr.substring(0, 4)}-${dateStr.substring(4, 6)}-${dateStr.substring(6, 8)}`;
+}
+
+function _mapTransaction(tx) {
+    const valor = parseFloat(tx.TRNAMT);
+
+    return {
+        descricao: securityService.redactPII(tx.MEMO || "Transação OFX"),
+        valor: Math.abs(valor),
+        tipo: valor < 0 ? 'despesa' : 'receita',
+        categoria: 'Bancário',
+        data: _formatOfxDate(tx.DTPOSTED),
+        raw_id: tx.FITID
+    };
+}
+
+function _processTransactions(bankTranList) {
+    if (!bankTranList || !bankTranList.STMTTRN) {
+        return [];
+    }
+
+    const rawTx = Array.isArray(bankTranList.STMTTRN)
+        ? bankTranList.STMTTRN
+        : [bankTranList.STMTTRN];
+
+    return rawTx.map(_mapTransaction);
+}
+
+function _calculateBalance(transactions) {
+    return transactions.reduce((acc, t) =>
+        acc + (t.tipo === 'despesa' ? -t.valor : t.valor),
+        0
+    );
+}
+
+// ===== MAIN CLASS =====
 
 class OfxStrategy {
     async execute(message) {
         try {
-            console.log("[OFX DEBUG] Downloading media...");
-            const media = await message.downloadMedia();
-
-            console.log("[OFX DEBUG] downloadMedia result:", media ? "Object Found" : "Null");
-            if (media) {
-                console.log("[OFX DEBUG] Mimetype:", media.mimetype);
-                console.log("[OFX DEBUG] Data Length:", media.data ? media.data.length : "No Data");
+            // 1. Download and validate
+            const media = await _downloadAndValidateMedia(message);
+            if (!media) {
+                return {
+                    type: 'system_error',
+                    content: "❌ Falha no download. O WhatsApp não retornou dados para este OFX."
+                };
             }
 
-            if (!media || !media.data) {
-                return { type: 'system_error', content: "❌ Falha no download. O WhatsApp não retornou dados para este OFX." };
-            }
+            // 2. Parse OFX
+            const parsedData = _parseOfxData(media.data);
 
-            const buffer = Buffer.from(media.data, 'base64');
-            const ofxString = buffer.toString('utf-8');
+            // 3. Extract transactions
+            const bankTranList = _extractTransactionList(parsedData);
+            const transactions = _processTransactions(bankTranList);
 
-            const data = ofx.parse(ofxString);
-
-            // Navigate through OFX structure (It can vary slightly, but standard is similar)
-            // Usually: OFX -> BANKMSGSRSV1 -> STMTTRNRS -> STMTRS -> BANKTRANLIST -> STMTTRN
-            // Or CREDITCARDMSGSRSV1 for credit cards.
-
-            let transactions = [];
-            let bankTranList = null;
-
-            // Helper to find BANKTRANLIST recursively or checking both paths
-            const bankMsg = data.OFX?.BANKMSGSRSV1?.STMTTRNRS?.STMTRS?.BANKTRANLIST;
-            const creditMsg = data.OFX?.CREDITCARDMSGSRSV1?.CCSTMTTRNRS?.CCSTMTRS?.BANKTRANLIST;
-
-            bankTranList = bankMsg || creditMsg;
-
-            if (bankTranList && bankTranList.STMTTRN) {
-                const rawTx = Array.isArray(bankTranList.STMTTRN) ? bankTranList.STMTTRN : [bankTranList.STMTTRN];
-
-                transactions = rawTx.map(tx => {
-                    const valor = parseFloat(tx.TRNAMT);
-                    // DTPOSTED format: YYYYMMDD...
-                    const rawDate = tx.DTPOSTED.substring(0, 8); // YYYYMMDD
-                    const formattedDate = `${rawDate.substring(0, 4)}-${rawDate.substring(4, 6)}-${rawDate.substring(6, 8)}`;
-
-                    return {
-                        descricao: securityService.redactPII(tx.MEMO || "Transação OFX"),
-                        valor: Math.abs(valor), // Sistema usa positivo para valor, e 'tipo' para sinal
-                        tipo: valor < 0 ? 'despesa' : 'receita',
-                        categoria: 'Bancário', // Default, AI logic downstream can improve? Or keep generic.
-                        data: formattedDate,
-                        raw_id: tx.FITID
-                    };
-                });
-            }
-
+            // 4. Validate results
             if (transactions.length === 0) {
-                return { type: 'system_error', content: "Não encontrei transações neste arquivo OFX." };
+                return {
+                    type: 'system_error',
+                    content: "Não encontrei transações neste arquivo OFX."
+                };
             }
 
-            const total = transactions.reduce((acc, t) => acc + (t.tipo === 'despesa' ? -t.valor : t.valor), 0);
+            // 5. Calculate balance and return
+            const total = _calculateBalance(transactions);
 
             return {
                 type: 'data_extraction',
                 content: {
                     transacoes: transactions,
-                    total_fatura: null, // OFX usually is account statement, not invoice
+                    total_fatura: null,
                     saldo_calculado: total
                 }
             };
 
         } catch (error) {
-            console.error("OFX Strategy Error:", error);
-            return { type: 'system_error', content: "Erro ao ler arquivo OFX." };
+            logger.error("OFX Strategy Error:", error);
+            return {
+                type: 'system_error',
+                content: "Erro ao ler arquivo OFX."
+            };
         }
     }
 }
