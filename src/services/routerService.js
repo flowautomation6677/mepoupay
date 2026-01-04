@@ -25,8 +25,14 @@ class RouterService {
 
         // 2. Simple Transaction Patterns (Regex Heuristics)
         // Ex: "Almoço 20", "Uber 15.50", "20 reais padaria"
-        // This regex looks for a number and some words roughly.
-        const simpleTransactionRegex = /^[\w\s\u00C0-\u00FFçÇ]+ \d+([,.]\d+)?$|^\d+([,.]\d+)? [\w\s\u00C0-\u00FFçÇ]+$/i;
+        // Simplified: word(s) + number OR number + word(s)
+        const wordPattern = '[\\w\\s\\u00C0-\\u00FF]+';  // Words with accents
+        const numberPattern = '\\d+([,.]\\d+)?';  // Number with optional decimal
+
+        const simpleTransactionRegex = new RegExp(
+            `^${wordPattern} ${numberPattern}$|^${numberPattern} ${wordPattern}$`,
+            'i'
+        );
 
         if (simpleTransactionRegex.test(cleanText) && cleanText.length < 100) {
             logger.debug(`[Router] Simple text detected: "${cleanText}". Routing to LOW_COST.`);

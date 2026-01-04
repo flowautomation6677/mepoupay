@@ -38,12 +38,10 @@ class AudioStrategy {
             await message.reply("❌ Erro no áudio.");
             return null;
         } finally {
-            // Cleanup garantido
+            // Cleanup garantido - usando variáveis já declaradas acima
             try {
-                const tempOgg = path.join(__dirname, `../../temp_${message.id.id}.ogg`);
-                const tempMp3 = path.join(__dirname, `../../temp_${message.id.id}.mp3`);
-                if (fs.existsSync(tempOgg)) fs.unlinkSync(tempOgg);
-                if (fs.existsSync(tempMp3)) fs.unlinkSync(tempMp3);
+                if (tempOgg && fs.existsSync(tempOgg)) fs.unlinkSync(tempOgg);
+                if (tempMp3 && fs.existsSync(tempMp3)) fs.unlinkSync(tempMp3);
             } catch (e) { logger.error("Cleanup Error:", e); }
         }
     }
