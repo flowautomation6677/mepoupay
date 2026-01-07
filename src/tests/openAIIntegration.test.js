@@ -9,16 +9,23 @@ jest.mock('../services/openaiService', () => ({
     generateEmbedding: jest.fn()
 }));
 
-jest.mock('../repositories/TransactionRepository', () => ({
-    searchSimilar: jest.fn().mockResolvedValue([])
-}));
+jest.mock('../repositories/TransactionRepository', () => {
+    return jest.fn().mockImplementation(() => ({
+        searchSimilar: jest.fn().mockResolvedValue([])
+    }));
+});
 
 jest.mock('../repositories/UserRepository', () => ({
     getFinancialGoal: jest.fn()
 }));
 
+jest.mock('../services/cacheService', () => ({
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue()
+}));
+
 const { chatCompletion, generateEmbedding } = require('../services/openaiService');
-const textStrategy = require('../strategies/TextStrategy');
+const { TextStrategy: textStrategy } = require('../strategies/TextStrategy');
 
 // Dados fake
 const mockUser = { id: 1, name: 'Tester' };
@@ -37,7 +44,7 @@ describe('OpenAI Integration (Robustness Check)', () => {
             choices: [{
                 message: {
                     content: JSON.stringify({
-                        gastos: [{ descricao: "Pizza", valor: 50.00, categoria: "Alimentação", data: "2024-12-20" }]
+                        gastos: [{ descricao: "Pizza", valor: 50, categoria: "Alimentação", data: "2024-12-20" }]
                     })
                 }
             }]

@@ -8,6 +8,7 @@
     "dashboard": "cd web-dashboard && npm run dev",
     "dev": "concurrently \"npm start\" \"npm run dashboard\"",
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "sonar": "node sonar-project.js"
   },
   "dependencies": {

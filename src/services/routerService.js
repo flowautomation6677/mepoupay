@@ -1,10 +1,10 @@
 const logger = require('./loggerService');
 
 class RouterService {
-    constructor() {
-        this.LOW_COST_MODEL = "gpt-4o-mini";
-        this.HIGH_REASONING_MODEL = "gpt-4o";
-    }
+    LOW_COST_MODEL = "gpt-4o-mini";
+    HIGH_REASONING_MODEL = "gpt-4o";
+
+
 
     /**
      * Decides which model to use based on input complexity.
@@ -26,8 +26,8 @@ class RouterService {
         // 2. Simple Transaction Patterns (Regex Heuristics)
         // Ex: "Almoço 20", "Uber 15.50", "20 reais padaria"
         // Simplified: word(s) + number OR number + word(s)
-        const wordPattern = '[\\w\\s\\u00C0-\\u00FF]+';  // Words with accents
-        const numberPattern = '\\d+([,.]\\d+)?';  // Number with optional decimal
+        const wordPattern = String.raw`[\w\s\u00C0-\u00FF]+`;  // Words with accents
+        const numberPattern = String.raw`\d+([,.]\d+)?`;  // Number with optional decimal
 
         const simpleTransactionRegex = new RegExp(
             `^${wordPattern} ${numberPattern}$|^${numberPattern} ${wordPattern}$`,

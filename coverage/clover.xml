@@ -1,0 +1,1291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1767567176066" clover="3.2.0">
+  <project timestamp="1767567176067" name="All files">
+    <metrics statements="1141" coveredstatements="718" conditionals="547" coveredconditionals="303" methods="173" coveredmethods="103" elements="1861" coveredelements="1124" complexity="0" loc="1141" ncloc="1141" packages="9" files="39" classes="39"/>
+    <package name="commands">
+      <metrics statements="50" coveredstatements="19" conditionals="0" coveredconditionals="0" methods="12" coveredmethods="8"/>
+      <file name="ForgotCommand.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\commands\ForgotCommand.js">
+        <metrics statements="9" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="2"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+      </file>
+      <file name="OnboardingCommand.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\commands\OnboardingCommand.js">
+        <metrics statements="9" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="2"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+      </file>
+      <file name="ReportCommand.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\commands\ReportCommand.js">
+        <metrics statements="15" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="2"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+      </file>
+      <file name="ResetCommand.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\commands\ResetCommand.js">
+        <metrics statements="17" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="2"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="factories">
+      <metrics statements="13" coveredstatements="9" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="1"/>
+      <file name="MediaStrategyFactory.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\factories\MediaStrategyFactory.js">
+        <metrics statements="13" coveredstatements="9" conditionals="2" coveredconditionals="0" methods="2" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="handlers">
+      <metrics statements="204" coveredstatements="178" conditionals="132" coveredconditionals="105" methods="27" coveredmethods="25"/>
+      <file name="AiConversationHandler.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\handlers\AiConversationHandler.js">
+        <metrics statements="61" coveredstatements="44" conditionals="29" coveredconditionals="17" methods="12" coveredmethods="10"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="2" count="3" type="stmt"/>
+        <line num="3" count="3" type="stmt"/>
+        <line num="4" count="3" type="stmt"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="10" count="10" type="stmt"/>
+        <line num="11" count="10" type="stmt"/>
+        <line num="12" count="10" type="stmt"/>
+        <line num="14" count="10" type="cond" truecount="5" falsecount="0"/>
+        <line num="15" count="7" type="stmt"/>
+        <line num="17" count="10" type="stmt"/>
+        <line num="21" count="5" type="cond" truecount="4" falsecount="0"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+        <line num="29" count="2" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="38" count="3" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="45" count="2" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="68" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="70" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="83" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="84" count="0" type="stmt"/>
+        <line num="85" count="0" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="93" count="1" type="stmt"/>
+        <line num="95" count="1" type="stmt"/>
+        <line num="96" count="1" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="99" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="107" count="1" type="stmt"/>
+        <line num="113" count="1" type="stmt"/>
+        <line num="114" count="1" type="stmt"/>
+        <line num="115" count="1" type="stmt"/>
+        <line num="117" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="122" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="126" count="1" type="stmt"/>
+        <line num="128" count="1" type="stmt"/>
+        <line num="133" count="1" type="stmt"/>
+        <line num="134" count="1" type="stmt"/>
+        <line num="137" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="138" count="0" type="stmt"/>
+        <line num="139" count="0" type="stmt"/>
+        <line num="143" count="1" type="cond" truecount="2" falsecount="2"/>
+        <line num="144" count="1" type="stmt"/>
+        <line num="151" count="1" type="stmt"/>
+        <line num="156" count="3" type="stmt"/>
+      </file>
+      <file name="CommandDispatcher.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\handlers\CommandDispatcher.js">
+        <metrics statements="11" coveredstatements="10" conditionals="2" coveredconditionals="1" methods="2" coveredmethods="2"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="20" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+      </file>
+      <file name="FeedbackHandler.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\handlers\FeedbackHandler.js">
+        <metrics statements="37" coveredstatements="33" conditionals="20" coveredconditionals="17" methods="2" coveredmethods="2"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="12" count="6" type="stmt"/>
+        <line num="15" count="6" type="stmt"/>
+        <line num="16" count="6" type="cond" truecount="4" falsecount="0"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="32" count="5" type="stmt"/>
+        <line num="34" count="5" type="cond" truecount="4" falsecount="0"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="36" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="38" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="40" count="2" type="stmt"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="47" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="55" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="58" count="1" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="68" count="3" type="cond" truecount="3" falsecount="1"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="73" count="3" type="stmt"/>
+        <line num="77" count="2" type="stmt"/>
+      </file>
+      <file name="MediaHandler.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\handlers\MediaHandler.js">
+        <metrics statements="47" coveredstatements="44" conditionals="47" coveredconditionals="44" methods="8" coveredmethods="8"/>
+        <line num="1" count="5" type="stmt"/>
+        <line num="2" count="5" type="stmt"/>
+        <line num="7" count="19" type="cond" truecount="2" falsecount="0"/>
+        <line num="8" count="19" type="stmt"/>
+        <line num="12" count="14" type="stmt"/>
+        <line num="13" count="14" type="stmt"/>
+        <line num="14" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="18" count="8" type="stmt"/>
+        <line num="20" count="5" type="stmt"/>
+        <line num="21" count="5" type="stmt"/>
+        <line num="27" count="18" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="35" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="39" count="11" type="cond" truecount="4" falsecount="0"/>
+        <line num="47" count="23" type="stmt"/>
+        <line num="48" count="23" type="cond" truecount="3" falsecount="0"/>
+        <line num="49" count="23" type="stmt"/>
+        <line num="52" count="23" type="cond" truecount="2" falsecount="0"/>
+        <line num="53" count="21" type="cond" truecount="4" falsecount="0"/>
+        <line num="56" count="16" type="cond" truecount="2" falsecount="0"/>
+        <line num="57" count="15" type="cond" truecount="2" falsecount="0"/>
+        <line num="58" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="59" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="60" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="63" count="4" type="stmt"/>
+        <line num="69" count="13" type="cond" truecount="4" falsecount="0"/>
+        <line num="72" count="11" type="cond" truecount="1" falsecount="1"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="79" count="11" type="stmt"/>
+        <line num="80" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="81" count="4" type="stmt"/>
+        <line num="82" count="4" type="stmt"/>
+        <line num="85" count="7" type="stmt"/>
+        <line num="86" count="7" type="stmt"/>
+        <line num="87" count="7" type="cond" truecount="1" falsecount="2"/>
+        <line num="90" count="7" type="stmt"/>
+        <line num="92" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="93" count="6" type="stmt"/>
+        <line num="94" count="6" type="stmt"/>
+        <line num="95" count="6" type="stmt"/>
+        <line num="103" count="6" type="stmt"/>
+        <line num="106" count="1" type="stmt"/>
+        <line num="110" count="5" type="stmt"/>
+      </file>
+      <file name="messageHandler.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\handlers\messageHandler.js">
+        <metrics statements="48" coveredstatements="47" conditionals="34" coveredconditionals="26" methods="3" coveredmethods="3"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="15" count="7" type="stmt"/>
+        <line num="16" count="7" type="stmt"/>
+        <line num="18" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="25" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="26" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="30" count="4" type="stmt"/>
+        <line num="34" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="35" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="37" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+        <line num="42" count="4" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
+        <line num="49" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="51" count="4" type="stmt"/>
+        <line num="59" count="4" type="stmt"/>
+        <line num="60" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="63" count="2" type="stmt"/>
+        <line num="66" count="2" type="stmt"/>
+        <line num="67" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="73" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="78" count="2" type="stmt"/>
+        <line num="79" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="82" count="2" type="stmt"/>
+        <line num="83" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="86" count="2" type="stmt"/>
+        <line num="87" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="90" count="1" type="stmt"/>
+        <line num="93" count="2" type="stmt"/>
+        <line num="95" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="96" count="2" type="stmt"/>
+        <line num="97" count="2" type="stmt"/>
+        <line num="102" count="2" type="stmt"/>
+        <line num="108" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="repositories">
+      <metrics statements="79" coveredstatements="13" conditionals="61" coveredconditionals="6" methods="13" coveredmethods="2"/>
+      <file name="TransactionRepository.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\repositories\TransactionRepository.js">
+        <metrics statements="34" coveredstatements="9" conditionals="24" coveredconditionals="5" methods="7" coveredmethods="2"/>
+        <line num="2" count="5" type="stmt"/>
+        <line num="6" count="8" type="cond" truecount="1" falsecount="1"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="14" count="8" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="25" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="33" count="1" type="cond" truecount="3" falsecount="1"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="40" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="44" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="56" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="60" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="71" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="75" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="85" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="89" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="98" count="5" type="stmt"/>
+      </file>
+      <file name="UserRepository.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\repositories\UserRepository.js">
+        <metrics statements="45" coveredstatements="4" conditionals="37" coveredconditionals="1" methods="6" coveredmethods="0"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="2" count="3" type="stmt"/>
+        <line num="5" count="3" type="cond" truecount="1" falsecount="1"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="18" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="22" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="37" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="43" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="48" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="55" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="58" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="64" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="66" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="87" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="91" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="100" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="102" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="114" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="115" count="0" type="stmt"/>
+        <line num="121" count="0" type="stmt"/>
+        <line num="126" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="128" count="0" type="stmt"/>
+        <line num="130" count="0" type="stmt"/>
+        <line num="134" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="schemas">
+      <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="transactionSchema.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\schemas\transactionSchema.js">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="5" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="10" count="5" type="stmt"/>
+        <line num="20" count="5" type="stmt"/>
+        <line num="41" count="5" type="stmt"/>
+      </file>
+    </package>
+    <package name="services">
+      <metrics statements="443" coveredstatements="324" conditionals="166" coveredconditionals="118" methods="73" coveredmethods="42"/>
+      <file name="cacheService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\cacheService.js">
+        <metrics statements="22" coveredstatements="20" conditionals="8" coveredconditionals="6" methods="4" coveredmethods="4"/>
+        <line num="1" count="5" type="stmt"/>
+        <line num="2" count="5" type="stmt"/>
+        <line num="3" count="5" type="stmt"/>
+        <line num="7" count="5" type="stmt"/>
+        <line num="8" count="5" type="stmt"/>
+        <line num="16" count="9" type="stmt"/>
+        <line num="25" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="26" count="5" type="stmt"/>
+        <line num="27" count="5" type="stmt"/>
+        <line num="28" count="5" type="stmt"/>
+        <line num="29" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="30" count="1" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="36" count="4" type="stmt"/>
+        <line num="45" count="4" type="cond" truecount="3" falsecount="1"/>
+        <line num="46" count="4" type="stmt"/>
+        <line num="47" count="4" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
+        <line num="49" count="4" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="56" count="5" type="stmt"/>
+      </file>
+      <file name="circuitBreakerService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\circuitBreakerService.js">
+        <metrics statements="12" coveredstatements="11" conditionals="2" coveredconditionals="1" methods="6" coveredmethods="1"/>
+        <line num="1" count="7" type="stmt"/>
+        <line num="2" count="7" type="stmt"/>
+        <line num="5" count="7" type="stmt"/>
+        <line num="18" count="42" type="stmt"/>
+        <line num="20" count="42" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="28" count="42" type="stmt"/>
+        <line num="29" count="42" type="stmt"/>
+        <line num="30" count="42" type="stmt"/>
+        <line num="31" count="42" type="stmt"/>
+        <line num="33" count="42" type="stmt"/>
+        <line num="36" count="7" type="stmt"/>
+      </file>
+      <file name="currencyService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\currencyService.js">
+        <metrics statements="17" coveredstatements="17" conditionals="6" coveredconditionals="6" methods="2" coveredmethods="2"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="6" count="16" type="cond" truecount="4" falsecount="0"/>
+        <line num="7" count="10" type="stmt"/>
+        <line num="8" count="10" type="stmt"/>
+        <line num="11" count="8" type="stmt"/>
+        <line num="12" count="8" type="cond" truecount="2" falsecount="0"/>
+        <line num="13" count="7" type="stmt"/>
+        <line num="14" count="7" type="stmt"/>
+        <line num="15" count="7" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="26" count="8" type="stmt"/>
+        <line num="27" count="8" type="stmt"/>
+        <line num="33" count="4" type="stmt"/>
+      </file>
+      <file name="dataProcessor.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\dataProcessor.js">
+        <metrics statements="57" coveredstatements="44" conditionals="52" coveredconditionals="38" methods="8" coveredmethods="6"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="2" count="4" type="stmt"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="7" count="4" type="stmt"/>
+        <line num="8" count="4" type="stmt"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="10" count="4" type="stmt"/>
+        <line num="17" count="12" type="stmt"/>
+        <line num="18" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="20" count="9" type="stmt"/>
+        <line num="22" count="3" type="stmt"/>
+        <line num="28" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="29" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="30" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="11" type="stmt"/>
+        <line num="33" count="11" type="stmt"/>
+        <line num="35" count="11" type="cond" truecount="4" falsecount="0"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="44" count="11" type="stmt"/>
+        <line num="48" count="3" type="stmt"/>
+        <line num="49" count="3" type="stmt"/>
+        <line num="50" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="51" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="52" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="54" count="3" type="stmt"/>
+        <line num="56" count="3" type="stmt"/>
+        <line num="65" count="3" type="stmt"/>
+        <line num="69" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="70" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="72" count="9" type="stmt"/>
+        <line num="89" count="9" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="95" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="104" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="105" count="0" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="117" count="0" type="stmt"/>
+        <line num="126" count="2" type="stmt"/>
+        <line num="127" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="129" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="130" count="2" type="cond" truecount="1" falsecount="3"/>
+        <line num="132" count="2" type="stmt"/>
+        <line num="133" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="135" count="1" type="stmt"/>
+        <line num="136" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="138" count="1" type="stmt"/>
+        <line num="140" count="1" type="stmt"/>
+        <line num="143" count="1" type="stmt"/>
+        <line num="145" count="0" type="stmt"/>
+        <line num="148" count="4" type="stmt"/>
+      </file>
+      <file name="evolutionService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\evolutionService.js">
+        <metrics statements="46" coveredstatements="35" conditionals="17" coveredconditionals="16" methods="6" coveredmethods="5"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="6" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="10" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="30" count="7" type="stmt"/>
+        <line num="31" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="7" type="stmt"/>
+        <line num="33" count="7" type="stmt"/>
+        <line num="41" count="7" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="44" count="7" type="stmt"/>
+        <line num="45" count="7" type="stmt"/>
+        <line num="57" count="4" type="stmt"/>
+        <line num="58" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="59" count="4" type="stmt"/>
+        <line num="61" count="4" type="stmt"/>
+        <line num="75" count="4" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="78" count="4" type="stmt"/>
+        <line num="79" count="4" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="112" count="4" type="stmt"/>
+        <line num="113" count="4" type="stmt"/>
+        <line num="114" count="4" type="stmt"/>
+        <line num="115" count="4" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="118" count="4" type="stmt"/>
+        <line num="127" count="3" type="stmt"/>
+        <line num="128" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="129" count="3" type="stmt"/>
+        <line num="131" count="3" type="stmt"/>
+        <line num="136" count="3" type="stmt"/>
+        <line num="137" count="0" type="stmt"/>
+        <line num="139" count="3" type="stmt"/>
+        <line num="140" count="3" type="stmt"/>
+        <line num="145" count="2" type="stmt"/>
+      </file>
+      <file name="formatterService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\formatterService.js">
+        <metrics statements="12" coveredstatements="3" conditionals="3" coveredconditionals="0" methods="4" coveredmethods="0"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="3" count="3" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="10" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="47" count="3" type="stmt"/>
+      </file>
+      <file name="loggerService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\loggerService.js">
+        <metrics statements="12" coveredstatements="11" conditionals="6" coveredconditionals="4" methods="1" coveredmethods="1"/>
+        <line num="1" count="19" type="stmt"/>
+        <line num="2" count="19" type="stmt"/>
+        <line num="3" count="19" type="stmt"/>
+        <line num="6" count="19" type="stmt"/>
+        <line num="13" count="19" type="stmt"/>
+        <line num="17" count="50" type="cond" truecount="1" falsecount="1"/>
+        <line num="18" count="50" type="stmt"/>
+        <line num="23" count="19" type="stmt"/>
+        <line num="49" count="19" type="cond" truecount="1" falsecount="1"/>
+        <line num="50" count="19" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="60" count="19" type="stmt"/>
+      </file>
+      <file name="openaiService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\openaiService.js">
+        <metrics statements="63" coveredstatements="20" conditionals="10" coveredconditionals="0" methods="14" coveredmethods="3"/>
+        <line num="1" count="7" type="stmt"/>
+        <line num="2" count="7" type="stmt"/>
+        <line num="3" count="7" type="stmt"/>
+        <line num="4" count="7" type="stmt"/>
+        <line num="6" count="7" type="stmt"/>
+        <line num="10" count="7" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="85" count="0" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="90" count="7" type="stmt"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="99" count="0" type="stmt"/>
+        <line num="131" count="0" type="stmt"/>
+        <line num="138" count="0" type="stmt"/>
+        <line num="139" count="0" type="stmt"/>
+        <line num="141" count="0" type="stmt"/>
+        <line num="145" count="0" type="stmt"/>
+        <line num="148" count="0" type="stmt"/>
+        <line num="150" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="151" count="0" type="stmt"/>
+        <line num="153" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="154" count="0" type="stmt"/>
+        <line num="156" count="0" type="stmt"/>
+        <line num="159" count="0" type="stmt"/>
+        <line num="164" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="165" count="0" type="stmt"/>
+        <line num="166" count="0" type="stmt"/>
+        <line num="169" count="0" type="stmt"/>
+        <line num="170" count="0" type="stmt"/>
+        <line num="171" count="0" type="stmt"/>
+        <line num="172" count="0" type="stmt"/>
+        <line num="177" count="7" type="stmt"/>
+        <line num="178" count="7" type="stmt"/>
+        <line num="179" count="7" type="stmt"/>
+        <line num="180" count="7" type="stmt"/>
+        <line num="181" count="7" type="stmt"/>
+        <line num="182" count="7" type="stmt"/>
+        <line num="186" count="7" type="stmt"/>
+        <line num="188" count="0" type="stmt"/>
+        <line num="189" count="1" type="stmt"/>
+        <line num="190" count="0" type="stmt"/>
+        <line num="191" count="0" type="stmt"/>
+        <line num="192" count="0" type="stmt"/>
+        <line num="193" count="0" type="stmt"/>
+      </file>
+      <file name="queueService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\queueService.js">
+        <metrics statements="14" coveredstatements="7" conditionals="1" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="1" count="7" type="stmt"/>
+        <line num="2" count="7" type="stmt"/>
+        <line num="3" count="7" type="stmt"/>
+        <line num="6" count="7" type="stmt"/>
+        <line num="7" count="7" type="stmt"/>
+        <line num="9" count="7" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="47" count="7" type="stmt"/>
+      </file>
+      <file name="redisClient.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\redisClient.js">
+        <metrics statements="11" coveredstatements="8" conditionals="2" coveredconditionals="2" methods="3" coveredmethods="1"/>
+        <line num="1" count="11" type="stmt"/>
+        <line num="2" count="11" type="stmt"/>
+        <line num="5" count="11" type="cond" truecount="2" falsecount="0"/>
+        <line num="7" count="11" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="15" count="11" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="19" count="11" type="stmt"/>
+        <line num="20" count="4" type="stmt"/>
+        <line num="23" count="11" type="stmt"/>
+      </file>
+      <file name="reportService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\reportService.js">
+        <metrics statements="69" coveredstatements="69" conditionals="17" coveredconditionals="15" methods="6" coveredmethods="6"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="21" count="10" type="stmt"/>
+        <line num="23" count="10" type="stmt"/>
+        <line num="24" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="25" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="27" count="10" type="stmt"/>
+        <line num="28" count="10" type="stmt"/>
+        <line num="29" count="10" type="stmt"/>
+        <line num="32" count="10" type="stmt"/>
+        <line num="35" count="9" type="stmt"/>
+        <line num="36" count="9" type="stmt"/>
+        <line num="37" count="9" type="stmt"/>
+        <line num="39" count="9" type="stmt"/>
+        <line num="40" count="31" type="stmt"/>
+        <line num="41" count="31" type="cond" truecount="2" falsecount="0"/>
+        <line num="42" count="4" type="stmt"/>
+        <line num="44" count="27" type="stmt"/>
+        <line num="46" count="27" type="cond" truecount="2" falsecount="0"/>
+        <line num="50" count="9" type="stmt"/>
+        <line num="53" count="9" type="stmt"/>
+        <line num="54" count="9" type="stmt"/>
+        <line num="55" count="9" type="stmt"/>
+        <line num="56" count="9" type="stmt"/>
+        <line num="57" count="9" type="stmt"/>
+        <line num="60" count="9" type="stmt"/>
+        <line num="61" count="9" type="stmt"/>
+        <line num="64" count="9" type="cond" truecount="0" falsecount="1"/>
+        <line num="65" count="105" type="stmt"/>
+        <line num="74" count="9" type="stmt"/>
+        <line num="75" count="9" type="stmt"/>
+        <line num="76" count="9" type="stmt"/>
+        <line num="77" count="9" type="stmt"/>
+        <line num="78" count="9" type="stmt"/>
+        <line num="81" count="9" type="stmt"/>
+        <line num="82" count="9" type="stmt"/>
+        <line num="83" count="9" type="stmt"/>
+        <line num="84" count="9" type="stmt"/>
+        <line num="85" count="9" type="stmt"/>
+        <line num="86" count="9" type="stmt"/>
+        <line num="87" count="9" type="cond" truecount="2" falsecount="0"/>
+        <line num="88" count="9" type="stmt"/>
+        <line num="89" count="9" type="stmt"/>
+        <line num="92" count="9" type="stmt"/>
+        <line num="93" count="9" type="stmt"/>
+        <line num="95" count="9" type="stmt"/>
+        <line num="96" count="7" type="stmt"/>
+        <line num="97" count="7" type="stmt"/>
+        <line num="98" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="103" count="9" type="stmt"/>
+        <line num="106" count="9" type="stmt"/>
+        <line num="107" count="9" type="stmt"/>
+        <line num="109" count="9" type="stmt"/>
+        <line num="110" count="26" type="stmt"/>
+        <line num="111" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="112" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="114" count="26" type="stmt"/>
+        <line num="115" count="26" type="stmt"/>
+        <line num="116" count="26" type="stmt"/>
+        <line num="120" count="9" type="stmt"/>
+        <line num="121" count="9" type="stmt"/>
+        <line num="124" count="1" type="stmt"/>
+        <line num="125" count="1" type="stmt"/>
+        <line num="130" count="2" type="stmt"/>
+      </file>
+      <file name="routerService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\routerService.js">
+        <metrics statements="20" coveredstatements="18" conditionals="15" coveredconditionals="13" methods="2" coveredmethods="2"/>
+        <line num="1" count="6" type="stmt"/>
+        <line num="5" count="6" type="stmt"/>
+        <line num="6" count="6" type="stmt"/>
+        <line num="17" count="13" type="cond" truecount="3" falsecount="1"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="22" count="13" type="cond" truecount="3" falsecount="1"/>
+        <line num="24" count="13" type="stmt"/>
+        <line num="29" count="13" type="stmt"/>
+        <line num="30" count="13" type="stmt"/>
+        <line num="32" count="13" type="stmt"/>
+        <line num="37" count="13" type="cond" truecount="4" falsecount="0"/>
+        <line num="38" count="7" type="stmt"/>
+        <line num="39" count="7" type="stmt"/>
+        <line num="44" count="6" type="cond" truecount="2" falsecount="0"/>
+        <line num="45" count="3" type="stmt"/>
+        <line num="46" count="3" type="stmt"/>
+        <line num="51" count="3" type="stmt"/>
+        <line num="52" count="3" type="stmt"/>
+        <line num="56" count="6" type="stmt"/>
+      </file>
+      <file name="securityService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\securityService.js">
+        <metrics statements="21" coveredstatements="21" conditionals="6" coveredconditionals="6" methods="3" coveredmethods="3"/>
+        <line num="1" count="8" type="stmt"/>
+        <line num="12" count="27" type="cond" truecount="4" falsecount="0"/>
+        <line num="14" count="24" type="stmt"/>
+        <line num="18" count="24" type="stmt"/>
+        <line num="21" count="7" type="stmt"/>
+        <line num="27" count="24" type="stmt"/>
+        <line num="31" count="24" type="stmt"/>
+        <line num="34" count="24" type="stmt"/>
+        <line num="38" count="24" type="stmt"/>
+        <line num="40" count="24" type="stmt"/>
+        <line num="49" count="10" type="cond" truecount="2" falsecount="0"/>
+        <line num="51" count="7" type="stmt"/>
+        <line num="54" count="7" type="stmt"/>
+        <line num="57" count="7" type="stmt"/>
+        <line num="58" count="7" type="stmt"/>
+        <line num="61" count="7" type="stmt"/>
+        <line num="62" count="7" type="stmt"/>
+        <line num="63" count="7" type="stmt"/>
+        <line num="69" count="7" type="stmt"/>
+        <line num="71" count="7" type="stmt"/>
+        <line num="75" count="8" type="stmt"/>
+      </file>
+      <file name="sessionService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\sessionService.js">
+        <metrics statements="46" coveredstatements="22" conditionals="7" coveredconditionals="3" methods="9" coveredmethods="5"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="8" count="4" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="18" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="34" count="1" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="74" count="2" type="stmt"/>
+        <line num="75" count="2" type="stmt"/>
+        <line num="76" count="2" type="stmt"/>
+        <line num="78" count="0" type="stmt"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="92" count="0" type="stmt"/>
+        <line num="103" count="1" type="stmt"/>
+        <line num="104" count="1" type="stmt"/>
+        <line num="105" count="1" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="117" count="2" type="stmt"/>
+        <line num="118" count="2" type="stmt"/>
+        <line num="119" count="2" type="stmt"/>
+        <line num="120" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="122" count="0" type="stmt"/>
+        <line num="123" count="0" type="stmt"/>
+        <line num="132" count="0" type="stmt"/>
+        <line num="133" count="0" type="stmt"/>
+        <line num="134" count="0" type="stmt"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="141" count="4" type="stmt"/>
+      </file>
+      <file name="supabaseClient.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\supabaseClient.js">
+        <metrics statements="15" coveredstatements="12" conditionals="8" coveredconditionals="5" methods="0" coveredmethods="0"/>
+        <line num="1" count="10" type="stmt"/>
+        <line num="2" count="10" type="stmt"/>
+        <line num="3" count="10" type="stmt"/>
+        <line num="6" count="10" type="stmt"/>
+        <line num="7" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="8" count="10" type="stmt"/>
+        <line num="10" count="10" type="cond" truecount="3" falsecount="1"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="17" count="10" type="stmt"/>
+        <line num="21" count="10" type="stmt"/>
+        <line num="23" count="10" type="cond" truecount="1" falsecount="1"/>
+        <line num="24" count="10" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="29" count="10" type="stmt"/>
+      </file>
+      <file name="transactionEmbeddingService.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\services\transactionEmbeddingService.js">
+        <metrics statements="6" coveredstatements="6" conditionals="6" coveredconditionals="3" methods="3" coveredmethods="3"/>
+        <line num="1" count="4" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="7" count="1" type="cond" truecount="2" falsecount="2"/>
+        <line num="9" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="15" count="4" type="stmt"/>
+      </file>
+    </package>
+    <package name="strategies">
+      <metrics statements="254" coveredstatements="100" conditionals="137" coveredconditionals="43" methods="33" coveredmethods="17"/>
+      <file name="AudioStrategy.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\strategies\AudioStrategy.js">
+        <metrics statements="36" coveredstatements="13" conditionals="18" coveredconditionals="3" methods="4" coveredmethods="3"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="25" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="44" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="50" count="1" type="stmt"/>
+        <line num="52" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="56" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="65" count="1" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="70" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="76" count="2" type="stmt"/>
+      </file>
+      <file name="CsvStrategy.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\strategies\CsvStrategy.js">
+        <metrics statements="15" coveredstatements="3" conditionals="4" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="8" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="24" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="40" count="1" type="stmt"/>
+      </file>
+      <file name="ImageStrategy.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\strategies\ImageStrategy.js">
+        <metrics statements="10" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+      </file>
+      <file name="OfxStrategy.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\strategies\OfxStrategy.js">
+        <metrics statements="42" coveredstatements="21" conditionals="28" coveredconditionals="16" methods="9" coveredmethods="6"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="11" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="12" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="14" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="17" count="2" type="cond" truecount="4" falsecount="0"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="38" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="43" count="3" type="stmt"/>
+        <line num="44" count="3" type="stmt"/>
+        <line num="48" count="2" type="stmt"/>
+        <line num="50" count="2" type="stmt"/>
+        <line num="61" count="1" type="cond" truecount="2" falsecount="2"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="65" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="73" count="2" type="stmt"/>
+        <line num="74" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="83" count="0" type="stmt"/>
+        <line num="85" count="0" type="stmt"/>
+        <line num="86" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="94" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="101" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="102" count="0" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="121" count="0" type="stmt"/>
+        <line num="122" count="0" type="stmt"/>
+        <line num="130" count="2" type="stmt"/>
+      </file>
+      <file name="PdfRetryStrategy.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\strategies\PdfRetryStrategy.js">
+        <metrics statements="7" coveredstatements="2" conditionals="2" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="9" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+      </file>
+      <file name="PdfStrategy.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\strategies\PdfStrategy.js">
+        <metrics statements="48" coveredstatements="3" conditionals="33" coveredconditionals="0" methods="5" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="17" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="50" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="58" count="0" type="cond" truecount="0" falsecount="5"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="66" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="73" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="81" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="83" count="0" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="88" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="96" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="101" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="105" count="0" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="108" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="110" count="0" type="stmt"/>
+        <line num="114" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="115" count="0" type="stmt"/>
+        <line num="119" count="1" type="stmt"/>
+      </file>
+      <file name="TextStrategy.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\strategies\TextStrategy.js">
+        <metrics statements="71" coveredstatements="53" conditionals="44" coveredconditionals="24" methods="10" coveredmethods="8"/>
+        <line num="1" count="5" type="stmt"/>
+        <line num="2" count="5" type="stmt"/>
+        <line num="3" count="5" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="7" count="5" type="stmt"/>
+        <line num="8" count="5" type="stmt"/>
+        <line num="9" count="5" type="stmt"/>
+        <line num="10" count="5" type="stmt"/>
+        <line num="15" count="45" type="stmt"/>
+        <line num="26" count="371" type="stmt"/>
+        <line num="30" count="36" type="stmt"/>
+        <line num="31" count="36" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="36" type="stmt"/>
+        <line num="36" count="36" type="stmt"/>
+        <line num="60" count="36" type="stmt"/>
+        <line num="158" count="36" type="cond" truecount="2" falsecount="0"/>
+        <line num="162" count="0" type="stmt"/>
+        <line num="163" count="0" type="stmt"/>
+        <line num="164" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="165" count="0" type="stmt"/>
+        <line num="166" count="0" type="stmt"/>
+        <line num="169" count="0" type="stmt"/>
+        <line num="179" count="0" type="stmt"/>
+        <line num="180" count="0" type="stmt"/>
+        <line num="185" count="2" type="stmt"/>
+        <line num="186" count="2" type="stmt"/>
+        <line num="188" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="189" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="190" count="0" type="stmt"/>
+        <line num="191" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="193" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="196" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="197" count="0" type="stmt"/>
+        <line num="199" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="200" count="0" type="stmt"/>
+        <line num="201" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="202" count="0" type="stmt"/>
+        <line num="204" count="0" type="stmt"/>
+        <line num="207" count="2" type="stmt"/>
+        <line num="218" count="45" type="stmt"/>
+        <line num="221" count="45" type="cond" truecount="2" falsecount="0"/>
+        <line num="222" count="7" type="stmt"/>
+        <line num="223" count="7" type="stmt"/>
+        <line num="230" count="38" type="stmt"/>
+        <line num="231" count="38" type="cond" truecount="2" falsecount="0"/>
+        <line num="232" count="2" type="stmt"/>
+        <line num="233" count="2" type="stmt"/>
+        <line num="237" count="36" type="stmt"/>
+        <line num="238" count="36" type="stmt"/>
+        <line num="239" count="36" type="stmt"/>
+        <line num="240" count="36" type="stmt"/>
+        <line num="243" count="36" type="stmt"/>
+        <line num="244" count="36" type="stmt"/>
+        <line num="245" count="36" type="stmt"/>
+        <line num="248" count="36" type="stmt"/>
+        <line num="255" count="36" type="stmt"/>
+        <line num="256" count="36" type="stmt"/>
+        <line num="259" count="36" type="stmt"/>
+        <line num="262" count="36" type="cond" truecount="4" falsecount="0"/>
+        <line num="263" count="2" type="stmt"/>
+        <line num="269" count="34" type="stmt"/>
+        <line num="272" count="34" type="cond" truecount="2" falsecount="0"/>
+        <line num="273" count="2" type="stmt"/>
+        <line num="274" count="2" type="stmt"/>
+        <line num="277" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="278" count="0" type="stmt"/>
+        <line num="281" count="2" type="stmt"/>
+        <line num="285" count="32" type="stmt"/>
+        <line num="292" count="32" type="stmt"/>
+        <line num="294" count="32" type="stmt"/>
+        <line num="298" count="5" type="stmt"/>
+      </file>
+      <file name="XlsxStrategy.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\strategies\XlsxStrategy.js">
+        <metrics statements="25" coveredstatements="3" conditionals="8" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="9" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="38" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="utils">
+      <metrics statements="15" coveredstatements="9" conditionals="18" coveredconditionals="7" methods="3" coveredmethods="2"/>
+      <file name="dateUtility.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\utils\dateUtility.js">
+        <metrics statements="15" coveredstatements="9" conditionals="18" coveredconditionals="7" methods="3" coveredmethods="2"/>
+        <line num="1" count="3" type="stmt"/>
+        <line num="10" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="15" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="16" count="6" type="stmt"/>
+        <line num="19" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="23" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="32" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="33" count="7" type="cond" truecount="2" falsecount="0"/>
+        <line num="34" count="7" type="stmt"/>
+        <line num="43" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="44" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="49" count="3" type="stmt"/>
+      </file>
+    </package>
+    <package name="workers">
+      <metrics statements="78" coveredstatements="61" conditionals="31" coveredconditionals="24" methods="10" coveredmethods="6"/>
+      <file name="mediaWorker.js" path="C:\Users\luiza\OneDrive\Documentos\Antigravity\FerramentaFinanceiraTeste\src\workers\mediaWorker.js">
+        <metrics statements="78" coveredstatements="61" conditionals="31" coveredconditionals="24" methods="10" coveredmethods="6"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="14" count="3" type="stmt"/>
+        <line num="16" count="3" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="31" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="32" count="3" type="stmt"/>
+        <line num="36" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="37" count="4" type="stmt"/>
+        <line num="40" count="4" type="stmt"/>
+        <line num="41" count="4" type="stmt"/>
+        <line num="42" count="4" type="stmt"/>
+        <line num="43" count="4" type="cond" truecount="5" falsecount="0"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="47" count="4" type="stmt"/>
+        <line num="48" count="4" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="50" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="53" count="1" type="stmt"/>
+        <line num="58" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="59" count="3" type="stmt"/>
+        <line num="61" count="4" type="stmt"/>
+        <line num="65" count="1" type="stmt"/>
+        <line num="66" count="1" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="70" count="1" type="cond" truecount="2" falsecount="2"/>
+        <line num="71" count="1" type="stmt"/>
+        <line num="73" count="1" type="stmt"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="75" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="76" count="1" type="stmt"/>
+        <line num="81" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="85" count="1" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
+        <line num="90" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="92" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="94" count="1" type="stmt"/>
+        <line num="95" count="1" type="stmt"/>
+        <line num="97" count="1" type="stmt"/>
+        <line num="98" count="1" type="stmt"/>
+        <line num="100" count="1" type="stmt"/>
+        <line num="101" count="1" type="stmt"/>
+        <line num="103" count="1" type="stmt"/>
+        <line num="104" count="1" type="stmt"/>
+        <line num="110" count="2" type="stmt"/>
+        <line num="111" count="0" type="stmt"/>
+        <line num="112" count="0" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="117" count="0" type="stmt"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="120" count="0" type="stmt"/>
+        <line num="124" count="0" type="stmt"/>
+        <line num="125" count="0" type="stmt"/>
+        <line num="128" count="0" type="stmt"/>
+        <line num="129" count="0" type="stmt"/>
+        <line num="131" count="0" type="stmt"/>
+        <line num="134" count="0" type="stmt"/>
+        <line num="135" count="0" type="stmt"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="141" count="2" type="stmt"/>
+        <line num="142" count="0" type="stmt"/>
+        <line num="145" count="2" type="stmt"/>
+        <line num="146" count="0" type="stmt"/>
+        <line num="150" count="2" type="stmt"/>
+        <line num="151" count="2" type="stmt"/>
+        <line num="152" count="2" type="stmt"/>
+        <line num="153" count="2" type="stmt"/>
+        <line num="154" count="2" type="stmt"/>
+        <line num="156" count="2" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

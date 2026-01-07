@@ -42,19 +42,6 @@ describe('OfxStrategy - Refactored Functions', () => {
     });
 
     describe('_parseOfxData', () => {
-        const ofxContent = `
-OFXHEADER:100
-DATA:OFXSGML
-VERSION:102
-SECURITY:NONE
-ENCODING:USASCII
-CHARSET:1252
-COMPRESSION:NONE
-OLDFILEUID:NONE
-NEWFILEUID:NONE
-
-<OFX>
-</OFX>`;
         // Mock node-ofx-parser handled by implementation? 
         // Logic uses require('node-ofx-parser').parse. We assume it works or mock it.
         // For unit test of logic *around* it, we can trust the lib or mock it.
@@ -80,7 +67,7 @@ NEWFILEUID:NONE
             const result = _mapTransaction(tx);
             expect(result).toEqual({
                 descricao: "Supermercado",
-                valor: 50.00,
+                valor: 50,
                 tipo: 'despesa',
                 categoria: 'Bancário',
                 data: '2026-01-04',
@@ -98,7 +85,7 @@ NEWFILEUID:NONE
             const result = _mapTransaction(tx);
             expect(result).toEqual({
                 descricao: "Salário",
-                valor: 1000.00,
+                valor: 1000,
                 tipo: 'receita',
                 categoria: 'Bancário',
                 data: '2026-01-05',

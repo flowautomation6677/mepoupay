@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const ffmpegPath = require('ffmpeg-static');
 const { transcribeAudio } = require('../services/openaiService');
 const logger = require('../services/loggerService');
@@ -62,7 +62,7 @@ class AudioStrategy {
             // 1. Path is absolute and verified from trusted 'ffmpeg-static' package.
             // 2. Shell execution is disabled (shell: false) to prevent command injection.
             // 3. Arguments are passed as an array, not a shell string.
-            const spawn = require('child_process').spawn;
+            const spawn = require('node:child_process').spawn;
 
             // NOSONAR: javascript:S2076 - OS Command Injection verified as safe due to above mitigations.
             const ffmpeg = spawn(ffmpegPath, ['-i', input, '-acodec', 'libmp3lame', '-b:a', '128k', output], { shell: false });

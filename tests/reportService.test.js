@@ -1,6 +1,14 @@
 // Mock das dependências
 jest.mock('pdf-lib');
-jest.mock('../src/repositories/TransactionRepository');
+// Definir mockRepo FORA para ser acessível na factory
+const mockTransactionRepo = {
+    findByUserAndDateRange: jest.fn()
+};
+
+jest.mock('pdf-lib');
+jest.mock('../src/repositories/TransactionRepository', () => {
+    return jest.fn().mockImplementation(() => mockTransactionRepo);
+});
 jest.mock('../src/services/loggerService');
 jest.mock('date-fns', () => ({
     format: jest.fn((date, formatStr) => {
@@ -20,7 +28,6 @@ const TransactionRepository = require('../src/repositories/TransactionRepository
 const logger = require('../src/services/loggerService');
 
 describe('ReportService', () => {
-    let mockTransactionRepo;
     let mockPdfDoc;
     let mockPage;
 
@@ -44,10 +51,8 @@ describe('ReportService', () => {
         StandardFonts.HelveticaBold = 'HelveticaBold';
 
         // Mock do TransactionRepository
-        mockTransactionRepo = {
-            findByUserAndDateRange: jest.fn()
-        };
-        TransactionRepository.mockImplementation(() => mockTransactionRepo);
+        // mockTransactionRepo já está definido globalmente, apenas limpamos
+        mockTransactionRepo.findByUserAndDateRange.mockReset();
     });
 
     describe('generateMonthlyReport', () => {

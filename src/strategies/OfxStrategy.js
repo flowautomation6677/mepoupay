@@ -45,7 +45,7 @@ function _formatOfxDate(rawDate) {
 }
 
 function _mapTransaction(tx) {
-    const valor = parseFloat(tx.TRNAMT);
+    const valor = Number.parseFloat(tx.TRNAMT);
 
     return {
         descricao: securityService.redactPII(tx.MEMO || "Transação OFX"),

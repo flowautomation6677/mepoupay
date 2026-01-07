@@ -8,16 +8,18 @@ jest.mock('../services/openaiService', () => ({
     generateEmbedding: jest.fn()
 }));
 
-jest.mock('../repositories/TransactionRepository', () => ({
-    searchSimilar: jest.fn().mockResolvedValue([])
-}));
+jest.mock('../repositories/TransactionRepository', () => {
+    return jest.fn().mockImplementation(() => ({
+        searchSimilar: jest.fn().mockResolvedValue([])
+    }));
+});
 
 jest.mock('../repositories/UserRepository', () => ({
     getFinancialGoal: jest.fn()
 }));
 
 const { chatCompletion, generateEmbedding } = require('../services/openaiService');
-const textStrategy = require('../strategies/TextStrategy');
+const { TextStrategy: textStrategy } = require('../strategies/TextStrategy');
 
 const mockUser = { id: 999, name: 'Hacker' };
 const mockMemory = [];

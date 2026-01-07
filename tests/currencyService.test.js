@@ -14,18 +14,18 @@ describe('CurrencyService', () => {
     describe('getExchangeRate', () => {
         test('deve retornar 1.0 para BRL', async () => {
             const rate = await currencyService.getExchangeRate('BRL');
-            expect(rate).toBe(1.0);
+            expect(rate).toBe(1);
             expect(axios.get).not.toHaveBeenCalled();
         });
 
         test('deve retornar 1.0 quando moeda não fornecida', async () => {
             const rate = await currencyService.getExchangeRate(null);
-            expect(rate).toBe(1.0);
+            expect(rate).toBe(1);
         });
 
         test('deve retornar 1.0 quando moeda é undefined', async () => {
             const rate = await currencyService.getExchangeRate(undefined);
-            expect(rate).toBe(1.0);
+            expect(rate).toBe(1);
         });
 
         test('deve buscar taxa de câmbio para USD', async () => {
@@ -75,7 +75,7 @@ describe('CurrencyService', () => {
 
             const rate = await currencyService.getExchangeRate('USD');
 
-            expect(rate).toBe(1.0);
+            expect(rate).toBe(1);
             expect(logger.warn).toHaveBeenCalledWith(
                 expect.stringContaining('não retornou a chave esperada')
             );
@@ -86,7 +86,7 @@ describe('CurrencyService', () => {
 
             const rate = await currencyService.getExchangeRate('USD');
 
-            expect(rate).toBe(1.0);
+            expect(rate).toBe(1);
             expect(logger.error).toHaveBeenCalledWith(
                 expect.stringContaining('Falha ao obter câmbio'),
                 expect.objectContaining({
@@ -124,7 +124,7 @@ describe('CurrencyService', () => {
 
             expect(result).toEqual({
                 convertedValue: 500,
-                exchangeRate: 5.00
+                exchangeRate: 5
             });
         });
 
@@ -141,7 +141,7 @@ describe('CurrencyService', () => {
 
             expect(result).toEqual({
                 convertedValue: 300,
-                exchangeRate: 6.00
+                exchangeRate: 6
             });
         });
 
@@ -150,7 +150,7 @@ describe('CurrencyService', () => {
 
             expect(result).toEqual({
                 convertedValue: 100,
-                exchangeRate: 1.0
+                exchangeRate: 1
             });
             expect(axios.get).not.toHaveBeenCalled();
         });
@@ -162,7 +162,7 @@ describe('CurrencyService', () => {
 
             expect(result).toEqual({
                 convertedValue: 100,
-                exchangeRate: 1.0
+                exchangeRate: 1
             });
         });
 
@@ -186,7 +186,7 @@ describe('CurrencyService', () => {
 
             expect(result).toEqual({
                 convertedValue: 0,
-                exchangeRate: 1.0
+                exchangeRate: 1
             });
         });
 
