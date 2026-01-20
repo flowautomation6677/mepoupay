@@ -6,6 +6,7 @@ services:
     build: .
     container_name: finance_bot_main
     restart: always
+    env_file: .env
     environment:
       - NODE_ENV=production
       - RUN_WORKER_LOCALLY=false # Disable internal media worker
