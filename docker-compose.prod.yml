@@ -19,6 +19,21 @@ services:
       - ./.wwebjs_auth:/app/.wwebjs_auth
       - ./.wwebjs_cache:/app/.wwebjs_cache
 
+  dashboard:
+    build:
+      context: ./web-dashboard
+      dockerfile: Dockerfile
+    container_name: dashboard_ui
+    restart: always
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./web-dashboard/.env.local
+    ports:
+      - "3000:3000"
+    depends_on:
+      - finance-bot
+
   # Scalable Media Worker
   media-worker:
     build:
