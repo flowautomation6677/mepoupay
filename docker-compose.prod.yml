@@ -49,6 +49,8 @@ services:
       POSTGRES_DB: finance
     volumes:
       - pg_data:/var/lib/postgresql/data
+  # Monitoring Stack Removed for 1GB Server Optimization
+  # Previous stack included: cadvisor, prometheus, grafana
 
 volumes:
   redis_data:

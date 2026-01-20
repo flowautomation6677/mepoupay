@@ -6,26 +6,6 @@
     "auditLog": "C:\\Users\\luiza\\OneDrive\\Documentos\\Antigravity\\FerramentaFinanceiraTeste\\logs\\.0286c2f54b969d366a6f1789661f95bdf8fec455-audit.json",
     "files": [
         {
-            "date": 1766418225569,
-            "name": "C:\\Users\\luiza\\OneDrive\\Documentos\\Antigravity\\FerramentaFinanceiraTeste\\logs\\combined-2025-12-22.log",
-            "hash": "d91af2e345f63242c7ea6e8fe6f41ebcae098e673db2d1b15ceaa815b0c95790"
-        },
-        {
-            "date": 1766505369323,
-            "name": "C:\\Users\\luiza\\OneDrive\\Documentos\\Antigravity\\FerramentaFinanceiraTeste\\logs\\combined-2025-12-23.log",
-            "hash": "31da17f06599590361622f00526efdd50b3421501fa1a9a45a494598e65d7944"
-        },
-        {
-            "date": 1766545524910,
-            "name": "C:\\Users\\luiza\\OneDrive\\Documentos\\Antigravity\\FerramentaFinanceiraTeste\\logs\\combined-2025-12-24.log",
-            "hash": "bc22f4c80e9389f2bb665b037439ac413b8797a4626a761076c7969da39f61bb"
-        },
-        {
-            "date": 1766680972406,
-            "name": "C:\\Users\\luiza\\OneDrive\\Documentos\\Antigravity\\FerramentaFinanceiraTeste\\logs\\combined-2025-12-25.log",
-            "hash": "f31429f760fe7d6f3eb59838c8a5c602bd28cb57e5ad7300c224e0ea578670b6"
-        },
-        {
             "date": 1767366942089,
             "name": "C:\\Users\\luiza\\OneDrive\\Documentos\\Antigravity\\FerramentaFinanceiraTeste\\logs\\combined-2026-01-02.log",
             "hash": "51811bb280ea0fc91674a106ae32f1cfcf224b0ea7618d31ff33e4bf2b5dc92a"
@@ -44,6 +24,11 @@
             "date": 1767623471290,
             "name": "C:\\Users\\luiza\\OneDrive\\Documentos\\Antigravity\\FerramentaFinanceiraTeste\\logs\\combined-2026-01-05.log",
             "hash": "795443657edbe697501354ecab16714aa5fcd65d13d74bfb1cbb834657d70eb9"
+        },
+        {
+            "date": 1767931101849,
+            "name": "C:\\Users\\luiza\\OneDrive\\Documentos\\Antigravity\\FerramentaFinanceiraTeste\\logs\\combined-2026-01-09.log",
+            "hash": "58563aad1947de7f9a5b264957ac702820d6d1e1551df3c047cd610712c33d98"
         }
     ],
     "hashType": "sha256"

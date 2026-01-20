@@ -1,0 +1,16 @@
+node_modules
+.git
+.gitignore
+.env
+.env.*
+logs
+coverage
+.scannerwork
+.wwebjs_auth
+.wwebjs_cache
+banco_dados.json
+qrcode.png
+*.log
+*.txt
+tmp
+web-dashboard
