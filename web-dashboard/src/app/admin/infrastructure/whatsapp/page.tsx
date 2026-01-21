@@ -10,7 +10,6 @@ export default function WhatsAppPage() {
     const [instances, setInstances] = useState<InstanceData[]>([]);
     const [loading, setLoading] = useState(true);
     const [qrCode, setQrCode] = useState<string | null>(null);
-    const [selectedInstance, setSelectedInstance] = useState<string | null>(null);
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [connectionStatus, setConnectionStatus] = useState<'idle' | 'generating' | 'scanned' | 'success'>('idle');
     const [debugLog, setDebugLog] = useState<string>('');
@@ -52,7 +51,7 @@ export default function WhatsAppPage() {
         setInstances(data); // User sees updates in background
         const current = data.find(i => i.instanceName === name);
 
-        if (current && current.status === 'open') {
+        if (current?.status === 'open') {
             setConnectionStatus('success');
             stopPolling();
             setTimeout(() => {
@@ -113,7 +112,6 @@ export default function WhatsAppPage() {
     }
 
     async function handleConnect(name: string) {
-        setSelectedInstance(name);
         setConnectionStatus('generating');
         setIsQrModalOpen(true);
         setQrCode(null);
@@ -122,7 +120,7 @@ export default function WhatsAppPage() {
         // Try logout first to clear stuck sessions (Fix for count: 0)
         try {
             await logoutInstanceAction(name);
-        } catch (e) {
+        } catch {
             console.log("Logout ignored (probably already closed)");
         }
 
@@ -162,7 +160,7 @@ export default function WhatsAppPage() {
             statusIntervalRef.current = setInterval(() => checkStatus(newInstanceName), 3000);
 
             setIsCreateModalOpen(false);
-        } catch (error) {
+        } catch {
             alert("Erro ao criar instância");
         } finally {
             setLoading(false);
@@ -183,7 +181,7 @@ export default function WhatsAppPage() {
             await loadInstances();
             setIsDeleteModalOpen(false);
             setInstanceToDelete(null);
-        } catch (error) {
+        } catch {
             alert("Erro ao excluir instância");
         }
     }
