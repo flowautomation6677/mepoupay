@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { fetchInstances, createInstanceAction, connectInstanceAction, logoutInstanceAction, deleteInstanceAction, InstanceData } from './actions';
-import { Title, Text, Card, Badge, Button, Dialog, DialogPanel } from "@tremor/react";
+import { Title, Text, Card, Badge, Button, Dialog, DialogPanel, TextInput } from "@tremor/react";
 import { Smartphone, RefreshCw, QrCode, Plus, Trash2, Power, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -14,6 +14,12 @@ export default function WhatsAppPage() {
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [connectionStatus, setConnectionStatus] = useState<'idle' | 'generating' | 'scanned' | 'success'>('idle');
     const [debugLog, setDebugLog] = useState<string>('');
+
+    // Modal States
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [newInstanceName, setNewInstanceName] = useState('');
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [instanceToDelete, setInstanceToDelete] = useState<string | null>(null);
 
     // Polling refs to manage intervals
     const qrIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -138,23 +144,47 @@ export default function WhatsAppPage() {
 
     // ... handleCloseModal stays similar ...
 
-    async function handleCreate() {
-        const name = prompt("Nome da nova instância (ex: FinanceBot):");
-        if (name) {
-            const data = await createInstanceAction(name);
+    function handleCreate() {
+        setNewInstanceName('');
+        setIsCreateModalOpen(true);
+    }
+
+    async function confirmCreate() {
+        if (!newInstanceName) return;
+
+        setLoading(true); // Optional: global loading or local state
+        try {
+            await createInstanceAction(newInstanceName);
             await loadInstances();
 
             // Start polling for status
             if (statusIntervalRef.current) clearInterval(statusIntervalRef.current);
-            statusIntervalRef.current = setInterval(() => checkStatus(name), 3000);
+            statusIntervalRef.current = setInterval(() => checkStatus(newInstanceName), 3000);
+
+            setIsCreateModalOpen(false);
+        } catch (error) {
+            alert("Erro ao criar instância");
+        } finally {
+            setLoading(false);
         }
     }
 
 
-    async function handleDelete(name: string) {
-        if (confirm(`⚠️ PERIGO: Tem certeza que deseja EXCLUIR a instância ${name}? Isso não tem volta.`)) {
-            await deleteInstanceAction(name);
+    function handleDelete(name: string) {
+        setInstanceToDelete(name);
+        setIsDeleteModalOpen(true);
+    }
+
+    async function confirmDelete() {
+        if (!instanceToDelete) return;
+
+        try {
+            await deleteInstanceAction(instanceToDelete);
             await loadInstances();
+            setIsDeleteModalOpen(false);
+            setInstanceToDelete(null);
+        } catch (error) {
+            alert("Erro ao excluir instância");
         }
     }
 
@@ -286,6 +316,55 @@ export default function WhatsAppPage() {
                         <pre className="text-[10px] text-slate-300 whitespace-pre-wrap break-all">
                             {debugLog || "Aguardando logs..."}
                         </pre>
+                    </div>
+                </DialogPanel>
+            </Dialog>
+
+            {/* Create Instance Modal */}
+            <Dialog open={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} static={true}>
+                <DialogPanel className="bg-slate-900 border border-slate-700 p-6 rounded-2xl max-w-sm mx-auto">
+                    <Title className="text-white mb-2">Nova Instância</Title>
+                    <Text className="text-slate-400 mb-4">
+                        Digite um nome para identificar este WhatsApp (ex: Vendas, Suporte).
+                    </Text>
+
+                    <TextInput
+                        placeholder="Nome da Instância"
+                        value={newInstanceName}
+                        onChange={(e) => setNewInstanceName(e.target.value)}
+                        className="mb-6"
+                    />
+
+                    <div className="flex justify-end gap-2">
+                        <Button variant="secondary" color="slate" onClick={() => setIsCreateModalOpen(false)}>
+                            Cancelar
+                        </Button>
+                        <Button color="indigo" onClick={confirmCreate}>
+                            Criar Instância
+                        </Button>
+                    </div>
+                </DialogPanel>
+            </Dialog>
+
+            {/* Delete Confirmation Modal */}
+            <Dialog open={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} static={true}>
+                <DialogPanel className="bg-slate-900 border border-slate-700 p-6 rounded-2xl max-w-sm mx-auto text-center">
+                    <div className="mx-auto bg-rose-500/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                        <Trash2 className="text-rose-500 w-6 h-6" />
+                    </div>
+
+                    <Title className="text-white mb-2">Excluir Instância?</Title>
+                    <Text className="text-slate-400 mb-6">
+                        Você tem certeza que deseja excluir <b>{instanceToDelete}</b>? Esta ação não pode ser desfeita e desconectará o WhatsApp.
+                    </Text>
+
+                    <div className="flex justify-center gap-2">
+                        <Button variant="secondary" color="slate" onClick={() => setIsDeleteModalOpen(false)}>
+                            Cancelar
+                        </Button>
+                        <Button color="rose" onClick={confirmDelete}>
+                            Sim, Excluir
+                        </Button>
                     </div>
                 </DialogPanel>
             </Dialog>
