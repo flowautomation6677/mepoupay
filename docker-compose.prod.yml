@@ -29,6 +29,24 @@ services:
       - ./logs:/app/logs
       - ./.wwebjs_auth:/app/.wwebjs_auth
 
+  # Dashboard UI (Next.js)
+  dashboard:
+    build:
+      context: ./web-dashboard
+      dockerfile: Dockerfile
+    container_name: mepoupay_dashboard_prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_EVOLUTION_API_URL=https://evolution.mepoupay.app.br
+      - NEXT_PUBLIC_EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
+      - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+    expose:
+      - "3000"
+    depends_on:
+      - finance-bot
+
   # Evolution API (Production)
   evolution-api:
     image: evoapicloud/evolution-api:v2.3.7
@@ -67,6 +85,7 @@ services:
       - ./npm_letsencrypt:/etc/letsencrypt
     depends_on:
       - finance-bot
+      - dashboard
 
 networks:
   default:
