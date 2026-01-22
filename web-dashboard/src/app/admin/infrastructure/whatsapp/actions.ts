@@ -1,6 +1,9 @@
 'use server'
 
-const EVOLUTION_API_URL = (process.env.NEXT_PUBLIC_EVOLUTION_API_URL || 'http://localhost:8080').replace(/\/$/, '');
+// Prioritize Internal URL (Docker Network) over Public URL
+const EVOLUTION_API_URL = (process.env.INTERNAL_EVOLUTION_API_URL || process.env.NEXT_PUBLIC_EVOLUTION_API_URL || 'http://localhost:8080').replace(/\/$/, '');
+console.log("🔧 [Server Action] Configured API URL:", EVOLUTION_API_URL);
+
 const EVOLUTION_API_KEY = process.env.NEXT_PUBLIC_EVOLUTION_API_KEY;
 
 export interface InstanceData {
