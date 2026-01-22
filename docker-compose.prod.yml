@@ -1,107 +1,63 @@
 version: '3.8'
 
 services:
-  # Main Bot (Whatsapp Client + Outbound Worker)
+  # In Prod, NO PORTS EXPOSED for DB/Redis. Only internal.
+
+  # Main Application
   finance-bot:
     build: .
-    container_name: finance_bot_main
-    restart: always
-    env_file: .env
-    environment:
-      - NODE_ENV=production
-      - RUN_WORKER_LOCALLY=false # Disable internal media worker
-      - REDIS_URL=redis://redis_evo:6379
-      - POSTGRES_URL=postgresql://postgres:postgres@postgres:5432/finance
-      - EVOLUTION_API_URL=http://evolution_api:8080
-    depends_on:
-      - redis_evo
-      - postgres
-      - evolution-api
-    volumes:
-      - ./.wwebjs_auth:/app/.wwebjs_auth
-      - ./.wwebjs_cache:/app/.wwebjs_cache
-
-  dashboard:
-    build:
-      context: ./web-dashboard
-      dockerfile: Dockerfile
-    container_name: dashboard_ui
+    container_name: mepoupay_bot_prod
     restart: always
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_EVOLUTION_API_URL=http://evolution_api:8080
-      - INTERNAL_EVOLUTION_API_URL=http://evolution_api:8080
-      - INTERNAL_WEBHOOK_URL=http://finance_bot_main:3000/webhook/evolution
-    env_file:
-      - ./web-dashboard/.env.local
+      - SERVER_PORT=3000
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/finance
+      - REDIS_URL=redis://redis:6379
+      - EVOLUTION_API_URL=http://evolution-api:8080
+      # Webhook URL pointing to THIS container
+      - INTERNAL_WEBHOOK_URL=http://mepoupay_bot_prod:3000/webhook/evolution
     ports:
-      - "3000:3000"
+      - "3000:3000" # Mapping to host for Nginx Proxy Manager to pick up (or connect via network)
     depends_on:
-      - finance-bot
-
-  # Scalable Media Worker
-  media-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.worker
-    deploy:
-      mode: replicated
-      replicas: 2 # Start with 2 workers, scale as needed
-    environment:
-      - NODE_ENV=production
-      - REDIS_URL=redis://redis_evo:6379
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
-    depends_on:
-      - redis_evo
-
-  redis_evo:
-    image: redis:alpine
-    command: redis-server --appendonly yes
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      evolution-api:
+        condition: service_started
     volumes:
-      - redis_data:/data
+      - ./logs:/app/logs
+      - ./.wwebjs_auth:/app/.wwebjs_auth
 
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: finance
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-
+  # Evolution API (Production)
   evolution-api:
     image: evoapicloud/evolution-api:v2.3.7
-    container_name: evolution_api
+    container_name: mepoupay_evolution_prod
     restart: always
     environment:
       - SERVER_PORT=8080
-      - AUTHENTICATION_API_KEY=${AUTHENTICATION_API_KEY:-429683C4C977415CAAFCCE10F7D57E11}
-      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
       - DATABASE_ENABLED=true
       - DATABASE_PROVIDER=postgresql
       - DATABASE_CONNECTION_URI=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/finance
-      - DATABASE_CLIENT_NAME=evolution_exchange
-      - RABBITMQ_ENABLED=false
       - CACHE_REDIS_ENABLED=true
-      - CACHE_REDIS_URI=redis://redis_evo:6379/1
+      - CACHE_REDIS_URI=redis://redis:6379/1
       - CACHE_REDIS_PREFIX=evolution
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080" # Not publishing port to host, only internal network
     depends_on:
-      - postgres
-      - redis_evo
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
-      - evolution_store:/evolution/store
+      - evolution_store_v2:/evolution/store
 
-  # Monitoring Stack Removed for 1GB Server Optimization
-  # Previous stack included: cadvisor, prometheus, grafana
-
-  nginx-proxy-manager:
+  # Nginx Proxy Manager (SSL Gateway)
+  nginx-proxy:
     image: 'jc21/nginx-proxy-manager:latest'
-    container_name: nginx_proxy_manager
-    restart: unless-stopped
+    container_name: mepoupay_proxy
+    restart: always
     ports:
       - '80:80'
       - '81:81'
@@ -112,9 +68,6 @@ services:
     depends_on:
       - finance-bot
 
-volumes:
-  redis_data:
-  pg_data:
-  evolution_store:
-  npm_data:
-  npm_letsencrypt:
+networks:
+  default:
+    name: mepoupay_network_prod
