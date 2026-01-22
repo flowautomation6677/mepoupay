@@ -29,6 +29,8 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
+      - NEXT_PUBLIC_EVOLUTION_API_URL=http://evolution_api:8080
+      - INTERNAL_WEBHOOK_URL=http://finance_bot_main:3000/webhook/evolution
     env_file:
       - ./web-dashboard/.env.local
     ports:
