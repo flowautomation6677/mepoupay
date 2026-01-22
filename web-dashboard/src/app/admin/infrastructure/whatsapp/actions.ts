@@ -91,9 +91,8 @@ export async function createInstanceAction(instanceName: string) {
         // AUTOMATION: Configure Webhook immediately
         try {
             console.log("🔗 Auto-configuring Webhook...");
-            // Use host.docker.internal so container can reach host app
-            // TODO: Make this URL configurable via ENV
-            const WEBHOOK_URL = 'http://host.docker.internal:4001/webhook/evolution';
+            // Use internal container name for Docker networking
+            const WEBHOOK_URL = process.env.INTERNAL_WEBHOOK_URL || 'http://finance_bot_main:3000/webhook/evolution';
 
             await fetch(`${EVOLUTION_API_URL}/webhook/set/${cleanName}`, {
                 method: 'POST',
