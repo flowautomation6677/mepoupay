@@ -18,5 +18,5 @@ jobs:
           command_timeout: 30m
           script: |
             cd mepoupay
-            git pull
-            sudo docker compose -f docker-compose.prod.yml up -d --build
+            chmod +x deploy.sh
+            ./deploy.sh
