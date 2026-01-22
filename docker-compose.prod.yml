@@ -63,7 +63,7 @@ services:
     image: postgres:15-alpine
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: finance
     volumes:
       - pg_data:/var/lib/postgresql/data
@@ -77,7 +77,7 @@ services:
       - AUTHENTICATION_API_KEY=${AUTHENTICATION_API_KEY:-429683C4C977415CAAFCCE10F7D57E11}
       - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
       - DATABASE_ENABLED=true
-      - DATABASE_CONNECTION_URI=postgresql://postgres:postgrespassword@postgres:5432/finance
+      - DATABASE_CONNECTION_URI=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/finance
       - DATABASE_CLIENT_NAME=evolution_exchange
       - RABBITMQ_ENABLED=false
       - CACHE_REDIS_ENABLED=true
