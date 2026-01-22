@@ -12,9 +12,11 @@ services:
       - RUN_WORKER_LOCALLY=false # Disable internal media worker
       - REDIS_URL=redis://redis_evo:6379
       - POSTGRES_URL=postgresql://postgres:postgres@postgres:5432/finance
+      - EVOLUTION_API_URL=http://evolution_api:8080
     depends_on:
       - redis_evo
       - postgres
+      - evolution-api
     volumes:
       - ./.wwebjs_auth:/app/.wwebjs_auth
       - ./.wwebjs_cache:/app/.wwebjs_cache
@@ -65,6 +67,30 @@ services:
       POSTGRES_DB: finance
     volumes:
       - pg_data:/var/lib/postgresql/data
+
+  evolution-api:
+    image: atendai/evolution-api:v2.2.2
+    container_name: evolution_api
+    restart: always
+    environment:
+      - SERVER_PORT=8080
+      - AUTHENTICATION_API_KEY=${AUTHENTICATION_API_KEY:-429683C4C977415CAAFCCE10F7D57E11}
+      - AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES=true
+      - DATABASE_ENABLED=true
+      - DATABASE_CONNECTION_URI=postgresql://postgres:postgrespassword@postgres:5432/finance
+      - DATABASE_CLIENT_NAME=evolution_exchange
+      - RABBITMQ_ENABLED=false
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://redis_evo:6379/1
+      - CACHE_REDIS_PREFIX=evolution
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - redis_evo
+    volumes:
+      - evolution_store:/evolution/store
+
   # Monitoring Stack Removed for 1GB Server Optimization
   # Previous stack included: cadvisor, prometheus, grafana
 
@@ -85,5 +111,6 @@ services:
 volumes:
   redis_data:
   pg_data:
+  evolution_store:
   npm_data:
   npm_letsencrypt:
