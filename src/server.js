@@ -6,7 +6,7 @@ const EvolutionAdapter = require('./adapters/evolutionAdapter');
 const evolutionService = require('./services/evolutionService');
 
 const app = express();
-const PORT = process.env.PORT || 4001; // Railway requires process.env.PORT
+const PORT = process.env.PORT || process.env.SERVER_PORT || 4001; // Railway requires process.env.PORT
 
 // 🛡️ Security: Disable fingerprinting (SonarQube)
 app.disable('x-powered-by');
@@ -52,7 +52,10 @@ app.post('/webhook/evolution', async (req, res) => {
         // logger.debug(`Webhook Event: ${eventType} from ${instance}`);
 
 
-        if (eventType.toUpperCase() === 'MESSAGES.UPSERT') {
+        // Fix: Evolution API v2 uses MESSAGES_UPSERT (underscore), v1 used dot. Support both.
+        const normalizedEvent = eventType.toUpperCase().replace('.', '_');
+
+        if (normalizedEvent === 'MESSAGES_UPSERT') {
             const data = req.body.data;
 
             // Evolution v2 sends messages in an array? Usually singular for webhook unless configured otherwise
