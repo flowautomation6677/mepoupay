@@ -1,4 +1,4 @@
-const textStrategy = require('../strategies/TextStrategy');
+const { TextStrategy: textStrategy } = require('../strategies/TextStrategy');
 const { AIResponseSchema } = require('../schemas/transactionSchema');
 const { processExtractedData } = require('../services/dataProcessor');
 const sessionService = require('../services/sessionService');

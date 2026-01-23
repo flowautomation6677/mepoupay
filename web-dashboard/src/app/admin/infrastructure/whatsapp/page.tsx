@@ -115,23 +115,20 @@ export default function WhatsAppPage() {
         setConnectionStatus('generating');
         setIsQrModalOpen(true);
         setQrCode(null);
-        setDebugLog("Reiniciando sessão...");
+        setDebugLog("Reiniciando sessão (Logout forçado)...");
 
-        // Try logout first to clear stuck sessions (Fix for count: 0)
-        try {
-            await logoutInstanceAction(name);
-        } catch {
-            console.log("Logout ignored (probably already closed)");
-        }
+        // Try logout first to clear stuck sessions
+        // Now safe to call, won't throw
+        await logoutInstanceAction(name);
 
-        setDebugLog("Iniciando conexão...");
+        setDebugLog("Solicitando conexão...");
 
-        // Fetch QR 
+        // Fetch QR immediately
         await fetchQrCode(name);
 
-        // Start QR Refresh Loop (every 10s)
+        // Start QR Refresh Loop (every 5s - faster)
         if (qrIntervalRef.current) clearInterval(qrIntervalRef.current);
-        qrIntervalRef.current = setInterval(() => fetchQrCode(name), 10000);
+        qrIntervalRef.current = setInterval(() => fetchQrCode(name), 5000);
 
         // Start Status Check Loop (every 3s)
         if (statusIntervalRef.current) clearInterval(statusIntervalRef.current);

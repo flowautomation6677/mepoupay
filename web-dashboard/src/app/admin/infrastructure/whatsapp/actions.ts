@@ -156,10 +156,19 @@ export async function logoutInstanceAction(instanceName: string) {
             method: 'DELETE',
             headers: { 'apikey': EVOLUTION_API_KEY || '' }
         });
-        return await res.json();
+
+        // Treat 404 (not found) or 400 (not logged in) as success for our purpose (clearing session)
+        if (!res.ok && res.status !== 404 && res.status !== 400 && res.status !== 401) {
+            console.warn("Logout returned status:", res.status);
+            return { error: true };
+        }
+
+        if (res.status === 204) return { success: true }; // No content
+
+        return await res.json().catch(() => ({ success: true }));
     } catch (e) {
-        console.error("Error logging out", e);
-        throw e;
+        console.warn("Logout failed (network/parsing), ignoring:", e);
+        return { error: true }; // Don't throw, just return error
     }
 }
 

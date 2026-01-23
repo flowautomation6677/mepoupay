@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node index.js",
     "dashboard": "cd web-dashboard && npm run dev",
-    "dev": "concurrently \"npm start\" \"npm run dashboard\"",
+    "dev": "npm run check:env && concurrently \"npm run dev:app\" \"npm run dashboard\"",
+    "dev:docker": "docker-compose -f docker-compose.base.yml -f docker-compose.dev.yml up -d",
+    "dev:app": "node index.js",
+    "check:env": "node -r dotenv/config -e \"require('./src/config/env.schema.js').validateEnv()\"",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "sonar": "node sonar-project.js"
