@@ -4,6 +4,31 @@ services:
   # In Prod, NO PORTS EXPOSED for DB/Redis. Only internal.
 
   # Main Application
+  # Evolution API (Production)
+  evolution-api:
+    image: evoapicloud/evolution-api:v2.3.7
+    container_name: mepoupay_evolution_prod
+    restart: always
+    environment:
+      - SERVER_PORT=8080
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/finance
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://redis:6379/1
+      - CACHE_REDIS_PREFIX=evolution
+    expose:
+      - "8080" # Not publishing port to host, only internal network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - evolution_store_v2:/evolution/store
+
+  # Main Application
   finance-bot:
     build: .
     container_name: mepoupay_bot_prod
@@ -16,6 +41,10 @@ services:
       - EVOLUTION_API_URL=http://evolution-api:8080
       # Webhook URL pointing to THIS container
       - INTERNAL_WEBHOOK_URL=http://mepoupay_bot_prod:3000/webhook/evolution
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_KEY=${SUPABASE_ANON_KEY}
     ports:
       - "3000:3000" # Mapping to host for Nginx Proxy Manager to pick up (or connect via network)
     depends_on:
@@ -23,8 +52,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      evolution-api:
-        condition: service_started
     volumes:
       - ./logs:/app/logs
       - ./.wwebjs_auth:/app/.wwebjs_auth
@@ -51,30 +78,6 @@ services:
       - "3000"
     depends_on:
       - finance-bot
-
-  # Evolution API (Production)
-  evolution-api:
-    image: evoapicloud/evolution-api:v2.3.7
-    container_name: mepoupay_evolution_prod
-    restart: always
-    environment:
-      - SERVER_PORT=8080
-      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
-      - DATABASE_ENABLED=true
-      - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/finance
-      - CACHE_REDIS_ENABLED=true
-      - CACHE_REDIS_URI=redis://redis:6379/1
-      - CACHE_REDIS_PREFIX=evolution
-    expose:
-      - "8080" # Not publishing port to host, only internal network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    volumes:
-      - evolution_store_v2:/evolution/store
 
   # Nginx Proxy Manager (SSL Gateway)
   nginx-proxy:

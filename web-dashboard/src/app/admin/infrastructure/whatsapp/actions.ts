@@ -55,7 +55,7 @@ export async function fetchInstances() {
 
 export async function createInstanceAction(instanceName: string) {
     // Sanitize name: remove spaces, special chars, keep only alphanumeric and hyphens
-    const cleanName = instanceName.trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '');
+    const cleanName = instanceName.trim().replaceAll(/\s+/g, '-').replaceAll(/[^a-zA-Z0-9-]/g, '');
     console.log(`🧹 Sanitized name: '${instanceName}' -> '${cleanName}'`);
 
     console.log("🚀 Create Instance Requested");
@@ -114,8 +114,8 @@ export async function createInstanceAction(instanceName: string) {
                 })
             });
             console.log("✅ Webhook Auto-configured!");
-        } catch (webhookErr) {
-            console.error("⚠️ Webhook auto-config failed (bot might be silent):", webhookErr);
+        } catch (error_) {
+            console.error("⚠️ Webhook auto-config failed (bot might be silent):", error_);
         }
 
         return newInstance;
