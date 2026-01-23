@@ -34,6 +34,11 @@ services:
     build:
       context: ./web-dashboard
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_EVOLUTION_API_URL: https://evolution.mepoupay.app.br
+        NEXT_PUBLIC_EVOLUTION_API_KEY: ${EVOLUTION_API_KEY}
+        NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
     container_name: mepoupay_dashboard_prod
     restart: always
     environment:
