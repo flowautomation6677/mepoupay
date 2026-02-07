@@ -1,0 +1,143 @@
+version: '3.8'
+
+services:
+  # Shared Services (Full Definition)
+  redis:
+    image: redis:alpine
+    container_name: mepoupay_redis
+    restart: always
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_v2:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: mepoupay_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: finance
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data_v2:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Main Application
+  # Evolution API (Production)
+  evolution-api:
+    image: evoapicloud/evolution-api:v2.3.7
+    container_name: mepoupay_evolution_prod
+    restart: always
+    network_mode: host # Unified Host Architecture
+    environment:
+      - SERVER_PORT=8080
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://postgres:postgres@127.0.0.1:5432/finance?schema=public
+      - DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/finance?schema=public
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://127.0.0.1:6379/1
+      - CACHE_REDIS_PREFIX=evolution
+    # ports: REMOVED (Network Mode Host binds directly)
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - evolution_store_v2:/evolution/store
+
+  # Main Application
+  finance-bot:
+    build: .
+    container_name: mepoupay_bot_prod
+    restart: always
+    network_mode: host # Silver Bullet: Use Host Networking
+    environment:
+      - NODE_ENV=production
+      - SERVER_PORT=4000 # Direct bind to Host Port
+      - POSTGRES_URL=postgresql://postgres:${POSTGRES_PASSWORD}@127.0.0.1:5432/finance
+      - REDIS_URL=redis://127.0.0.1:6379
+      - EVOLUTION_API_URL=http://127.0.0.1:8080
+      # Webhook URL pointing to THIS container (Host Network)
+      - INTERNAL_WEBHOOK_URL=http://127.0.0.1:4000/webhook/evolution
+      - WEBHOOK_PUBLIC_URL=http://137.131.157.13:4000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_KEY=${SUPABASE_ANON_KEY}
+    # ports: REMOVED (Network Mode Host handles this)
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./.wwebjs_auth:/app/.wwebjs_auth
+
+  # Dashboard UI (Next.js)
+  dashboard:
+    build:
+      context: ./web-dashboard
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_EVOLUTION_API_URL: https://evolution.mepoupay.app.br
+        NEXT_PUBLIC_EVOLUTION_API_KEY: ${EVOLUTION_API_KEY}
+        NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+    container_name: mepoupay_dashboard_prod
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_EVOLUTION_API_URL=https://evolution.mepoupay.app.br
+      - INTERNAL_EVOLUTION_API_URL=http://172.17.0.1:8080
+      - INTERNAL_WEBHOOK_URL=http://172.17.0.1:4000/webhook/evolution
+      - NEXT_PUBLIC_EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
+      - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+    ports:
+      - "3000"
+    depends_on:
+      - finance-bot
+
+  # Nginx Proxy Manager (SSL Gateway)
+  nginx-proxy:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: mepoupay_proxy
+    restart: always
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    extra_hosts:
+      - "evolution-api:172.17.0.1"
+    volumes:
+      - ./npm_data:/data
+      - ./npm_letsencrypt:/etc/letsencrypt
+    depends_on:
+      - finance-bot
+      - dashboard
+
+networks:
+  default:
+    name: mepoupay_network_prod
+
+volumes:
+  pg_data_v2:
+  redis_data_v2:
+  evolution_store_v2:

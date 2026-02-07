@@ -29,7 +29,7 @@ if (process.env.RUN_WORKER_LOCALLY !== 'false') {
 }
 
 
-logger.info("🚀 Iniciando Porquim 360 (Evolution API Mode)...");
+logger.info("🚀 Iniciando Me Poupay (Evolution API Mode)...");
 
 // Inicializa Server (Health Checks & Webhooks)
 const { startServer } = require('./src/server');

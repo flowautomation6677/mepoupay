@@ -4,7 +4,7 @@ O Supabase limita o envio de e-mails na versão gratuita. O **Resend** é a melh
 
 ## Passo 1: Obter Credenciais no Resend
 1.  Crie sua conta em [resend.com](https://resend.com).
-2.  **Verifique seu Domínio:** (Ex: `porquimia.com.br`). Isso é obrigatório para sair da caixa de spam.
+2.  **Verifique seu Domínio:** (Ex: `mepoupay.com.br`). Isso é obrigatório para sair da caixa de spam.
     *   O Resend vai te dar 3 registros DNS (TXT/MX). Adicione-os onde você comprou seu domínio (Godaddy, Registro.br, Cloudflare).
 3.  Vá em **API Keys** e crie uma nova chave.
     *   Nome: `Supabase Auth`
@@ -16,7 +16,7 @@ O Supabase limita o envio de e-mails na versão gratuita. O **Resend** é a melh
 3.  Role até **SMTP Settings** e ative **Enable Custom SMTP**.
 4.  Preencha assim:
     *   **Sender Email:** `nao-responda@seu-dominio.com` (Tem que ser do domínio verificado!)
-    *   **Sender Name:** `Porquim 360`
+    *   **Sender Name:** `Me Poupay`
     *   **Host:** `smtp.resend.com`
     *   **Port:** `465`
     *   **User:** `resend` (É sempre "resend", não mude).

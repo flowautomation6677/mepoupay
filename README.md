@@ -1,10 +1,10 @@
-🐷 Porquim 360 (V2 - Modular)
+� Me Poupay (V2 - Modular)
 
-O Porquim 360 é um bot financeiro inteligente para WhatsApp que utiliza IA para automatizar a gestão de finanças pessoais. Ele permite que os usuários registrem transações enviando mensagens de texto, áudios, imagens de comprovantes ou arquivos bancários, processando tudo automaticamente e exibindo os dados em um dashboard web moderno.
+O Me Poupay é um bot financeiro inteligente para WhatsApp que utiliza IA para automatizar a gestão de finanças pessoais. Ele permite que os usuários registrem transações enviando mensagens de texto, áudios, imagens de comprovantes ou arquivos bancários, processando tudo automaticamente e exibindo os dados em um dashboard web moderno.
 
 🚀 Funcionalidades Principais
 ### 🧠 Inteligência Artificial & Aprendizado (Machine Learning Loop)
-O Porquim 360 não apenas "lê" dados, ele evolui com o uso graças à arquitetura de **Shadow Prompting** e **Human-in-the-Loop (HITL)**:
+O Me Poupay não apenas "lê" dados, ele evolui com o uso graças à arquitetura de **Shadow Prompting** e **Human-in-the-Loop (HITL)**:
 - **Shadow Prompting (Teste A/B):** O sistema executa múltiplas versões de prompts (Ex: `v1_stable` vs `v2_experimental`) em paralelo para medir eficiência. Atualmente testa prompts capazes de entender gírias brasileiras ("breja", "gasosa").
 - **Auto-Correção (Feedback Loop):** Se a confiança da IA for baixa (< 70%), o bot solicita confirmação do usuário. As correções são salvas e usadas para "re-treinar" o modelo (Fine-Tuning), criando um dataset ouro.
 - **Detecção de Fraude/Anomalia (Vision):** Análise avançada de imagens para distinguir recibos reais de fotos aleatórias.
@@ -30,7 +30,7 @@ Estratégias modulares para processar diferentes arquivos:
 Backend (Bot)
 Runtime: Node.js
 
-WhatsApp: whatsapp-web.js
+WhatsApp: Evolution API
 
 IA: OpenAI API
 
@@ -63,8 +63,8 @@ Clone o repositório:
 
 Bash
 
-git clone https://github.com/seu-usuario/porquim360.git
-cd porquim360
+git clone https://github.com/seu-usuario/mepoupay.git
+cd mepoupay
 Configure as variáveis de ambiente: Crie um arquivo .env na raiz do projeto e em web-dashboard/ com as seguintes chaves:
 
 Snippet de código

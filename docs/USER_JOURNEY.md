@@ -1,9 +1,9 @@
 # 🗺️ Jornada do Usuário (User Journey)
 
-Esta é a descrição completa do fluxo que um novo usuário percorre no **Porquim 360**, desde o cadastro até o uso diário.
+Esta é a descrição completa do fluxo que um novo usuário percorre no **Me Poupay**, desde o cadastro até o uso diário.
 
 ## 1. Entrada e Cadastro (Web)
-*   **Acesso:** O usuário acessa o link do app (ex: `app.porquimia.com.br`).
+*   **Acesso:** O usuário acessa o link do app (ex: `app.mepoupay.com.br`).
 *   **Login/Cadastro:** Usa o sistema de Autenticação (Supabase) para criar conta com E-mail/Senha ou Google.
 *   **Smart Redirect:** Se for o primeiro acesso, o sistema detecta que o `onboarding_completed` é `FALSE` e o redireciona automaticamente para `/setup`.
 
