@@ -4,13 +4,15 @@ import { NextResponse } from 'next/server'
 import { sendInviteEmail } from '@/lib/email'
 import { getBaseUrl } from '@/utils/url'
 
-// Initialize Supabase Admin (Service Role)
-// We need this to bypass RLS and use adminAuth functions
-// Initialize Supabase Admin (Service Role)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+// Lazy-init Admin Client to avoid build-time errors when env vars are unavailable
+const getSupabaseAdmin = () => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    if (!supabaseUrl || !supabaseServiceKey) {
+        throw new Error('Supabase URL or Service Key is not configured');
+    }
+    return createClient(supabaseUrl, supabaseServiceKey);
+};
 
 
 export async function POST(request: Request) {
@@ -28,7 +30,7 @@ export async function POST(request: Request) {
 
         const siteUrl = getBaseUrl();
 
-        const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+        const { data, error } = await getSupabaseAdmin().auth.admin.generateLink({
             type: 'invite',
             email: email,
             options: {
@@ -56,7 +58,7 @@ export async function POST(request: Request) {
             // Name is stored in metadata now
             if (whatsapp) updates.whatsapp_number = whatsapp;
 
-            const { error: profileError } = await supabaseAdmin
+            const { error: profileError } = await getSupabaseAdmin()
                 .from('perfis')
                 .upsert({
                     id: data.user.id,

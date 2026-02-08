@@ -4,11 +4,16 @@ import { createClient } from '@supabase/supabase-js'
 import 'server-only'
 import { NextResponse } from 'next/server'
 
-// Initialize Supabase Admin (Service Role)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+// Lazy-init Admin Client to avoid build-time errors when env vars are unavailable
+const getSupabaseAdmin = () => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    if (!supabaseUrl || !supabaseServiceKey) {
+        throw new Error('Supabase URL or Service Key is not configured');
+    }
+    return createClient(supabaseUrl, supabaseServiceKey);
+};
 
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function GET() {
     try {
@@ -18,11 +23,11 @@ export async function GET() {
         if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
             throw new Error("SUPABASE_SERVICE_ROLE_KEY is missing in process.env");
         }
-        const { data: { users }, error: authError } = await supabaseAdmin.auth.admin.listUsers();
+        const { data: { users }, error: authError } = await getSupabaseAdmin().auth.admin.listUsers();
         if (authError) throw authError;
 
         // 2. Fetch all Profiles (WhatsApp, Goal, Role)
-        const { data: profiles, error: profileError } = await supabaseAdmin
+        const { data: profiles, error: profileError } = await getSupabaseAdmin()
             .from('perfis')
             .select('*');
         if (profileError) throw profileError;
@@ -76,7 +81,7 @@ export async function PATCH(request: Request) {
         const { userId, isAdmin } = validation.data;
 
         // Update Profile
-        const { error } = await supabaseAdmin
+        const { error } = await getSupabaseAdmin()
             .from('perfis')
             .update({ is_admin: isAdmin })
             .eq('id', userId);
@@ -111,7 +116,7 @@ export async function DELETE(request: Request) {
         }
 
         // 1. Delete Profile first (to avoid FK constraints if no CASCADE)
-        const { error: dbError } = await supabaseAdmin
+        const { error: dbError } = await getSupabaseAdmin()
             .from('perfis')
             .delete()
             .eq('id', userId);
@@ -124,7 +129,7 @@ export async function DELETE(request: Request) {
         }
 
         // 2. Delete from Auth
-        const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+        const { error: authError } = await getSupabaseAdmin().auth.admin.deleteUser(userId);
         if (authError) throw authError;
 
         return NextResponse.json({ success: true });

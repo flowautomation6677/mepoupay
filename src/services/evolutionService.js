@@ -87,19 +87,18 @@ class EvolutionService {
     async setWebhook(webhookUrl) {
         try {
             const encodedInstance = encodeURIComponent(this.instanceName);
-            const url = `/webhook/set/${encodedInstance}`;
+            const url = `/webhook/instance/${encodedInstance}`;
+            // Evolution API v2 uses flat structure, not nested 'webhook' object
             const body = {
-                webhook: {
-                    enabled: true,
-                    url: webhookUrl,
-                    webhookUrl: webhookUrl,
-                    webhookByEvents: true,
-                    events: [
-                        "MESSAGES_UPSERT",
-                        "MESSAGES_UPDATE",
-                        "SEND_MESSAGE"
-                    ]
-                }
+                enabled: true,
+                url: webhookUrl,
+                webhookByEvents: false,
+                events: [
+                    "MESSAGES_UPSERT",
+                    "MESSAGES_UPDATE",
+                    "SEND_MESSAGE",
+                    "CONNECTION_UPDATE"
+                ]
             };
             await this.client.post(url, body);
             logger.info(`✅ Webhook configured for instance ${this.instanceName} -> ${webhookUrl}`);

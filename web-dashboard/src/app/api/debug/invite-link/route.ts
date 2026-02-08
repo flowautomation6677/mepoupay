@@ -1,10 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-// Admin Client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+// Lazy-init Admin Client to avoid build-time errors when env vars are unavailable
+const getSupabaseAdmin = () => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    if (!supabaseUrl || !supabaseServiceKey) {
+        throw new Error('Supabase URL or Service Key is not configured');
+    }
+    return createClient(supabaseUrl, supabaseServiceKey);
+};
+
 
 export async function GET(request: Request) {
     // Only allow in development
@@ -16,7 +22,7 @@ export async function GET(request: Request) {
     const email = searchParams.get('email') || `teste_${Date.now()}@exemplo.com`;
 
     try {
-        const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+        const { data, error } = await getSupabaseAdmin().auth.admin.generateLink({
             type: 'invite',
             email: email,
             options: {

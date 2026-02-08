@@ -113,44 +113,40 @@
 
 <body>
 
-  <table role="presentation">
-    <tr>
-      <td style="padding: 20px;">
-        <div class="container">
+  <div style="padding: 20px; background-color: #f1f5f9; min-height: 100vh;">
+    <div class="container">
 
-          <!-- Header -->
-          <div class="header">
-            <span role="img" aria-label="Porquinho" class="logo-icon">🐷</span>
-            <h1 class="logo-text">Me Poupay</h1>
-          </div>
+      <!-- Header -->
+      <div class="header">
+        <span class="logo-icon">🐷</span>
+        <h1 class="logo-text">Me Poupay</h1>
+      </div>
 
-          <!-- Body -->
-          <div class="content">
-            <div class="greeting">Olá! Tudo bem?</div>
-            <div class="message">
-              Estamos muito felizes em ter você conosco! Para garantir a segurança da sua conta e começar a organizar
-              suas finanças com Inteligência Artificial, precisamos confirmar que este e-mail é mesmo seu.
-            </div>
-
-            <div class="btn-container">
-              <a href="{{ .ConfirmationURL }}" class="btn">Confirmar meu E-mail</a>
-            </div>
-
-            <div class="message" style="font-size: 14px; color: #64748b;">
-              Se você não criou uma conta no Me Poupay, pode ignorar este e-mail com segurança.
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div class="footer">
-            <p>&copy; 2026 Me Poupay. Todos os direitos reservados.</p>
-            <p>Este e-mail foi enviado automaticamente. <br>Por favor, não responda.</p>
-          </div>
-
+      <!-- Body -->
+      <div class="content">
+        <div class="greeting">Olá! Tudo bem?</div>
+        <div class="message">
+          Estamos muito felizes em ter você conosco! Para garantir a segurança da sua conta e começar a organizar
+          suas finanças com Inteligência Artificial, precisamos confirmar que este e-mail é mesmo seu.
         </div>
-      </td>
-    </tr>
-  </table>
+
+        <div class="btn-container">
+          <a href="{{ .ConfirmationURL }}" class="btn">Confirmar meu E-mail</a>
+        </div>
+
+        <div class="message" style="font-size: 14px; color: #64748b;">
+          Se você não criou uma conta no Me Poupay, pode ignorar este e-mail com segurança.
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>&copy; 2026 Me Poupay. Todos os direitos reservados.</p>
+        <p>Este e-mail foi enviado automaticamente. <br>Por favor, não responda.</p>
+      </div>
+
+    </div>
+  </div>
 
 </body>
 
