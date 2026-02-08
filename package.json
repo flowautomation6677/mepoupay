@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dashboard": "cd web-dashboard && npm run dev",
-    "dev": "npm run check:env && concurrently \"npm run dev:app\" \"npm run dashboard\"",
+    "env:sync": "node scripts/sync_env.js",
+    "dashboard": "npm run env:sync && cd web-dashboard && npm run dev",
+    "dev": "npm run env:sync && npm run check:env && concurrently \"npm run dev:app\" \"npm run dashboard\"",
     "dev:docker": "docker-compose -f docker-compose.base.yml -f docker-compose.dev.yml up -d",
     "dev:app": "node index.js",
     "check:env": "node -r dotenv/config -e \"require('./src/config/env.schema.js').validateEnv()\"",

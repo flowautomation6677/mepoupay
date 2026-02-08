@@ -51,3 +51,6 @@ voice_response_*.ogg
 !HOSTING_ALTERNATIVES.md
 
 .scannerwork/
+
+# SSH Keys (SECURITY)
+.ssh/

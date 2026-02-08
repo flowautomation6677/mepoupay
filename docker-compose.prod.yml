@@ -56,7 +56,7 @@ services:
         condition: service_healthy
     volumes:
       - ./logs:/app/logs
-      - ./.wwebjs_auth:/app/.wwebjs_auth
+
 
   # Dashboard UI (Next.js)
   dashboard:

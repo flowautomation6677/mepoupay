@@ -3,7 +3,7 @@ const logger = require('../services/loggerService');
 
 /**
  * Adapter to convert Evolution API Webhook payload to a format compatible with 
- * the existing 'handleMessage' function (simulating whatsapp-web.js Message object).
+ * the existing 'handleMessage' function (adapting Evolution API webhook data).
  */
 class EvolutionAdapter {
     constructor(webhookData) {
@@ -23,7 +23,7 @@ class EvolutionAdapter {
         // Receiver ID (My Number)
         this.to = webhookData.sender; // Depends on Evolution payload structure
 
-        // Construct ID object (whatsapp-web.js compatibility)
+        // Construct ID object (compatibility format)
         this.id = {
             id: this.key.id,
             remote: this.key.remoteJid,
@@ -54,7 +54,7 @@ class EvolutionAdapter {
     }
 
     /**
-     * Map Evolution/Baileys message types to whatsapp-web.js types
+     * Map Evolution/Baileys message types to internal types
      */
     mapType(evolutionType) {
         const types = {
@@ -87,7 +87,7 @@ class EvolutionAdapter {
         }
 
         if (content && content.mimetype && content.data) {
-            // It's a MessageMedia object from whatsapp-web.js (or similar structure)
+            // It's a MessageMedia-like object
             // { mimetype, data, filename }
             let type = 'document';
             if (content.mimetype.startsWith('image')) type = 'image';
