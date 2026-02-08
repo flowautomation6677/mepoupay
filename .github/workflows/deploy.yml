@@ -17,6 +17,6 @@ jobs:
           timeout: 30m
           command_timeout: 30m
           script: |
-            cd mepoupay
+            cd /var/www/mepoupay
             chmod +x deploy.sh
             ./deploy.sh
