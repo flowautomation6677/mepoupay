@@ -23,7 +23,7 @@
     "bullmq": "^5.66.2",
     "csv-parse": "^6.1.0",
     "date-fns": "^4.1.0",
-    "dotenv": "^16.3.1",
+    "dotenv": "^17.2.3",
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "ffmpeg-static": "^5.3.0",
