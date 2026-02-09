@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 import TransactionFeed from '@/components/dashboard/TransactionFeed'
+import { Transaction } from '@/types/dashboard'
 
 export default async function TransactionsPage() {
     const supabase = await createClient()
@@ -11,19 +12,33 @@ export default async function TransactionsPage() {
     if (!user) return redirect('/login')
 
     const { data: profile } = await supabase
-        .from('perfis')
+        .from('profiles')
         .select('id')
-        .eq('auth_user_id', user.id)
+        .eq('id', user.id)
         .single()
 
     if (!profile) return redirect('/dashboard')
 
-    const { data: transactions } = await supabase
-        .from('transacoes')
-        .select('*')
+    const { data: rawTransactions } = await supabase
+        .from('transactions')
+        .select('*, categories(name)')
         .eq('user_id', profile.id)
-        .order('data', { ascending: false })
+        .order('date', { ascending: false })
         .limit(100)
+
+    // Map to Transaction type
+    const transactions: Transaction[] = (rawTransactions || []).map((t: any) => ({
+        id: t.id,
+        user_id: t.user_id,
+        amount: t.amount,
+        type: t.type,
+        description: t.description || '',
+        category: t.categories?.name || 'Uncategorized',
+        date: t.date,
+        created_at: t.created_at,
+        is_validated: true,
+        metadata: t.metadata
+    }))
 
     return (
         <div className="min-h-screen bg-[#0f172a] p-8 text-slate-200">
@@ -35,7 +50,7 @@ export default async function TransactionsPage() {
                     <h1 className="text-2xl font-bold">Todas as Transações</h1>
                 </div>
 
-                <TransactionFeed transactions={transactions || []} />
+                <TransactionFeed transactions={transactions} />
             </div>
         </div>
     )
