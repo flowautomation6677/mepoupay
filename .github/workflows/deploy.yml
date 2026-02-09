@@ -18,5 +18,17 @@ jobs:
           command_timeout: 30m
           script: |
             cd /var/www/mepoupay
+            
+            # Inject Environment Variables from GitHub Secrets
+            if [ ! -z "${{ secrets.NEXT_PUBLIC_APP_URL }}" ]; then
+              # Check if variable exists in .env, if not append it
+              if ! grep -q "NEXT_PUBLIC_APP_URL=" .env; then
+                echo "NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}" >> .env
+              else
+                # Update existing variable (basic sed, assumes no special chars)
+                sed -i 's|NEXT_PUBLIC_APP_URL=.*|NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}|' .env
+              fi
+            fi
+
             chmod +x deploy.sh
             ./deploy.sh
