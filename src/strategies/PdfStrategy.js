@@ -1,16 +1,40 @@
-const { analyzePdfText } = require('../services/openaiService');
 const logger = require('../services/loggerService');
+
+// FIXED: Polyfills CRÍTICOS para Node.js (pdfjs-dist v5+)
+(function () {
+    // 1. Promise.withResolvers (Node < 22)
+    if (Promise.withResolvers === undefined) {
+        Promise.withResolvers = function () {
+            let resolve, reject;
+            const promise = new Promise((res, rej) => { resolve = res; reject = rej; });
+            return { promise, resolve, reject };
+        };
+    }
+
+    // 2. DOMMatrix (Browser API simulation)
+    // Usando globalThis para garantir visibilidade em todos os escopos
+    if (globalThis.DOMMatrix === undefined) {
+        class DOMMatrix {
+            a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+            m11 = 1; m22 = 1; m33 = 1; m44 = 1;
+
+            transformPoint(p) { return p; }
+            translate() { return this; }
+            scale() { return this; }
+            toString() { return "matrix(1, 0, 0, 1, 0, 0)"; }
+        }
+        globalThis.DOMMatrix = DOMMatrix;
+    }
+})();
 
 class PdfStrategy {
 
     /**
-     * Extrai texto completo do PDF usando PDF.js (Mozilla Engine)
-     * Suporta criptografia moderna (AES-256 R6) usada por bancos.
+     * Extrai texto completo do PDF de forma robusta.
      * @param {Buffer} buffer 
      * @param {string} [password] 
      */
     async processPdf(buffer, password) {
-        let loadingTask = null;
         try {
             // Check Size (Warn if > 10MB)
             const mbSize = buffer.length / 1024 / 1024;
@@ -18,101 +42,87 @@ class PdfStrategy {
                 logger.warn("Processing Large PDF", { sizeMB: mbSize.toFixed(2) });
             }
 
-            // Dynamic Import for ESM compatibility (pdfjs-dist v5+)
-            const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+            // Strategy Switch: Use 'pdf-parse' (stable for Node) instead of 'pdfjs-dist' (browser-focused)
+            // This eliminates DOMMatrix/Canvas polyfill issues.
+            const pdf = require('pdf-parse');
 
-            // Convertendo Buffer para Uint8Array (formato esperado pelo PDF.js)
-            const data = new Uint8Array(buffer);
+            try {
+                const data = await pdf(buffer);
 
-            loadingTask = pdfjsLib.getDocument({
-                data: data,
-                password: password || '', // Se vazio, tenta abrir sem senha
-                // Opções para desativar features de browser que quebram no Node
-                disableFontFace: true,
-                verbosity: 0
-            });
-
-            const doc = await loadingTask.promise;
-
-            // PDF carregou! Agora extrair texto de todas as páginas.
-            let fullText = "";
-
-            // Paralelizar extração? Melhor sequencial para garantir ordem.
-            for (let i = 1; i <= doc.numPages; i++) {
-                let page = null;
-                try {
-                    page = await doc.getPage(i);
-                    const tokenizedText = await page.getTextContent();
-                    const pageText = tokenizedText.items.map(token => token.str).join(' ');
-                    fullText += `\n--- Pág ${i} ---\n${pageText}`;
-                } finally {
-                    // Explicit Page Cleanup to free memory
-                    if (page) page.cleanup();
+                // Validate extraction
+                if (!data || !data.text || data.text.trim().length === 0) {
+                    throw new Error("PDF parsing returned empty text.");
                 }
-            }
 
-            return { success: true, text: fullText };
+                // Format text to match expected structure (roughly)
+                // pdf-parse provides a single text blob. We can add a header.
+                const fullText = `--- Início do PDF ---\nInfo: ${data.info ? JSON.stringify(data.info) : 'N/A'}\nPages: ${data.numpages}\nContent:\n${data.text}`;
+
+                return { success: true, text: fullText };
+
+            } catch (innerError) {
+                // Check for password error pattern in pdf-parse
+                // pdf-parse might throw string errors or specific shapes
+                if (innerError.message && innerError.message.toLowerCase().includes('password')) {
+                    logger.info("PDF Password Required (via pdf-parse)");
+                    return { success: false, needsPassword: true, error: "Senha necessária." };
+                }
+                throw innerError;
+            }
 
         } catch (error) {
-            // Tratamento de Erro de Senha
-            if (error.name === 'PasswordException' || error.message.includes('Password') || error.name === 'MissingPDFException') {
-                logger.info("PDF Password Required", { error: error.message });
-                return { success: false, needsPassword: true, error: "Senha necessária ou incorreta." };
-            }
-
-            logger.error("PdfStrategy (PDFJS) Error", { error });
-
-            // Se tiver senha e falhou, é incorreta
-            if (password) {
-                return { success: false, needsPassword: true, error: `Falha ao abrir com senha: ${error.message}` };
-            }
-
-            return { success: false, error: `Erro ao processar PDF: ${error.message}` };
-        } finally {
-            // Document Cleanup
-            if (loadingTask && loadingTask.destroy) {
-                await loadingTask.destroy().catch(e => logger.warn("Error destroying PDF task", { error: e }));
-            }
+            logger.error("PdfStrategy Critical Error (pdf-parse)", { error: error.message, stack: error.stack });
+            return { success: false, error: `Falha técnica no PDF: ${error.message}` };
         }
     }
 
     async execute(message) {
-        const media = await message.downloadMedia();
-        if (!media) return null;
+        try {
+            const media = await message.downloadMedia();
+            if (!media) return { type: 'system_error', content: "Falha no download da mídia." };
 
-        const buffer = Buffer.from(media.data, 'base64');
+            const buffer = Buffer.from(media.data, 'base64');
+            const content = await this.processPdf(buffer, "");
 
-        // Tentativa Inicial (Sem senha explícita)
-        const content = await this.processPdf(buffer, "");
+            if (content.needsPassword) {
+                return {
+                    type: 'pdf_password_request',
+                    fileBuffer: media.data,
+                    fileName: "documento.pdf"
+                };
+            }
 
-        if (content.needsPassword) {
-            return {
-                type: 'pdf_password_request',
-                fileBuffer: media.data,
-                fileName: "documento.pdf"
-            };
+            if (content.success && content.text) {
+                // Import tardio para evitar dependência circular se houver refatoração
+                const { analyzePdfText } = require('../services/openaiService');
+                const extraction = await analyzePdfText(content.text);
+                return { type: 'data_extraction', content: extraction };
+            }
+
+            return { type: 'system_error', content: content.error || "Erro desconhecido ao ler PDF." };
+        } catch (e) {
+            logger.error("PdfStrategy Execute Wrapper Error", e);
+            return { type: 'system_error', content: "Erro crítico no processamento." };
         }
-
-        if (content.success && content.text) {
-            const extraction = await analyzePdfText(content.text);
-            return { type: 'data_extraction', content: extraction };
-        }
-
-        return { type: 'system_error', content: content.error || "Erro desconhecido ao ler PDF." };
     }
 
     async retryWithPassword(base64Data, password) {
-        const buffer = Buffer.from(base64Data, 'base64');
-        const content = await this.processPdf(buffer, password);
+        try {
+            const buffer = Buffer.from(base64Data, 'base64');
+            const content = await this.processPdf(buffer, password);
 
-        if (content.success && content.text) {
-            const extraction = await analyzePdfText(content.text);
-            return { success: true, data: extraction };
+            if (content.success && content.text) {
+                const { analyzePdfText } = require('../services/openaiService');
+                const extraction = await analyzePdfText(content.text);
+                return { success: true, data: extraction };
+            }
+
+            return { success: false, error: content.error || "Senha incorreta." };
+        } catch (e) {
+            // Handle this exception or don't catch it at all.
+            // Returning error object is handling it.
+            return { success: false, error: "Erro crítico ao tentar senha." };
         }
-
-        // Se falhou (Needs Password ou Error)
-        let msg = content.error || "Senha incorreta.";
-        return { success: false, error: msg };
     }
 }
 

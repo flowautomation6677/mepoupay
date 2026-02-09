@@ -28,6 +28,12 @@ services:
         condition: service_healthy
     volumes:
       - evolution_store_v2:/evolution/store
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/instance/fetchInstances" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   # Main Application
   finance-bot:
@@ -52,6 +58,8 @@ services:
     ports:
       - "4000:4000"
     depends_on:
+      evolution-api:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       redis:
@@ -79,6 +87,7 @@ services:
       - NEXT_PUBLIC_EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
       - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
     expose:
       - "3000"
     depends_on:

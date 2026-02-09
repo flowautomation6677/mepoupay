@@ -1,12 +1,21 @@
 const { Worker } = require('bullmq');
+const IORedis = require('ioredis');
 const logger = require('../services/loggerService');
 const queueService = require('../services/queueService');
 const sessionService = require('../services/sessionService');
 const { processExtractedData } = require('../services/dataProcessor');
 const mediaStrategyFactory = require('../factories/MediaStrategyFactory');
 const { TextStrategy: textStrategy } = require('../strategies/TextStrategy');
-const redis = require('../services/redisClient');
 const { AIResponseSchema } = require('../schemas/transactionSchema');
+
+// Create dedicated connection for Worker
+const connection = new IORedis(process.env.REDIS_URL || 'redis://localhost:6379', {
+    maxRetriesPerRequest: null
+});
+
+connection.on('error', (err) => {
+    logger.error('❌ Worker Redis Connection Error', err);
+});
 
 // --- Helpers ---
 
@@ -70,8 +79,10 @@ async function _handleTextCommand(text, userId, replyCallback, mockMessage) {
     if (response.type === 'ai_response' || response.type === 'tool_response') {
         const responseText = await _processAIResponse(response.content, userId, replyCallback);
 
-        userContext.push({ role: "user", content: text });
-        userContext.push({ role: "assistant", content: responseText });
+        userContext.push(
+            { role: "user", content: text },
+            { role: "assistant", content: responseText }
+        );
         if (userContext.length > 10) userContext.splice(0, userContext.length - 10);
         await sessionService.setContext(userId, userContext, 86400);
     }
@@ -122,21 +133,29 @@ const mediaWorker = new Worker('media-processing', async (job) => {
     };
 
     try {
+        console.log(`[Worker] Job ${job.id} - Preparing mock message`); // DEBUG
         const mockMessage = _createMockMessage({ ...job.data, id: job.id }, reply, type);
 
         // Execute Strategy
+        console.log(`[Worker] Job ${job.id} - Getting Strategy: ${type}`); // DEBUG
         const strategy = mediaStrategyFactory.getStrategy(type);
-        const result = await strategy.execute(mockMessage, job.data);
 
+        console.log(`[Worker] Job ${job.id} - Executing Strategy...`); // DEBUG
+        const result = await strategy.execute(mockMessage, job.data);
+        console.log(`[Worker] Job ${job.id} - Strategy Result:`, result ? result.type : 'null'); // DEBUG
+
+        console.log(`[Worker] Job ${job.id} - Processing Result...`); // DEBUG
         await _processStrategyResult(result, userId, reply, mockMessage);
+        console.log(`[Worker] Job ${job.id} - Result Processed`); // DEBUG
 
     } catch (err) {
+        console.error(`[Worker] Job ${job.id} CRASHED:`, err.message); // DEBUG
         logger.error(`[Worker] Job ${job.id} failed`, { error: err });
         await reply("❌ Ocorreu um erro ao processar seu arquivo. Tente novamente mais tarde.");
         throw err;
     }
 
-}, { connection: redis });
+}, { connection });
 
 mediaWorker.on('completed', (job) => {
     logger.info(`[Worker] Job ${job.id} completed!`);

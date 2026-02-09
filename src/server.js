@@ -25,6 +25,7 @@ app.get('/health', (req, res) => {
 
 // Evolution API Webhook Endpoint
 app.post('/webhook/evolution', async (req, res) => {
+    console.log('⚡ RAW WEBHOOK REQUEST Hit:', req.method, req.url); // DEBUG PROBE
     try {
         // 🛡️ Security: Validate API Key if configured
         const apiKey = req.headers['apikey'] || req.query.apikey;

@@ -19,6 +19,11 @@ if (missingEnv.length > 0) {
     process.exit(1);
 }
 
+// 0.1 Validação de URL da API (Docker Failsafe)
+if (process.env.EVOLUTION_API_URL && process.env.EVOLUTION_API_URL.includes('localhost') && process.env.NODE_ENV === 'production') {
+    logger.warn("⚠️ ALERTA: Rodando em PROD com API apontando para localhost. Isso provavelmente falhará no Docker.");
+}
+
 // Initialize Outbound Worker (Handling responses from specialized workers)
 require('./src/workers/outboundWorker');
 

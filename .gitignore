@@ -6,6 +6,7 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
+prod.env
 
 # Next.js
 .next/
@@ -41,6 +42,10 @@ logs/
 *.log
 *.txt
 debug_*.js
+deploy_*.js
+manual_*.js
+nuke_*.js
+test_*.js
 manual_qr_*.js
 setup_evolution.js
 voice_response_*.ogg
