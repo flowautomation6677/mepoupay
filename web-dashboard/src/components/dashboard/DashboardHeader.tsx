@@ -43,7 +43,7 @@ export default function DashboardHeader({
         <motion.header
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="sticky top-20 md:top-4 z-30 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 rounded-3xl border border-white/5 bg-slate-900/80 px-6 py-4 shadow-lg backdrop-blur-xl"
+            className="mb-8 flex flex-col md:flex-row items-center justify-between gap-4 rounded-3xl border border-white/5 bg-slate-900/80 px-6 py-4 shadow-lg backdrop-blur-xl"
         >
             <div className="flex items-center gap-4 w-full md:w-auto">
                 <div className="relative">

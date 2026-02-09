@@ -48,25 +48,49 @@ export async function POST(request: Request) {
         console.log(`Processing User: ${whatsappNumber}, Status: ${statusRaw} (Active: ${isApproved})`);
 
         // 1. Upsert User in Supabase
-        const { data: user, error } = await supabaseAdmin
-            .from('perfis')
-            .upsert(
-                {
-                    whatsapp_number: whatsappNumber,
-                    email: email || null,
+        // Strategy: Try to find by phone (in array) OR email.
+
+        let { data: user } = await supabaseAdmin
+            .from('profiles')
+            .select('*')
+            .or(`email.eq.${email},whatsapp_numbers.cs.{${whatsappNumber}}`)
+            .single();
+
+        if (user) {
+            // Update existing
+            const { data: updated, error: updateError } = await supabaseAdmin
+                .from('profiles')
+                .update({
                     active_subscription: isApproved,
                     subscription_status: statusRaw,
                     updated_at: new Date().toISOString()
-                },
-                { onConflict: 'whatsapp_number' }
-            )
-            .select()
-            .single();
+                    // We could append the new phone if it differs, but let's keep it simple for now
+                })
+                .eq('id', user.id)
+                .select()
+                .single();
 
-        if (error) {
-            console.error('Supabase Error:', error);
-            return NextResponse.json({ error: 'Database update failed' }, { status: 500 });
+            if (updateError) throw updateError;
+            user = updated;
+        } else {
+            // Insert new
+            const { data: created, error: createError } = await supabaseAdmin
+                .from('profiles')
+                .insert({
+                    whatsapp_numbers: [whatsappNumber],
+                    email: email || `${whatsappNumber}@placeholder.com`, // Email is unique/required in new schema
+                    active_subscription: isApproved,
+                    subscription_status: statusRaw,
+                    updated_at: new Date().toISOString()
+                })
+                .select()
+                .single();
+
+            if (createError) throw createError;
+            user = created;
         }
+
+
 
         // 2. Trigger Email (Mock or Real)
         if (isApproved && email) {

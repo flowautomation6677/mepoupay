@@ -9,9 +9,10 @@ interface StatsGridProps {
     transactions: Transaction[]
     prevTransactions: Partial<Transaction>[]
     financialGoal: number
+    currentBalance?: number
 }
 
-export default function StatsGrid({ transactions, prevTransactions, financialGoal }: StatsGridProps) {
+export default function StatsGrid({ transactions, prevTransactions, financialGoal, currentBalance }: StatsGridProps) {
     // Current Month Stats
     const income = transactions
         .filter(t => t.type === 'INCOME')
@@ -21,7 +22,8 @@ export default function StatsGrid({ transactions, prevTransactions, financialGoa
         .filter(t => t.type === 'EXPENSE')
         .reduce((acc, t) => acc + Number(t.amount), 0)
 
-    const balance = income - expense
+    // Use pre-calculated balance if available (Optimized), otherwise calculate (Fallback)
+    const balance = currentBalance !== undefined ? currentBalance : (income - expense)
 
     // Previous Month Stats
     const prevIncome = prevTransactions

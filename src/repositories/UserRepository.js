@@ -7,10 +7,11 @@ const supabase = adminClient || publicClient;
 class UserRepository {
     async findByPhone(phone) {
         // Retorna POJO (Plain Old JavaScript Object) ou null
+        // Busca se o telefone está contido no array 'whatsapp_numbers'
         const { data, error } = await supabase
-            .from('perfis')
+            .from('profiles') // Updated table name
             .select('*')
-            .eq('whatsapp_number', phone)
+            .contains('whatsapp_numbers', [phone])
             .single();
 
         logger.debug(`UserRepository findByPhone: ${phone}`, { data });
@@ -23,13 +24,13 @@ class UserRepository {
     }
 
     async create(phone, name = null) {
-        // 1. Prepare Payload (Without 'name' as it was removed from schema)
-        const payload = { whatsapp_number: phone };
+        // 1. Prepare Payload
+        // 'profiles' uses 'whatsapp_numbers' (array)
+        const payload = { whatsapp_numbers: [phone] };
 
-        // 2. Insert into Perfis (ID triggered by trigger or we need to fetch user first?)
-        // Note: Perfis uses `id` unrelated to phone usually, but let's assume standard flow
+        // 2. Insert into Profiles
         const { data, error } = await supabase
-            .from('perfis')
+            .from('profiles') // Updated table name
             .insert([payload])
             .select()
             .single();
@@ -42,7 +43,7 @@ class UserRepository {
         // 3. Update Auth Metadata if name is provided (Best Effort)
         if (name && adminClient) {
             const { error: authError } = await adminClient.auth.admin.updateUserById(
-                data.id, // Assuming trigger links perfis.id to auth.id or we just inserted
+                data.id, // Linked via trigger or manually
                 { user_metadata: { name: name, full_name: name } }
             );
             if (authError) logger.warn("Failed to set name on create", authError);
@@ -79,7 +80,7 @@ class UserRepository {
 
     async getFinancialGoal(userId) {
         const { data, error } = await supabase
-            .from('perfis')
+            .from('profiles')
             .select('financial_goal')
             .eq('id', userId)
             .single();
@@ -93,7 +94,7 @@ class UserRepository {
 
     async setFinancialGoal(userId, goal) {
         const { error } = await supabase
-            .from('perfis')
+            .from('profiles')
             .update({ financial_goal: goal })
             .eq('id', userId);
 
@@ -107,7 +108,7 @@ class UserRepository {
     async delete(userId) {
         // 1. Delete Transactions (Cascade is usually automatic, but being explicit is safer for code logic)
         const { error: txError } = await supabase
-            .from('transacoes')
+            .from('transactions') // Updated table
             .delete()
             .eq('user_id', userId);
 
@@ -119,7 +120,7 @@ class UserRepository {
 
         // 2. Delete Profile
         const { error } = await supabase
-            .from('perfis')
+            .from('profiles') // Updated table
             .delete()
             .eq('id', userId);
 

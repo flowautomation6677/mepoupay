@@ -21,6 +21,7 @@ export interface UserProfile {
     tier: string;
     whatsapp_numbers?: string[];
     financial_goal?: number;
+    balance?: number;
     created_at?: string;
 }
 

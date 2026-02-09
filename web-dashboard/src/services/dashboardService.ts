@@ -4,11 +4,17 @@ import { DashboardData, Transaction, UserProfile } from '@/types/dashboard'
 export async function getDashboardData(userId: string, startDate: string, endDate: string, prevStartDate: string, prevEndDate: string): Promise<DashboardData> {
     const supabase = await createClient()
 
-    // 1. Get Profile
+    // 1. Get Profile and Main Account Balance
     const { data: profile } = await supabase
         .from('profiles')
-        .select('*')
-        .eq('id', userId) // profiles.id is now the auth_user_id
+        .select(`
+            *,
+            accounts (
+                current_balance,
+                name
+            )
+        `)
+        .eq('id', userId)
         .single()
 
     if (!profile) {
@@ -51,8 +57,17 @@ export async function getDashboardData(userId: string, startDate: string, endDat
         type: t.type
     }))
 
+    // Extract balance from the first account (Main Account)
+    const mainAccount = profile.accounts?.[0] || { current_balance: 0 };
+
+    // Inject balance into profile object (or keep separate, but profile is convenient for now)
+    const profileWithBalance = {
+        ...profile,
+        balance: mainAccount.current_balance
+    };
+
     return {
-        profile: profile as UserProfile, // Ensure types match
+        profile: profileWithBalance as UserProfile & { balance: number },
         transactions,
         prevTransactions
     }

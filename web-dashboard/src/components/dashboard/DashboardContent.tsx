@@ -22,6 +22,7 @@ export default function DashboardContent({ profile, transactions, prevTransactio
                 transactions={transactions}
                 prevTransactions={prevTransactions}
                 financialGoal={profile.financial_goal || 0}
+                currentBalance={profile.balance}
             />
 
             {/* Gráficos Neon */}
