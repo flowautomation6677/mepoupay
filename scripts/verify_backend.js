@@ -1,41 +1,39 @@
 require('dotenv').config();
-const UserRepository = require('../src/repositories/UserRepository');
+const { createClient } = require('@supabase/supabase-js');
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+    console.error("❌ Erro: SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY não definidos no .env");
+    process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function verifyBackend() {
-    console.log("🚀 Iniciando Verificação do Backend (UserRepository)...");
+    console.log("🚀 Iniciando Verificação de Perfil (Debug WhatsApp)...");
 
-    const testPhone = '5511999999999'; // Número de teste
-    const testName = 'Backend Tester';
+    // Listar todos os usuários para ver o que temos
+    const { data: users, error } = await supabase
+        .from('profiles')
+        .select('id, email, whatsapp_numbers');
 
-    try {
-        // 1. Tentar criar usuário
-        console.log(`\n1. Testando User.create(${testPhone})...`);
-        const newUser = await UserRepository.create(testPhone, testName);
-        console.log("✅ Usuário criado:", newUser.id);
-        console.log("   Whatsapp Numbers:", newUser.whatsapp_numbers);
+    if (error) {
+        console.error("❌ Erro ao listar usuários:", error);
+        return;
+    }
 
-        if (!newUser.whatsapp_numbers || !newUser.whatsapp_numbers.includes(testPhone)) {
-            console.error("❌ ERRO: Número não salvo corretamente no array.");
-        }
+    console.table(users);
 
-        // 2. Tentar buscar usuário
-        console.log(`\n2. Testando User.findByPhone(${testPhone})...`);
-        const foundUser = await UserRepository.findByPhone(testPhone);
-
-        if (foundUser && foundUser.id === newUser.id) {
-            console.log("✅ Usuário encontrado com sucesso pelo número.");
-        } else {
-            console.error("❌ ERRO: Usuário não encontrado ou ID incorreto.");
-            console.log("   Encontrado:", foundUser);
-        }
-
-        // 3. Limpeza
-        console.log("\n3. Deletando usuário de teste...");
-        await UserRepository.delete(newUser.id);
-        console.log("✅ Limpeza concluída.");
-
-    } catch (error) {
-        console.error("❌ ERRO NO TESTE:", error);
+    const targetUser = users.find(u => u.email && u.email.includes('joao'));
+    if (targetUser) {
+        console.log("\n👤 Usuário Alvo (Joao):", targetUser);
+        console.log("📱 WhatsApp Numbers:", targetUser.whatsapp_numbers);
+        console.log("   Is Array?", Array.isArray(targetUser.whatsapp_numbers));
+        console.log("   Length:", targetUser.whatsapp_numbers?.length);
+    } else {
+        console.log("\n⚠️ Usuário 'joao' não encontrado.");
     }
 }
 
