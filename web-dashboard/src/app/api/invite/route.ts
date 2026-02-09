@@ -30,40 +30,36 @@ export async function POST(request: Request) {
 
         const siteUrl = getBaseUrl();
 
-        const { data, error } = await getSupabaseAdmin().auth.admin.generateLink({
-            type: 'invite',
-            email: email,
-            options: {
-                redirectTo: `${siteUrl}/auth/finish?next=/setup`,
-                data: { full_name: name }
-            }
+        // 1. Invite User via Supabase (Uses Supabase's SMTP)
+        const { data, error } = await getSupabaseAdmin().auth.admin.inviteUserByEmail(email, {
+            redirectTo: `${siteUrl}/auth/finish?next=/setup`,
+            data: { full_name: name }
         });
 
         if (error) {
-            console.error('Error generating invite link:', error)
+            console.error('Error sending invite:', error)
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
-        // 2. Send Custom Email via Resend
-        if (data && data.properties && data.properties.action_link) {
-            await sendInviteEmail(email, data.properties.action_link);
-        }
-
-        // 3. Profile Pre-provisioning
+        // 2. Profile Pre-provisioning
         // Insert/Update profile with Name and Phone immediately
         if (data.user) {
-            const updates: Record<string, string> = {
+            const updates: any = {
                 updated_at: new Date().toISOString()
             };
-            // Name is stored in metadata now
-            if (whatsapp) updates.whatsapp_number = whatsapp;
+
+            // Handle Whatsapp Array
+            if (whatsapp) {
+                // Determine if we should append or set. For new invite, we set.
+                // Since this is a pre-provision, we can set the array.
+                updates.whatsapp_numbers = [whatsapp];
+            }
 
             const { error: profileError } = await getSupabaseAdmin()
-                .from('perfis')
+                .from('profiles') // Updated table
                 .upsert({
                     id: data.user.id,
-                    auth_user_id: data.user.id,
-                    email: email,
+                    email: email, // profiles.email is unique
                     ...updates
                 }, { onConflict: 'id' });
 
