@@ -1,7 +1,8 @@
 'use client'
 
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
 import { motion, AnimatePresence } from 'framer-motion'
 import { login } from './actions'
 import { Loader2, ArrowRight } from 'lucide-react'
@@ -36,6 +37,45 @@ export default function AuthPage() {
             setLoading(false)
         }
     }
+
+    // Efeito para capturar Token no Hash (Redirecionamento do Invite/Magic Link)
+    useEffect(() => {
+        const handleHash = async () => {
+            const hash = window.location.hash;
+            if (hash && hash.includes('access_token')) {
+                setLoading(true);
+                try {
+                    const params = new URLSearchParams(hash.substring(1));
+                    const access_token = params.get('access_token');
+                    const refresh_token = params.get('refresh_token');
+
+                    if (access_token) {
+                        const supabase = createBrowserClient(
+                            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                        );
+
+                        const { data, error } = await supabase.auth.setSession({
+                            access_token,
+                            refresh_token: refresh_token || '',
+                        });
+
+                        if (!error && data.session) {
+                            setMessage({ text: 'Login identificado! Redirecionando...', type: 'success' });
+                            router.replace('/setup'); // Force setup flow for invites
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Hash login error:", e);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+
+        handleHash();
+    }, [router]);
 
     return (
         <div className="flex min-h-screen w-full bg-[#020617] text-slate-100">
