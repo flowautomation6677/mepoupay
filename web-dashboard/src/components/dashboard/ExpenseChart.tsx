@@ -19,35 +19,31 @@ export default function ExpenseChart({ transactions }: { transactions: Transacti
     // For simplicity, let's just group existing transactions first
     // Note: Ideally we should use the full date range like in StatsGrid
 
-    const dailyGroups = transactions.reduce((acc: Record<string, { receita: number; despesa: number }>, t) => {
-        const date = t.data.split('T')[0]
-        if (!acc[date]) acc[date] = { receita: 0, despesa: 0 }
+    const dailyGroups = transactions.reduce((acc: Record<string, { income: number; expense: number }>, t) => {
+        const date = t.date.split('T')[0]
+        if (!acc[date]) acc[date] = { income: 0, expense: 0 }
 
-        if (t.tipo === 'receita') acc[date].receita += t.valor
-        else acc[date].despesa += t.valor // Somando positivo aqui, vamos inverter no gráfico se quiser
+        if (t.type === 'INCOME') acc[date].income += t.amount
+        else acc[date].expense += t.amount
 
         return acc
     }, {})
 
     // Converter para array e ordenar
-    // Converter para array e ordenar
     let currentBalance = 0;
     const sortedDates = Object.keys(dailyGroups).sort();
 
-    // Use map but ensure logic is self-contained or use accumulate pattern explicitly
     const chartData = sortedDates.map(date => {
-        const dayIncome = dailyGroups[date].receita
-        const dayExpense = dailyGroups[date].despesa
+        const dayIncome = dailyGroups[date].income
+        const dayExpense = dailyGroups[date].expense
         const net = dayIncome - dayExpense
-        currentBalance += net // Modifying local let is technically side-effect in render, but predictable here.
-        // To be 100% clean:
+        currentBalance += net
 
         return {
             date: new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-            receita: dayIncome,
+            receita: dayIncome, // Using same keys for viewing compatibility or update chart keys
             despesa: dayExpense * -1,
             net,
-            // We'll fix balance in a passed down accumulation or second pass if needed, 
             saldo: currentBalance
         }
     });
@@ -55,10 +51,10 @@ export default function ExpenseChart({ transactions }: { transactions: Transacti
     // --- PROCESSAMENTO DE DADOS (ZONA 3) ---
     // Top Categorias
     const catGroups = transactions
-        .filter(t => t.tipo !== 'receita')
+        .filter(t => t.type !== 'INCOME')
         .reduce((acc: Record<string, number>, t) => {
-            if (!acc[t.categoria]) acc[t.categoria] = 0
-            acc[t.categoria] += t.valor
+            if (!acc[t.category]) acc[t.category] = 0
+            acc[t.category] += t.amount
             return acc
         }, {})
 
@@ -67,7 +63,8 @@ export default function ExpenseChart({ transactions }: { transactions: Transacti
         .sort((a, b) => b.value - a.value)
         .slice(0, 5)
 
-    const totalExpenses = transactions.filter(t => t.tipo !== 'receita').reduce((acc, t) => acc + t.valor, 0)
+    const totalExpenses = transactions.filter(t => t.type !== 'INCOME').reduce((acc, t) => acc + t.amount, 0)
+
 
     // Insight Simples (Mockado/Regra)
     const topCatName = topCategories[0]?.name || 'Nada'

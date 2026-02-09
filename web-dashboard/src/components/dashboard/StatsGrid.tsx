@@ -14,23 +14,23 @@ interface StatsGridProps {
 export default function StatsGrid({ transactions, prevTransactions, financialGoal }: StatsGridProps) {
     // Current Month Stats
     const income = transactions
-        .filter(t => t.tipo === 'receita')
-        .reduce((acc, t) => acc + Number(t.valor), 0)
+        .filter(t => t.type === 'INCOME')
+        .reduce((acc, t) => acc + Number(t.amount), 0)
 
     const expense = transactions
-        .filter(t => t.tipo === 'despesa')
-        .reduce((acc, t) => acc + Number(t.valor), 0)
+        .filter(t => t.type === 'EXPENSE')
+        .reduce((acc, t) => acc + Number(t.amount), 0)
 
     const balance = income - expense
 
     // Previous Month Stats
     const prevIncome = prevTransactions
-        .filter(t => t.tipo === 'receita')
-        .reduce((acc, t) => acc + Number(t.valor || 0), 0)
+        .filter(t => t.type === 'INCOME')
+        .reduce((acc, t) => acc + Number(t.amount || 0), 0)
 
     const prevExpense = prevTransactions
-        .filter(t => t.tipo === 'despesa')
-        .reduce((acc, t) => acc + Number(t.valor || 0), 0)
+        .filter(t => t.type === 'EXPENSE')
+        .reduce((acc, t) => acc + Number(t.amount || 0), 0)
 
     const prevBalance = prevIncome - prevExpense
 

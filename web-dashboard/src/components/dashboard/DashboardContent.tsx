@@ -43,11 +43,11 @@ export default function DashboardContent({ profile, transactions, prevTransactio
                         <div className="mt-4 flex items-center gap-2 rounded-xl bg-white/20 p-3 backdrop-blur-sm">
                             <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>
                             <span className="font-mono text-sm tracking-wide">
-                                {formatPhoneNumber(profile.whatsapp_number)}
+                                {formatPhoneNumber(profile.whatsapp_numbers?.[0] || '')}
                             </span>
                         </div>
                         <a
-                            href={`https://wa.me/${process.env.NEXT_PUBLIC_SUPPORT_PHONE || '5521984646902'}?text=Olá! Quero falar com o Me Poupey.`}
+                            href={`https://wa.me/${profile.whatsapp_numbers?.[0] || process.env.NEXT_PUBLIC_SUPPORT_PHONE || '5521984646902'}?text=Olá! Quero falar com o Me Poupey.`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mt-4 block w-full rounded-xl bg-white py-3 text-center text-sm font-bold text-indigo-600 transition hover:bg-indigo-50"

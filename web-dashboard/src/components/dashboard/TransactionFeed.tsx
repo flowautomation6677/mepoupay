@@ -7,11 +7,11 @@ import { useRouter } from 'next/navigation'
 import { Coffee, ShoppingBag, Car, Home, HeartPulse, MoreHorizontal, GraduationCap, TrendingUp, DollarSign, Briefcase, CheckCircle, AlertTriangle } from 'lucide-react'
 
 // Mapeamento de ícones por categoria simples
-const getIcon = (categoria: string, tipo: string) => {
-    const cat = categoria?.toLowerCase() || ''
+const getIcon = (category: string, type: string) => {
+    const cat = category?.toLowerCase() || ''
 
     // Receitas
-    if (tipo === 'receita') {
+    if (type === 'INCOME') {
         if (cat.includes('salário') || cat.includes('salario')) return <DollarSign size={20} />
         if (cat.includes('invest')) return <TrendingUp size={20} />
         if (cat.includes('freela') || cat.includes('venda')) return <Briefcase size={20} />
@@ -29,10 +29,10 @@ const getIcon = (categoria: string, tipo: string) => {
     return <MoreHorizontal size={20} />
 }
 
-const getColor = (categoria: string, tipo: string) => {
-    if (tipo === 'receita') return 'bg-emerald-500/20 text-emerald-400'
+const getColor = (category: string, type: string) => {
+    if (type === 'INCOME') return 'bg-emerald-500/20 text-emerald-400'
 
-    const cat = categoria?.toLowerCase() || ''
+    const cat = category?.toLowerCase() || ''
     if (cat.includes('aliment')) return 'bg-orange-500/20 text-orange-400'
     if (cat.includes('lazer')) return 'bg-pink-500/20 text-pink-400'
     if (cat.includes('transporte')) return 'bg-blue-500/20 text-blue-400'
@@ -79,7 +79,7 @@ export default function TransactionFeed({ transactions }: { transactions: Transa
 
     // Agrupamento por Data
     const groups = transactions.reduce((acc: Record<string, Transaction[]>, t) => {
-        const dateKey = t.data.split('T')[0]
+        const dateKey = t.date.split('T')[0]
         if (!acc[dateKey]) acc[dateKey] = []
         acc[dateKey].push(t)
         return acc
@@ -119,14 +119,14 @@ export default function TransactionFeed({ transactions }: { transactions: Transa
                                 >
                                     <div className="flex items-center gap-4">
                                         {/* Icon Box */}
-                                        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border border-white/5 shadow-inner ${getColor(t.categoria, t.tipo)}`}>
-                                            {getIcon(t.categoria, t.tipo)}
+                                        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border border-white/5 shadow-inner ${getColor(t.category, t.type)}`}>
+                                            {getIcon(t.category, t.type)}
                                         </div>
 
                                         <div>
-                                            <p className="font-bold text-slate-200">{t.descricao || 'Sem descrição'}</p>
+                                            <p className="font-bold text-slate-200">{t.description || 'Sem descrição'}</p>
                                             <div className="flex items-center gap-2">
-                                                <span className="text-xs text-slate-500 capitalize">{t.categoria}</span>
+                                                <span className="text-xs text-slate-500 capitalize">{t.category}</span>
 
                                                 {/* Reliability Badges */}
                                                 {!t.is_validated && (t.confidence_score || 0) < 0.8 && (
@@ -149,12 +149,12 @@ export default function TransactionFeed({ transactions }: { transactions: Transa
                                     </div>
 
                                     <div className="text-right flex flex-col items-end">
-                                        <span className={`block font-bold text-lg ${t.tipo === 'receita' ? 'text-emerald-400' : 'text-slate-200'}`}>
-                                            {t.tipo === 'receita' ? '+' : '-'} {t.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                        <span className={`block font-bold text-lg ${t.type === 'INCOME' ? 'text-emerald-400' : 'text-slate-200'}`}>
+                                            {t.type === 'INCOME' ? '+' : '-'} {t.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                                         </span>
                                         <div className="flex items-center gap-2">
                                             <span className="text-[10px] text-slate-600">
-                                                {new Date(t.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                                {new Date(t.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                                             </span>
                                             {t.is_validated && (
                                                 <CheckCircle size={12} className="text-emerald-500/50" />

@@ -49,7 +49,7 @@ export default async function DashboardPage({
 
         <div className="space-y-8 animate-in fade-in duration-500">
             {/* Welcome Logic */}
-            <WelcomeManager userName={user.user_metadata?.full_name || profile?.name || "Investidor"} />
+            <WelcomeManager userName={user.user_metadata?.full_name || profile?.full_name || "Investidor"} />
 
             {/* Header Inteligente com Filtro */}
             <DashboardHeader

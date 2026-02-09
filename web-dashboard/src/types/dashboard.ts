@@ -1,24 +1,25 @@
-export type TransactionType = 'receita' | 'despesa';
+export type TransactionType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 
 export interface Transaction {
     id: string;
     user_id: string;
-    valor: number;
-    tipo: TransactionType;
-    descricao: string;
-    categoria: string;
-    data: string;
+    amount: number;
+    type: TransactionType;
+    description: string;
+    category: string; // Joined from categories table
+    date: string;
     created_at?: string;
     is_validated?: boolean;
     confidence_score?: number;
+    metadata?: any;
 }
 
 export interface UserProfile {
     id: string;
-    auth_user_id: string;
-    name: string;
     email: string;
-    whatsapp_number: string;
+    full_name: string;
+    tier: string;
+    whatsapp_numbers?: string[];
     financial_goal?: number;
     created_at?: string;
 }
