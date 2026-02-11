@@ -18,6 +18,8 @@ jobs:
           command_timeout: 30m
           script: |
             cd /var/www/mepoupay
+            git reset --hard
+            git pull
             
             # Inject Environment Variables from GitHub Secrets
             if [ ! -z "${{ secrets.NEXT_PUBLIC_APP_URL }}" ]; then
