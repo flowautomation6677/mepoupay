@@ -48,6 +48,13 @@ export default function AuthPage() {
                     const params = new URLSearchParams(hash.substring(1));
                     const access_token = params.get('access_token');
                     const refresh_token = params.get('refresh_token');
+                    const error_description = params.get('error_description');
+
+                    if (error_description) {
+                         setMessage({ text: decodeURIComponent(error_description), type: 'error' });
+                         setLoading(false);
+                         return;
+                    }
 
                     if (access_token) {
                         const supabase = createBrowserClient(
@@ -60,7 +67,10 @@ export default function AuthPage() {
                             refresh_token: refresh_token || '',
                         });
 
-                        if (!error && data.session) {
+                        if (error) {
+                            console.error("Error setting session:", error);
+                            setMessage({ text: `Erro ao validar convite: ${error.message}`, type: 'error' });
+                        } else if (data.session) {
                             setMessage({ text: 'Login identificado! Redirecionando...', type: 'success' });
                             router.replace('/setup'); // Force setup flow for invites
                             return;
@@ -68,6 +78,7 @@ export default function AuthPage() {
                     }
                 } catch (e) {
                     console.error("Hash login error:", e);
+                    setMessage({ text: 'Erro ao processar o link de login.', type: 'error' });
                 } finally {
                     setLoading(false);
                 }

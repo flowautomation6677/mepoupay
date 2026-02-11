@@ -24,6 +24,6 @@ fi
 # We use COMPOSE_FILE environment variable to force merging order if command line args fail
 echo "🐳 Building and Starting Containers..."
 export COMPOSE_FILE=docker-compose.base.yml:docker-compose.prod.yml
-sudo -E docker compose up -d --build --remove-orphans
+sudo -E docker compose --env-file prod.env up -d --build --remove-orphans
 
 echo "✅ Deployment Complete!"
