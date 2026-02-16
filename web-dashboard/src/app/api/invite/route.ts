@@ -32,7 +32,8 @@ export async function POST(request: Request) {
 
         // 1. Invite User via Supabase (Uses Supabase's SMTP)
         const { data, error } = await getSupabaseAdmin().auth.admin.inviteUserByEmail(email, {
-            redirectTo: `${siteUrl}/auth/finish?next=/setup`,
+            // Apontamos para o callback para processar o token, e o callback redireciona para /setup
+            redirectTo: `${siteUrl}/auth/callback?next=/setup`,
             data: { full_name: name }
         });
 
