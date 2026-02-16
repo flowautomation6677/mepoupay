@@ -1,7 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
-import { sendInviteEmail } from '@/lib/email'
 import { getBaseUrl } from '@/utils/url'
 
 // Lazy-init Admin Client to avoid build-time errors when env vars are unavailable
