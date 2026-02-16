@@ -20,10 +20,22 @@ if [ ! -f "docker-compose.prod.yml" ]; then
     exit 1
 fi
 
-# 3. Execute Docker Compose
+# 3. Determine Environment File
+ENV_FILE=""
+if [ -f "prod.env" ]; then
+    ENV_FILE="prod.env"
+elif [ -f ".env" ]; then
+    ENV_FILE=".env"
+else
+    echo "❌ Error: No environment file found (checked prod.env and .env)!"
+    exit 1
+fi
+echo "✅ Using environment file: $ENV_FILE"
+
+# 4. Execute Docker Compose
 # We use COMPOSE_FILE environment variable to force merging order if command line args fail
 echo "🐳 Building and Starting Containers..."
 export COMPOSE_FILE=docker-compose.base.yml:docker-compose.prod.yml
-sudo -E docker compose --env-file prod.env up -d --build --remove-orphans
+sudo -E docker compose --env-file "$ENV_FILE" up -d --build --remove-orphans
 
 echo "✅ Deployment Complete!"
