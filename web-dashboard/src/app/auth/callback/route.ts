@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
+import { getBaseUrl } from '@/utils/url'
 
 export async function GET(request: Request) {
-    const { searchParams, origin } = new URL(request.url)
+    const { searchParams } = new URL(request.url)
+    const origin = getBaseUrl(); // Use configured public URL instead of container internal URL
 
     // Log for debugging
     console.log(`[Auth Callback] Hit with params: ${searchParams.toString()}`);
