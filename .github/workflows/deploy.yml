@@ -22,15 +22,53 @@ jobs:
             git pull
             
             # Inject Environment Variables from GitHub Secrets
-            if [ ! -z "${{ secrets.NEXT_PUBLIC_APP_URL }}" ]; then
-              # Check if variable exists in .env, if not append it
-              if ! grep -q "NEXT_PUBLIC_APP_URL=" .env; then
-                echo "NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}" >> .env
-              else
-                # Update existing variable (basic sed, assumes no special chars)
-                sed -i 's|NEXT_PUBLIC_APP_URL=.*|NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}|' .env
+            # Function to update or append variable
+            update_env() {
+              key=$1
+              value=$2
+              if [ ! -z "$value" ]; then
+                if grep -q "^$key=" .env; then
+                  # Escape special characters in value for sed (basic approach)
+                  # We use a temp file to avoid issues with sed -i on some systems or strict posix
+                  # But here we are likely on linux. 
+                  # To be safe with special chars in passwords, we might need a better approach than sed with | delimiter.
+                  # However, for simplicity and matching existing style:
+                  sed -i "s|^$key=.*|$key=$value|g" .env
+                else
+                  echo "$key=$value" >> .env
+                fi
               fi
+            }
+
+            # Create .env if it doesn't exist
+            touch .env
+
+            update_env "NEXT_PUBLIC_APP_URL" "${{ secrets.NEXT_PUBLIC_APP_URL }}"
+            update_env "OPENAI_API_KEY" "${{ secrets.OPENAI_API_KEY }}"
+            update_env "SUPABASE_URL" "${{ secrets.SUPABASE_URL }}"
+            update_env "SUPABASE_KEY" "${{ secrets.SUPABASE_KEY }}"
+            update_env "SUPABASE_ANON_KEY" "${{ secrets.SUPABASE_ANON_KEY }}"
+            update_env "SUPABASE_SERVICE_ROLE_KEY" "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
+            update_env "EVOLUTION_API_KEY" "${{ secrets.EVOLUTION_API_KEY }}"
+            update_env "EVOLUTION_INSTANCE_NAME" "${{ secrets.EVOLUTION_INSTANCE_NAME }}"
+            update_env "POSTGRES_PASSWORD" "${{ secrets.POSTGRES_PASSWORD }}"
+            update_env "SONAR_TOKEN" "${{ secrets.SONAR_TOKEN }}"
+            
+            # Non-secret defaults (can be overridden by secrets if user sets them, or we just set defaults if missing)
+            # For now, let's assume user might want to control these via secrets too, or they are fine remaining as is if they exist.
+            # If the user didn't set them in secrets, they might be empty here.
+            # To be safe, for critical non-secrets, we can set defaults if not in secrets.
+            
+            if [ -z "${{ secrets.SERVER_PORT }}" ]; then
+               update_env "SERVER_PORT" "4000"
+            else
+               update_env "SERVER_PORT" "${{ secrets.SERVER_PORT }}"
             fi
+
+            # Check if POSTGRES_URL is set, if not construct it or let it be.
+            # docker-compose.prod.yml constructs it from password, so maybe we don't need to inject it if we inject password.
+            # But prod.env has it. Let's try to inject if secret exists.
+            update_env "POSTGRES_URL" "${{ secrets.POSTGRES_URL }}"
 
             chmod +x deploy.sh
             ./deploy.sh
