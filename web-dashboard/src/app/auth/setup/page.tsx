@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { completeRegistration } from '@/actions/register'
 import { createClient } from '@/utils/supabase/client'
 
-export default function SetupPage() {
+function SetupContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const token = searchParams.get('token')
@@ -129,5 +129,13 @@ export default function SetupPage() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export default function SetupPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Carregando...</div>}>
+            <SetupContent />
+        </Suspense>
     )
 }
