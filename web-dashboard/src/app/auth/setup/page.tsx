@@ -12,6 +12,8 @@ function SetupContent() {
     const token = searchParams.get('token')
 
     const [name, setName] = useState('')
+    const [whatsapp, setWhatsapp] = useState('')
+    const [balance, setBalance] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -22,6 +24,30 @@ function SetupContent() {
             setError('Token de convite não fornecido.');
         }
     }, [token])
+
+    // Mask for WhatsApp (BR format: (11) 99999-9999)
+    const handleWhatsappChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let value = e.target.value.replace(/\D/g, '')
+        if (value.length > 11) value = value.slice(0, 11)
+
+        if (value.length > 2) {
+            value = `(${value.slice(0, 2)}) ${value.slice(2)}`
+        }
+        if (value.length > 9) {
+            value = `${value.slice(0, 9)}-${value.slice(9)}`
+        }
+        setWhatsapp(value)
+    }
+
+    // Mask for Currency (R$)
+    const handleBalanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let value = e.target.value.replace(/\D/g, '')
+        const numberValue = Number(value) / 100
+        setBalance(new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(numberValue))
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -34,9 +60,20 @@ function SetupContent() {
             return;
         }
 
+        // Validate WhatsApp (11 digits required: DDD + 9 digits)
+        const rawPhone = whatsapp.replace(/\D/g, '')
+        if (rawPhone.length < 11) {
+            setError('WhatsApp inválido. Digite o número com DDD (11 dígitos).');
+            setLoading(false);
+            return;
+        }
+
+        // Parse balance
+        const rawBalance = Number(balance.replace(/\D/g, '')) / 100
+
         try {
             // 1. Call Server Action to create user
-            const result = await completeRegistration(token, password, name);
+            const result = await completeRegistration(token, password, name, rawPhone, rawBalance);
 
             if (result.error) {
                 setError(result.error);
@@ -118,6 +155,31 @@ function SetupContent() {
                             onChange={(e) => setName(e.target.value)}
                             className="w-full px-4 py-2.5 bg-[#1e293b] border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all outline-none"
                             placeholder="Ex: João da Silva"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">WhatsApp</label>
+                        <input
+                            type="tel"
+                            required
+                            value={whatsapp}
+                            onChange={handleWhatsappChange}
+                            maxLength={15}
+                            className="w-full px-4 py-2.5 bg-[#1e293b] border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all outline-none"
+                            placeholder="(11) 99999-9999"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Saldo Atual</label>
+                        <input
+                            type="text"
+                            required
+                            value={balance}
+                            onChange={handleBalanceChange}
+                            className="w-full px-4 py-2.5 bg-[#1e293b] border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all outline-none"
+                            placeholder="R$ 0,00"
                         />
                     </div>
 

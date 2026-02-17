@@ -10,8 +10,6 @@ interface InviteModalProps {
 
 export const InviteModal = ({ isOpen, onClose, onInvite }: InviteModalProps) => {
     const [email, setEmail] = useState("");
-    const [name, setName] = useState("");
-    const [whatsapp, setWhatsapp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
     if (!isOpen) return null;
@@ -19,11 +17,12 @@ export const InviteModal = ({ isOpen, onClose, onInvite }: InviteModalProps) => 
     const handleSubmit = async () => {
         if (!email) return alert("Email é obrigatório");
         setIsLoading(true);
-        await onInvite(email, name, whatsapp);
+        // Pass empty strings for name/whatsapp as they are no longer used here, 
+        // but the prop signature might still expect them until we refactor the parent.
+        // Actually, let's update the interface too.
+        await onInvite(email, "", "");
         setIsLoading(false);
         setEmail("");
-        setName("");
-        setWhatsapp("");
     };
 
     return (
@@ -38,15 +37,6 @@ export const InviteModal = ({ isOpen, onClose, onInvite }: InviteModalProps) => 
 
                 <div className="space-y-4">
                     <div>
-                        <label className="text-xs text-slate-400 font-medium ml-1">Nome Completo</label>
-                        <TextInput
-                            placeholder="Ex: João da Silva"
-                            value={name}
-                            onValueChange={setName}
-                            className="mt-1"
-                        />
-                    </div>
-                    <div>
                         <label className="text-xs text-slate-400 font-medium ml-1">E-mail corporativo/pessoal</label>
                         <TextInput
                             placeholder="joao@exemplo.com"
@@ -54,17 +44,6 @@ export const InviteModal = ({ isOpen, onClose, onInvite }: InviteModalProps) => 
                             onValueChange={setEmail}
                             className="mt-1"
                         />
-                    </div>
-                    <div>
-                        <label className="text-xs text-slate-400 font-medium ml-1">WhatsApp (Opcional)</label>
-                        <TextInput
-                            placeholder="5521999999999"
-                            value={whatsapp}
-                            onValueChange={setWhatsapp}
-                            className="mt-1"
-                            icon={Phone}
-                        />
-                        <p className="text-xs text-slate-500 mt-1">Apenas números, com DDD (Ex: 5521...)</p>
                     </div>
 
                     <Button

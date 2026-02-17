@@ -21,7 +21,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Configuração de API incompleta (Service Key Missing).' }, { status: 500 });
         }
 
-        const { email, name, whatsapp } = await request.json()
+        const { email } = await request.json()
 
         if (!email) {
             return NextResponse.json({ error: 'Email is required' }, { status: 400 })
