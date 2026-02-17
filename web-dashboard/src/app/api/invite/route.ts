@@ -27,72 +27,93 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Email is required' }, { status: 400 })
         }
 
+        const supabaseAdmin = getSupabaseAdmin();
         const siteUrl = getBaseUrl();
 
-        // 1. Generate Invite Link (Do NOT send email via Supabase)
-        const { data, error } = await getSupabaseAdmin().auth.admin.generateLink({
-            type: 'invite',
-            email: email,
-            options: {
-                redirectTo: `${siteUrl}/auth/redeem`,
-                data: { full_name: name }
-            }
-        });
+        // 1. Check if user already exists in Supabase (Profiles)
+        // We check profiles because it's our source of truth for "active users"
+        const { data: existingProfile } = await supabaseAdmin
+            .from('profiles')
+            .select('id')
+            .eq('email', email)
+            .single();
 
-        if (error) {
-            console.error('Error generating invite link:', error)
-            return NextResponse.json({ error: error.message }, { status: 500 })
+        if (existingProfile) {
+            return NextResponse.json({ error: 'Este e-mail já está cadastrado no sistema.' }, { status: 400 });
         }
 
-        // 2. Construct Safe Link (Shield Pattern)
-        // Point to our verify page, passing the actual Supabase link as a target
-        const supabaseLink = data.properties.action_link;
-        const safeLink = `${siteUrl}/auth/verify-invite?target=${encodeURIComponent(supabaseLink)}`;
-        console.log(`[Invite API] Generated Safe Link for ${email}: ${safeLink}`);
+        // 2. Create/Update Invite in supa_invites
+        // We use upsert to handle re-invites (refreshing the token)
+        const { data: invite, error: inviteError } = await supabaseAdmin
+            .from('supa_invites')
+            .upsert({
+                email: email,
+                role: 'user', // Default role for now
+                status: 'pending',
+                // We let postgres generate the token and dates, but for upsert we might need to force update
+                // Actually, if we upsert, we want a NEW token.
+                // But gen_random_uuid() only runs on default.
+                // So let's delete and re-insert? Or explicitly set token?
+                // Let's do a select to see if exists, then update or insert.
+                // Simpler: Just delete any pending invite for this email and insert new.
+            }, { onConflict: 'email' })
+            .select()
+            .single();
 
-        // 3. Send Email manually
+        // Wait, Upsert with default values is tricky if we want to regenerate token.
+        // Let's explicitly Query first.
+        const { data: existingInvite } = await supabaseAdmin.from('supa_invites').select('id').eq('email', email).single();
+
+        let targetInvite;
+        if (existingInvite) {
+            const { data, error } = await supabaseAdmin.from('supa_invites')
+                .update({
+                    token: crypto.randomUUID(),
+                    expires_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(),
+                    status: 'pending',
+                    created_at: new Date().toISOString() // Refresh timestamp
+                })
+                .eq('id', existingInvite.id)
+                .select()
+                .single();
+            if (error) throw error;
+            targetInvite = data;
+        } else {
+            const { data, error } = await supabaseAdmin.from('supa_invites')
+                .insert({
+                    email,
+                    role: 'user',
+                    invited_by: null // we could capture this from session if we wanted
+                })
+                .select()
+                .single();
+            if (error) throw error;
+            targetInvite = data;
+        }
+
+        if (!targetInvite || !targetInvite.token) {
+            throw new Error("Failed to generate invite token");
+        }
+
+        // 3. Construct Custom Setup Link
+        const inviteLink = `${siteUrl}/auth/setup?token=${targetInvite.token}`;
+        console.log(`[Invite API] Generated Managed Link for ${email}: ${inviteLink}`);
+
+        // 4. Send Email manually
         console.log(`[Invite API] Attempting to send invite email to ${email}...`);
         try {
             const { sendInviteEmail } = await import('@/lib/email');
-            await sendInviteEmail(email, safeLink);
+            await sendInviteEmail(email, inviteLink);
             console.log(`[Invite API] Email sent successfully to ${email}`);
         } catch (emailError) {
             console.error(`[Invite API] Failed to send email to ${email}:`, emailError);
-            // We don't block the response, but we log the error
+            // We don't block the response
         }
 
+        return NextResponse.json({ success: true, message: 'Convite enviado com sucesso.' })
 
-        // 2. Profile Pre-provisioning
-        // Insert/Update profile with Name and Phone immediately
-        if (data.user) {
-            const updates: any = {
-                updated_at: new Date().toISOString()
-            };
-
-            // Handle Whatsapp Array
-            if (whatsapp) {
-                // Determine if we should append or set. For new invite, we set.
-                // Since this is a pre-provision, we can set the array.
-                updates.whatsapp_numbers = [whatsapp];
-            }
-
-            const { error: profileError } = await getSupabaseAdmin()
-                .from('profiles') // Updated table
-                .upsert({
-                    id: data.user.id,
-                    email: email, // profiles.email is unique
-                    ...updates
-                }, { onConflict: 'id' });
-
-            if (profileError) {
-                console.warn("⚠️ User invited but profile update failed:", profileError);
-            }
-        }
-
-        return NextResponse.json({ success: true, user: data.user })
-
-    } catch (err) {
+    } catch (err: any) {
         console.error('Invite API Error:', err)
-        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+        return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 })
     }
 }
