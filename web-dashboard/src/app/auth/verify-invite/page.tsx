@@ -1,7 +1,6 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 
 function VerifyInviteContent() {
