@@ -39,18 +39,24 @@ function VerifyInviteContent() {
                     </p>
                 </div>
 
-                {/* O robô não clica neste botão, protegendo o token */}
-                {/* Link direto com estilo de botão para evitar aninhamento inválido */}
-                <a
-                    href={target}
+                {/* Botão Robust - Força navegação via JS para garantir que funcione */}
+                <button
+                    onClick={() => {
+                        if (target) window.location.href = target;
+                    }}
                     className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-white hover:bg-slate-900/90 w-full text-lg h-12"
                 >
                     Confirmar Acesso
-                </a>
+                </button>
 
-                <p className="text-xs text-gray-400 mt-4">
-                    Isso garante que seu link não expire automaticamente.
-                </p>
+                <div className="text-center space-y-2">
+                    <p className="text-xs text-gray-400 mt-4">
+                        Se o botão não funcionar, copie e cole este link no navegador:
+                    </p>
+                    <code className="block p-2 bg-gray-100 rounded text-xs break-all text-gray-600 select-all border border-gray-200">
+                        {target}
+                    </code>
+                </div>
             </div>
         </div>
     )
