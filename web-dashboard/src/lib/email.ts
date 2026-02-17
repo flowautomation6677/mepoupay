@@ -41,7 +41,7 @@ export const sendWelcomeEmail = async (email: string, phone: string) => {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
       const data = await resend.emails.send({
-        from: 'Me Poupey <nao-responda@mepoupey.flowrocket.com.br>', // Replace with your verified domain
+        from: 'Me Poupey <nao-responda@mepoupay.app.br>', // Replace with your verified domain
         to: email,
         subject: '🚀 Acesso Liberado: Bem-vindo ao Me Poupey',
         html,
@@ -97,7 +97,7 @@ export const sendPasswordResetEmail = async (email: string, resetLink: string) =
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
       const data = await resend.emails.send({
-        from: 'Me Poupey <nao-responda@mepoupey.flowrocket.com.br>', // Replace with your verified domain
+        from: 'Me Poupey <nao-responda@mepoupay.app.br>', // Replace with your verified domain
         to: email,
         subject: '🔐 Redefina sua senha',
         html,
@@ -159,7 +159,7 @@ export const sendInviteEmail = async (email: string, inviteLink: string) => {
     try {
       const resend = new Resend(process.env.RESEND_API_KEY);
       const data = await resend.emails.send({
-        from: 'Me Poupey <nao-responda@mepoupey.flowrocket.com.br>',
+        from: 'Me Poupey <nao-responda@mepoupay.app.br>',
         to: email,
         subject: '🚀 Você foi convidado para o Me Poupey!',
         html,
