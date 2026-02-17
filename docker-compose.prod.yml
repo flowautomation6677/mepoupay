@@ -78,9 +78,11 @@ services:
         NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_URL}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+        RESEND_API_KEY: ${RESEND_API_KEY}
     container_name: mepoupay_dashboard_prod
     restart: always
     environment:
+      - RESEND_API_KEY=${RESEND_API_KEY}
       - NODE_ENV=production
       - NEXT_PUBLIC_EVOLUTION_API_URL=https://evolution.mepoupay.app.br
       - INTERNAL_EVOLUTION_API_URL=http://evolution-api:8080
