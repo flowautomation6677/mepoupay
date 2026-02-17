@@ -48,12 +48,19 @@ export async function POST(request: Request) {
         // Point to our verify page, passing the actual Supabase link as a target
         const supabaseLink = data.properties.action_link;
         const safeLink = `${siteUrl}/auth/verify-invite?target=${encodeURIComponent(supabaseLink)}`;
+        console.log(`[Invite API] Generated Safe Link for ${email}: ${safeLink}`);
 
         // 3. Send Email manually
-        // We import the email sender dynamically to avoid circular deps if any, 
-        // though here it's fine.
-        const { sendInviteEmail } = await import('@/lib/email');
-        await sendInviteEmail(email, safeLink);
+        console.log(`[Invite API] Attempting to send invite email to ${email}...`);
+        try {
+            const { sendInviteEmail } = await import('@/lib/email');
+            await sendInviteEmail(email, safeLink);
+            console.log(`[Invite API] Email sent successfully to ${email}`);
+        } catch (emailError) {
+            console.error(`[Invite API] Failed to send email to ${email}:`, emailError);
+            // We don't block the response, but we log the error
+        }
+
 
         // 2. Profile Pre-provisioning
         // Insert/Update profile with Name and Phone immediately
