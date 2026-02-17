@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { completeRegistration } from '@/actions/register'
 import { createClient } from '@/utils/supabase/client'
+import { Loader2 } from 'lucide-react'
 
 function SetupContent() {
     const router = useRouter()
@@ -68,49 +69,67 @@ function SetupContent() {
 
     if (success) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-                <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md w-full">
-                    <h1 className="text-2xl font-bold text-green-600 mb-4">Conta Criada! 🎉</h1>
-                    <p className="text-gray-600">Sua conta foi configurada com sucesso.</p>
-                    <p className="text-gray-500 text-sm mt-2">Redirecionando para o login...</p>
+            <div className="flex flex-col items-center justify-center min-h-screen bg-[#020617] p-4 text-white">
+                <div className="bg-[#0f172a] p-8 rounded-lg border border-indigo-500/20 shadow-2xl shadow-indigo-500/10 text-center max-w-md w-full">
+                    <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <span className="text-3xl">🎉</span>
+                    </div>
+                    <h1 className="text-2xl font-bold text-white mb-2">Conta Criada!</h1>
+                    <p className="text-slate-400">Sua conta foi configurada com sucesso.</p>
+                    <div className="flex items-center justify-center gap-2 mt-6 text-sm text-indigo-400">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Redirecionando para o login...
+                    </div>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-            <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md w-full">
-                <h1 className="text-xl font-bold mb-6">Configurar sua Conta</h1>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-[#020617] p-4 text-white">
+            <div className="bg-[#0f172a] p-8 rounded-lg border border-indigo-500/20 shadow-2xl shadow-indigo-500/10 text-center max-w-md w-full relative overflow-hidden">
+
+                {/* Decorative background gradients */}
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500"></div>
+                <div className="absolute -top-10 -right-10 w-24 h-24 bg-indigo-500/20 blur-3xl rounded-full"></div>
+
+                <div className="mb-6 flex justify-center">
+                    <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center ring-1 ring-indigo-500/30">
+                        <span className="text-2xl">🚀</span>
+                    </div>
+                </div>
+
+                <h1 className="text-xl font-bold mb-2">Configurar sua Conta</h1>
+                <p className="text-slate-400 text-sm mb-6">Preencha seus dados para finalizar o cadastro.</p>
 
                 {error && (
-                    <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-lg mb-6 text-sm flex items-center justify-center">
                         {error}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4 text-left">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Seu Nome</label>
+                        <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Seu Nome</label>
                         <input
                             type="text"
                             required
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full px-4 py-2.5 bg-[#1e293b] border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all outline-none"
                             placeholder="Ex: João da Silva"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Crie uma Senha</label>
+                        <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Crie uma Senha</label>
                         <input
                             type="password"
                             required
                             minLength={6}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-3 py-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"
+                            className="w-full px-4 py-2.5 bg-[#1e293b] border border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-white placeholder-slate-500 transition-all outline-none"
                             placeholder="Mínimo 6 caracteres"
                         />
                     </div>
@@ -118,15 +137,20 @@ function SetupContent() {
                     <button
                         type="submit"
                         disabled={loading || !token}
-                        className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:opacity-50 transition-colors font-medium"
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-lg shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
                     >
-                        {loading ? 'Criando conta...' : 'Finalizar Cadastro'}
+                        {loading ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Criando conta...
+                            </>
+                        ) : 'Finalizar Cadastro'}
                     </button>
                 </form>
 
-                <div className="mt-4 text-xs text-gray-400">
-                    O acesso será liberado assim que você definir sua senha.
-                </div>
+                <p className="mt-6 text-xs text-slate-500">
+                    Ao continuar, você concorda com nossos termos de uso.
+                </p>
             </div>
         </div>
     )
@@ -134,7 +158,12 @@ function SetupContent() {
 
 export default function SetupPage() {
     return (
-        <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Carregando...</div>}>
+        <Suspense fallback={
+            <div className="flex flex-col items-center justify-center min-h-screen bg-[#020617] text-indigo-500">
+                <Loader2 className="w-10 h-10 animate-spin mb-4" />
+                <p className="text-slate-400 text-sm">Carregando...</p>
+            </div>
+        }>
             <SetupContent />
         </Suspense>
     )
