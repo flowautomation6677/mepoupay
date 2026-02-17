@@ -22,10 +22,28 @@ export default function RedeemPage() {
             }
 
             // 2. Handle Implicit Flow (Access Token in Hash)
-            // The supabase client's `getSession` might retrieve it from local storage if the
-            // library automatically parsed the hash on init.
-            // If not, we might need to listen to onAuthStateChange.
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
 
+            if (accessToken && refreshToken) {
+                setStatus('Token detectado! Iniciando sessão...');
+                const { error } = await supabase.auth.setSession({
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                });
+
+                if (!error) {
+                    setStatus('Sessão estabelecida! Redirecionando...');
+                    router.push('/setup');
+                    return;
+                } else {
+                    setStatus(`Erro ao estabelecer sessão: ${error.message}`);
+                }
+            }
+
+            // If auto-detection works (event based)
             const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
                 if (event === 'SIGNED_IN' && session) {
                     setStatus('Autenticado com sucesso! Redirecionando...')
@@ -51,7 +69,7 @@ export default function RedeemPage() {
 
             // If we are still here after a moment, and no session, maybe prompt or wait
             setTimeout(() => {
-                if (!session) {
+                if (!session && !accessToken) {
                     // Sometimes the hash parsing takes a split second
                     supabase.auth.getSession().then(({ data }) => {
                         if (!data.session) {
