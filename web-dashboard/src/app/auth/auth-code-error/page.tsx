@@ -1,12 +1,31 @@
+'use client';
+
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default async function AuthErrorPage({ searchParams }: { searchParams: Promise<{ error?: string, error_description?: string }> }) {
-    const params = await searchParams;
-    // If running in development, generic messages are less helpful.
-    const errorMsg = params?.error_description
-        ? decodeURIComponent(params.error_description.replace(/\+/g, " "))
-        : "Ocorreu um erro ao validar seu acesso. Isso pode acontecer se o link já foi usado ou expirou.";
+export default function AuthErrorPage({ searchParams }: { searchParams: Promise<{ error?: string, error_description?: string }> }) {
+    const [errorMsg, setErrorMsg] = useState("Carregando...");
+    const router = useRouter();
+
+    useEffect(() => {
+        // Recovery Logic: Check if we actually have a token in the hash!
+        if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
+            console.log("Recovering session from hash...");
+            // Redirect to redeem page to handle it
+            router.replace('/auth/redeem' + window.location.hash);
+            return;
+        }
+
+        // Standard Error Display
+        searchParams.then(params => {
+            const msg = params?.error_description
+                ? decodeURIComponent(params.error_description.replace(/\+/g, " "))
+                : "Ocorreu um erro ao validar seu acesso. Isso pode acontecer se o link já foi usado ou expirou.";
+            setErrorMsg(msg);
+        });
+    }, [searchParams, router]);
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-slate-950 p-4">
