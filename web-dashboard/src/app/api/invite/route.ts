@@ -29,17 +29,31 @@ export async function POST(request: Request) {
 
         const siteUrl = getBaseUrl();
 
-        // 1. Invite User via Supabase (Uses Supabase's SMTP)
-        const { data, error } = await getSupabaseAdmin().auth.admin.inviteUserByEmail(email, {
-            // Apontamos para o callback para processar o token, e o callback redireciona para /setup
-            redirectTo: `${siteUrl}/auth/verify-invite?next=/setup`,
-            data: { full_name: name }
+        // 1. Generate Invite Link (Do NOT send email via Supabase)
+        const { data, error } = await getSupabaseAdmin().auth.admin.generateLink({
+            type: 'invite',
+            email: email,
+            options: {
+                redirectTo: `${siteUrl}/auth/callback?next=/setup`,
+                data: { full_name: name }
+            }
         });
 
         if (error) {
-            console.error('Error sending invite:', error)
+            console.error('Error generating invite link:', error)
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
+
+        // 2. Construct Safe Link (Shield Pattern)
+        // Point to our verify page, passing the actual Supabase link as a target
+        const supabaseLink = data.properties.action_link;
+        const safeLink = `${siteUrl}/auth/verify-invite?target=${encodeURIComponent(supabaseLink)}`;
+
+        // 3. Send Email manually
+        // We import the email sender dynamically to avoid circular deps if any, 
+        // though here it's fine.
+        const { sendInviteEmail } = await import('@/lib/email');
+        await sendInviteEmail(email, safeLink);
 
         // 2. Profile Pre-provisioning
         // Insert/Update profile with Name and Phone immediately

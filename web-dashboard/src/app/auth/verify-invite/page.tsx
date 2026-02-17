@@ -7,9 +7,8 @@ import { Suspense } from 'react'
 
 function VerifyInviteContent() {
     const searchParams = useSearchParams()
-    // Captura os parâmetros enviados pelo Supabase
-    const code = searchParams.get('code')
-    const next = searchParams.get('next') || '/dashboard'
+    // Captura o link de destino (gerado pelo Supabase)
+    const target = searchParams.get('target')
     const errorCode = searchParams.get('error')
     const errorDescription = searchParams.get('error_description')
 
@@ -24,16 +23,13 @@ function VerifyInviteContent() {
         )
     }
 
-    if (!code) {
+    if (!target) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4">
-                <p>Link de convite inválido (código ausente).</p>
+                <p>Link de convite inválido (destino ausente).</p>
             </div>
         )
     }
-
-    // Reconstrói a URL para a rota que realmente faz o login
-    const confirmLink = `/auth/callback?code=${code}&next=${next}`
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-4">
@@ -46,7 +42,7 @@ function VerifyInviteContent() {
                 </div>
 
                 {/* O robô não clica neste botão, protegendo o token */}
-                <Link href={confirmLink} passHref legacyBehavior>
+                <Link href={target} passHref legacyBehavior>
                     <Button className="w-full text-lg h-12">
                         Confirmar Acesso
                     </Button>
