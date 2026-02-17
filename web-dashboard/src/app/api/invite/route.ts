@@ -34,7 +34,7 @@ export async function POST(request: Request) {
             type: 'invite',
             email: email,
             options: {
-                redirectTo: `${siteUrl}/auth/callback`,
+                redirectTo: `${siteUrl}/auth/redeem`,
                 data: { full_name: name }
             }
         });
