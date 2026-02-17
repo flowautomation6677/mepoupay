@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function WelcomeManager({ userName }: { userName: string }) {
+function WelcomeManagerContent({ userName }: { userName: string }) {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
@@ -83,5 +83,13 @@ export default function WelcomeManager({ userName }: { userName: string }) {
                 </div>
             )}
         </AnimatePresence>
+    );
+}
+
+export default function WelcomeManager(props: { userName: string }) {
+    return (
+        <Suspense fallback={null}>
+            <WelcomeManagerContent {...props} />
+        </Suspense>
     );
 }
