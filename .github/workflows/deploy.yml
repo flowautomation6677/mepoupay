@@ -53,6 +53,7 @@ jobs:
             update_env "EVOLUTION_INSTANCE_NAME" "${{ secrets.EVOLUTION_INSTANCE_NAME }}"
             update_env "POSTGRES_PASSWORD" "${{ secrets.POSTGRES_PASSWORD }}"
             update_env "SONAR_TOKEN" "${{ secrets.SONAR_TOKEN }}"
+            update_env "RESEND_API_KEY" "${{ secrets.RESEND_API_KEY }}"
             
             # Non-secret defaults (can be overridden by secrets if user sets them, or we just set defaults if missing)
             # For now, let's assume user might want to control these via secrets too, or they are fine remaining as is if they exist.
