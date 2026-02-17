@@ -1,8 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button' // Ou seu componente de botão padrão
-import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 
 function VerifyInviteContent() {
@@ -42,11 +41,13 @@ function VerifyInviteContent() {
                 </div>
 
                 {/* O robô não clica neste botão, protegendo o token */}
-                <Link href={target} passHref legacyBehavior>
-                    <Button className="w-full text-lg h-12">
-                        Confirmar Acesso
-                    </Button>
-                </Link>
+                {/* Link direto com estilo de botão para evitar aninhamento inválido */}
+                <a
+                    href={target}
+                    className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-white hover:bg-slate-900/90 w-full text-lg h-12"
+                >
+                    Confirmar Acesso
+                </a>
 
                 <p className="text-xs text-gray-400 mt-4">
                     Isso garante que seu link não expire automaticamente.
