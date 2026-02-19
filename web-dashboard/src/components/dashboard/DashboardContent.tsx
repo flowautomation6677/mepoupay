@@ -12,7 +12,7 @@ const ExpenseChart = dynamic(() => import('@/components/dashboard/ExpenseChart')
     loading: () => <div className="h-[300px] w-full bg-slate-100/10 rounded-3xl animate-pulse" />
 })
 
-export default function DashboardContent({ profile, transactions, prevTransactions }: DashboardData) {
+export default function DashboardContent({ profile, transactions, prevTransactions }: Readonly<DashboardData>) {
     if (!profile) return null;
 
     return (

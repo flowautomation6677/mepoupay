@@ -9,7 +9,7 @@ import { formatCurrency } from '@/utils/formatters'
 
 import { Transaction } from '@/types/dashboard'
 
-export default function ExpenseChart({ transactions }: { transactions: Transaction[] }) {
+export default function ExpenseChart({ transactions }: Readonly<{ transactions: Transaction[] }>) {
     if (!transactions || transactions.length === 0) return null
 
     // --- PROCESSAMENTO DE DADOS (ZONA 2) ---
@@ -31,7 +31,7 @@ export default function ExpenseChart({ transactions }: { transactions: Transacti
 
     // Converter para array e ordenar
     let currentBalance = 0;
-    const sortedDates = Object.keys(dailyGroups).sort();
+    const sortedDates = Object.keys(dailyGroups).sort((a, b) => a.localeCompare(b));
 
     const chartData = sortedDates.map(date => {
         const dayIncome = dailyGroups[date].income
@@ -154,7 +154,7 @@ export default function ExpenseChart({ transactions }: { transactions: Transacti
                     <h3 className="mb-4 text-lg font-bold text-white">Top Gastos</h3>
                     <div className="space-y-4">
                         {topCategories.map((cat, i) => (
-                            <div key={i} className="group">
+                            <div key={cat.name} className="group">
                                 <div className="mb-1 flex justify-between text-xs font-medium">
                                     <span className="text-slate-300 group-hover:text-white transition">{cat.name}</span>
                                     <span className="text-slate-400">{formatCurrency(cat.value)}</span>
