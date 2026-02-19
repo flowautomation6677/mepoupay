@@ -173,7 +173,7 @@ export default function ExpenseChart({ transactions }: { transactions: Transacti
                     </div>
                 </motion.div>
 
-                {/* 3B: Widget Me Poupey AI */}
+                {/* 3B: Widget Me Poupay AI */}
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -185,7 +185,7 @@ export default function ExpenseChart({ transactions }: { transactions: Transacti
                             <Zap size={20} className="text-yellow-300" />
                         </div>
                         <div>
-                            <h4 className="font-bold text-lg">Me Poupey Insight</h4>
+                            <h4 className="font-bold text-lg">Me Poupay Insight</h4>
                             <p className="mt-2 text-sm leading-relaxed text-indigo-100 opacity-90">
                                 {topCategories.length > 0
                                     ? `Atenção: A categoria '${topCatName}' representa ${topCatPercent}% das suas saídas neste período. Que tal rever esses gastos?`

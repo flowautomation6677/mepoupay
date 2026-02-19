@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -19,14 +19,14 @@ import {
     Wallet
 } from 'lucide-react';
 import { createBrowserClient } from '@supabase/ssr';
-import { useRouter } from 'next/navigation';
+
 import { cn } from '@/lib/utils';
 
 const menuItems = [
     { name: 'Visão Geral', icon: LayoutDashboard, href: '/dashboard' },
     { name: 'Gastos & Extrato', icon: Receipt, href: '/dashboard/transactions' },
     { name: 'Planejamento', icon: Target, href: '/dashboard/planning' },
-    { name: 'Me Poupey AI', icon: BrainCircuit, href: '/dashboard/ai' },
+    { name: 'Me Poupay AI', icon: BrainCircuit, href: '/dashboard/ai' },
     { name: 'Relatórios', icon: FileText, href: '/dashboard/reports' },
     { name: 'Minha Conta', icon: UserCircle, href: '/dashboard/account' },
 ];
@@ -58,7 +58,7 @@ export default function Sidebar() {
             <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-slate-950/80 backdrop-blur-md border-b border-white/10">
                 <span className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
                     <Wallet className="w-6 h-6 text-indigo-400" />
-                    Me Poupey
+                    Me Poupay
                 </span>
                 <button
                     onClick={() => setIsMobileOpen(true)}
@@ -89,7 +89,7 @@ export default function Sidebar() {
                             <div className="flex items-center justify-between p-4 border-b border-white/10">
                                 <span className="text-xl font-bold text-white flex items-center gap-2">
                                     <Wallet className="w-6 h-6 text-indigo-500" />
-                                    Me Poupey
+                                    Me Poupay
                                 </span>
                                 <button
                                     onClick={() => setIsMobileOpen(false)}
@@ -127,17 +127,17 @@ export default function Sidebar() {
             >
                 {/* Logo Area */}
                 <div className="h-20 flex items-center justify-center border-b border-white/10 relative">
-                    {!isCollapsed ? (
+                    {isCollapsed ? (
+                        <Wallet className="w-8 h-8 text-indigo-500" />
+                    ) : (
                         <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-2"
                         >
                             <Wallet className="w-8 h-8 text-indigo-500" />
-                            Me Poupey
+                            Me Poupay
                         </motion.span>
-                    ) : (
-                        <Wallet className="w-8 h-8 text-indigo-500" />
                     )}
 
                     {/* Collapse Toggle */}
@@ -173,7 +173,7 @@ export default function Sidebar() {
     );
 }
 
-function NavLinks({ pathname, items, onClick, isCollapsed = false }: { pathname: string, items: { name: string, href: string, icon: React.ElementType }[], onClick?: () => void, isCollapsed?: boolean }) {
+function NavLinks({ pathname, items, onClick, isCollapsed = false }: Readonly<{ pathname: string, items: { name: string, href: string, icon: React.ElementType }[], onClick?: () => void, isCollapsed?: boolean }>) {
     return (
         <>
             {items.map((item) => {
