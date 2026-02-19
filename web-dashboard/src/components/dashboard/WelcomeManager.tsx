@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-function WelcomeManagerContent({ userName }: { userName: string }) {
+function WelcomeManagerContent({ userName }: { readonly userName: string }) {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
@@ -86,7 +86,7 @@ function WelcomeManagerContent({ userName }: { userName: string }) {
     );
 }
 
-export default function WelcomeManager(props: { userName: string }) {
+export default function WelcomeManager(props: { readonly userName: string }) {
     return (
         <Suspense fallback={null}>
             <WelcomeManagerContent {...props} />

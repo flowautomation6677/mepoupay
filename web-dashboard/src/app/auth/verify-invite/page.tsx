@@ -42,7 +42,7 @@ function VerifyInviteContent() {
                 {/* Botão Robust - Força navegação via JS para garantir que funcione */}
                 <button
                     onClick={() => {
-                        if (target) window.location.href = target;
+                        if (target && typeof globalThis !== 'undefined' && globalThis.window) globalThis.window.location.href = target;
                     }}
                     className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-white hover:bg-slate-900/90 w-full text-lg h-12"
                 >

@@ -11,17 +11,19 @@ const MONTH_NAMES = [
 
 export default function DashboardHeader({
     userEmail,
+    userName,
     currentMonth,
     currentYear,
     customStart,
     customEnd
-}: {
+}: Readonly<{
     userEmail: string | undefined,
+    userName?: string | null,
     currentMonth: number,
     currentYear: number,
     customStart?: string,
     customEnd?: string
-}) {
+}>) {
     const router = useRouter()
 
     const handleMonthChange = (offset: number) => {
@@ -60,14 +62,25 @@ export default function DashboardHeader({
                 </div>
                 <div>
                     <h2 className="text-sm font-medium text-slate-400">Bem-vindo,</h2>
-                    <h1 className="text-lg font-bold text-white capitalize">{userEmail?.split('@')[0]}</h1>
+                    <h1 className="text-lg font-bold text-white capitalize">{userName || userEmail?.split('@')[0]}</h1>
                 </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
                 {/* Seletor de Mês / Customizado */}
                 <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 p-1">
-                    {!customStart ? (
+                    {customStart ? (
+                        <div className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-indigo-300">
+                            <Calendar size={14} />
+                            <span>Período Personalizado</span>
+                            <button
+                                onClick={() => router.push('/dashboard')}
+                                className="ml-2 rounded-full hover:bg-white/10 p-1"
+                            >
+                                X
+                            </button>
+                        </div>
+                    ) : (
                         <>
                             <button
                                 onClick={() => handleMonthChange(-1)}
@@ -86,17 +99,6 @@ export default function DashboardHeader({
                                 <ChevronRight size={16} />
                             </button>
                         </>
-                    ) : (
-                        <div className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-indigo-300">
-                            <Calendar size={14} />
-                            <span>Período Personalizado</span>
-                            <button
-                                onClick={() => router.push('/dashboard')}
-                                className="ml-2 rounded-full hover:bg-white/10 p-1"
-                            >
-                                X
-                            </button>
-                        </div>
                     )}
                 </div>
 
@@ -105,8 +107,8 @@ export default function DashboardHeader({
                     onSubmit={(e) => {
                         e.preventDefault()
                         const formData = new FormData(e.currentTarget)
-                        const start = formData.get('start')
-                        const end = formData.get('end')
+                        const start = formData.get('start') as string
+                        const end = formData.get('end') as string
                         if (start && end) router.push(`/dashboard?startDate=${start}&endDate=${end}`)
                     }}
                     className="flex items-center gap-2"

@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
         // 2. Create/Update Invite in supa_invites
         // We use upsert to handle re-invites (refreshing the token)
-        const { data: invite, error: inviteError } = await supabaseAdmin
+        await supabaseAdmin
             .from('supa_invites')
             .upsert({
                 email: email,
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
             targetInvite = data;
         }
 
-        if (!targetInvite || !targetInvite.token) {
+        if (!targetInvite?.token) {
             throw new Error("Failed to generate invite token");
         }
 

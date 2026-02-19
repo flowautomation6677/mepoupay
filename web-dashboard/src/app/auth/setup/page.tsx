@@ -27,7 +27,7 @@ function SetupContent() {
 
     // Mask for WhatsApp (BR format: (11) 99999-9999)
     const handleWhatsappChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value.replace(/\D/g, '')
+        let value = e.target.value.replaceAll(/\D/g, '')
         if (value.length > 11) value = value.slice(0, 11)
 
         if (value.length > 2) {
@@ -41,7 +41,7 @@ function SetupContent() {
 
     // Mask for Currency (R$)
     const handleBalanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value.replace(/\D/g, '')
+        let value = e.target.value.replaceAll(/\D/g, '')
         const numberValue = Number(value) / 100
         setBalance(new Intl.NumberFormat('pt-BR', {
             style: 'currency',
@@ -61,7 +61,7 @@ function SetupContent() {
         }
 
         // Validate WhatsApp (11 digits required: DDD + 9 digits)
-        const rawPhone = whatsapp.replace(/\D/g, '')
+        const rawPhone = whatsapp.replaceAll(/\D/g, '')
         if (rawPhone.length < 11) {
             setError('WhatsApp inválido. Digite o número com DDD (11 dígitos).');
             setLoading(false);
@@ -69,7 +69,7 @@ function SetupContent() {
         }
 
         // Parse balance
-        const rawBalance = Number(balance.replace(/\D/g, '')) / 100
+        const rawBalance = Number(balance.replaceAll(/\D/g, '')) / 100
 
         try {
             // 1. Call Server Action to create user
@@ -84,7 +84,7 @@ function SetupContent() {
             // 2. Auto-login (Optional but nice)
             // Since we just created the user with a known password, we can log them in immediately
             // using the client-side supabase.
-            const supabase = createClient();
+            createClient();
             // We need the email to login. The server action created the user.
             // But we don't have the email here unless we ask for it or return it from action.
             // Let's ask the user to login, OR return email from action.
@@ -147,8 +147,9 @@ function SetupContent() {
 
                 <form onSubmit={handleSubmit} className="space-y-4 text-left">
                     <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Seu Nome</label>
+                        <label htmlFor="name" className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Seu Nome</label>
                         <input
+                            id="name"
                             type="text"
                             required
                             value={name}
@@ -159,8 +160,9 @@ function SetupContent() {
                     </div>
 
                     <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">WhatsApp</label>
+                        <label htmlFor="whatsapp" className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">WhatsApp</label>
                         <input
+                            id="whatsapp"
                             type="tel"
                             required
                             value={whatsapp}
@@ -172,8 +174,9 @@ function SetupContent() {
                     </div>
 
                     <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Saldo Atual</label>
+                        <label htmlFor="balance" className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Saldo Atual</label>
                         <input
+                            id="balance"
                             type="text"
                             required
                             value={balance}
@@ -184,8 +187,9 @@ function SetupContent() {
                     </div>
 
                     <div>
-                        <label className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Crie uma Senha</label>
+                        <label htmlFor="password" className="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Crie uma Senha</label>
                         <input
+                            id="password"
                             type="password"
                             required
                             minLength={6}

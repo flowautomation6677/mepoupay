@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Title, Text, TextInput, Button } from "@tremor/react";
-import { X, Phone } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface InviteModalProps {
     isOpen: boolean;
@@ -37,8 +37,9 @@ export const InviteModal = ({ isOpen, onClose, onInvite }: InviteModalProps) => 
 
                 <div className="space-y-4">
                     <div>
-                        <label className="text-xs text-slate-400 font-medium ml-1">E-mail corporativo/pessoal</label>
+                        <label htmlFor="email" className="text-xs text-slate-400 font-medium ml-1">E-mail corporativo/pessoal</label>
                         <TextInput
+                            id="email"
                             placeholder="joao@exemplo.com"
                             value={email}
                             onValueChange={setEmail}

@@ -10,9 +10,9 @@ import DashboardContent from '@/components/dashboard/DashboardContent'
 
 export default async function DashboardPage({
     searchParams,
-}: {
+}: Readonly<{
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
+}>) {
     // Await params FIRST (Next.js 15 Requirement)
     const params = await searchParams
 
@@ -54,6 +54,7 @@ export default async function DashboardPage({
             {/* Header Inteligente com Filtro */}
             <DashboardHeader
                 userEmail={user.email}
+                userName={user.user_metadata?.full_name || profile?.full_name}
                 currentMonth={currentMonth}
                 currentYear={currentYear}
                 customStart={customStart}
@@ -62,17 +63,17 @@ export default async function DashboardPage({
 
 
             <main className="space-y-8">
-                {!profile ? (
-                    // Estado: Sem Vínculo (Mostra apenas o linker)
-                    <div className="mx-auto max-w-lg mt-20">
-                        <WhatsAppLinker />
-                    </div>
-                ) : (
+                {profile ? (
                     <DashboardContent
                         profile={profile}
                         transactions={transactions}
                         prevTransactions={prevTransactions}
                     />
+                ) : (
+                    // Estado: Sem Vínculo (Mostra apenas o linker)
+                    <div className="mx-auto max-w-lg mt-20">
+                        <WhatsAppLinker />
+                    </div>
                 )}
             </main>
         </div>

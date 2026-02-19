@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Me Poupey - Gestão Financeira Inteligente",
+  title: "Me Poupey",
   description: "Seu assistente financeiro pessoal no WhatsApp. Controle gastos, investimentos e metas com inteligência artificial.",
 };
 

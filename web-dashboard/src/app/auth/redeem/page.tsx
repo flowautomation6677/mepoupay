@@ -3,113 +3,135 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { SupabaseClient } from '@supabase/supabase-js'
 
 export default function RedeemPage() {
     const router = useRouter()
     const [status, setStatus] = useState('Processando autenticação...')
     const [debugInfo, setDebugInfo] = useState<string>('');
 
-    useEffect(() => {
-        const handleAuth = async () => {
-            const supabase = createClient()
-
-            // 1. Check if we have a session (PKCE auto-handled by client lib usually)
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-
-            if (session) {
-                setStatus('Sessão encontrada! Redirecionando...')
-                window.location.href = '/setup'; // Force hard redirect
-                return
+    // Helpler function: Check for existing session
+    const checkExistingSession = async (supabase: SupabaseClient) => {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+            setStatus('Sessão encontrada! Redirecionando...')
+            if (typeof globalThis !== 'undefined' && globalThis.window) {
+                globalThis.window.location.href = '/setup';
             }
+            return true;
+        }
+        return false;
+    };
 
-            // 2. Handle Implicit Flow (Access Token in Hash)
-            const hash = window.location.hash.substring(1);
-            const params = new URLSearchParams(hash);
-            const accessToken = params.get('access_token');
-            const refreshToken = params.get('refresh_token');
+    // Helper function: Extract hash params
+    const getHashParams = () => {
+        if (typeof globalThis === 'undefined' || !globalThis.window) return { accessToken: null, refreshToken: null, hashLength: 0 };
 
-            setDebugInfo(`Hash Length: ${hash.length} | AccessToken: ${accessToken ? 'Yes' : 'No'} | RefreshToken: ${refreshToken ? 'Yes' : 'No'}`);
+        const hash = globalThis.window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        return {
+            accessToken: params.get('access_token'),
+            refreshToken: params.get('refresh_token'),
+            hashLength: hash.length
+        };
+    };
+
+    // Helper function: Handle full session with refresh token
+    const handleFullSession = async (supabase: SupabaseClient, accessToken: string, refreshToken: string) => {
+        setStatus('Token detectado! Iniciando sessão...');
+        const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+        });
+
+        if (error) {
+            setStatus(`Erro ao estabelecer sessão: ${error.message}`);
+            setDebugInfo(prev => prev + ` | Session Error: ${error.message}`);
+        } else {
+            setStatus('Sessão estabelecida! Redirecionando...');
+            if (typeof globalThis !== 'undefined' && globalThis.window) {
+                globalThis.window.location.href = '/setup';
+            }
+        }
+    };
+
+    // Helper function: Handle partial session (access token only)
+    const handlePartialSession = async (supabase: SupabaseClient, accessToken: string) => {
+        setStatus('Apenas Access Token detectado (sem Refresh). Tentando getUser...');
+        const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
+
+        if (user) {
+            setStatus('Usuário validado! Redirecionando (sessão temporária)...');
+            const { error: setSessionError } = await supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: accessToken // Hack for partial session
+            } as any);
+
+            if (setSessionError) {
+                setStatus(`Erro ao definir sessão parcial: ${setSessionError.message}`);
+            } else if (typeof globalThis !== 'undefined' && globalThis.window) {
+                globalThis.window.location.href = '/setup';
+            }
+        } else {
+            setStatus(`Token inválido: ${userError?.message}`);
+        }
+    };
+
+    // Helper function: Check URL search params for errors
+    const checkUrlErrors = () => {
+        if (typeof globalThis !== 'undefined' && globalThis.window) {
+            const queryParams = new URLSearchParams(globalThis.window.location.search)
+            const error = queryParams.get('error_description')
+            if (error) {
+                setStatus(`Erro: ${error}`)
+            }
+        }
+    };
+
+    useEffect(() => {
+        const supabase = createClient()
+
+        const handleAuth = async () => {
+            if (await checkExistingSession(supabase)) return;
+
+            const { accessToken, refreshToken, hashLength } = getHashParams();
+            setDebugInfo(`Hash Length: ${hashLength} | AccessToken: ${accessToken ? 'Yes' : 'No'} | RefreshToken: ${refreshToken ? 'Yes' : 'No'}`);
 
             if (accessToken && refreshToken) {
-                setStatus('Token detectado! Iniciando sessão...');
-                const { error } = await supabase.auth.setSession({
-                    access_token: accessToken,
-                    refresh_token: refreshToken,
-                });
-
-                if (!error) {
-                    setStatus('Sessão estabelecida! Redirecionando...');
-                    window.location.href = '/setup'; // Force hard redirect
-                    return;
-                } else {
-                    setStatus(`Erro ao estabelecer sessão: ${error.message}`);
-                    setDebugInfo(prev => prev + ` | Session Error: ${error.message}`);
-                }
-            } else if (accessToken && !refreshToken) {
-                setStatus('Apenas Access Token detectado (sem Refresh). Tentando getUser...');
-                // Try to get user with just access token?
-                const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
-                if (user) {
-                    setStatus('Usuário validado! Redirecionando (sessão temporária)...');
-                    // We can't set session easily without refresh token, but maybe we can proceed?
-                    // Actually, Supabase setSession usually requires refresh token for auto-refresh.
-                    // But let's try setting it anyway
-                    const { error: setSessionError } = await supabase.auth.setSession({
-                        access_token: accessToken,
-                        refresh_token: accessToken // Hack? No, this will fail refresh.
-                    } as any);
-
-                    if (!setSessionError) {
-                        window.location.href = '/setup';
-                    } else {
-                        setStatus(`Erro ao definir sessão parcial: ${setSessionError.message}`);
-                    }
-                } else {
-                    setStatus(`Token inválido: ${userError?.message}`);
-                }
+                await handleFullSession(supabase, accessToken, refreshToken);
+                return;
             }
 
-            // If auto-detection works (event based)
-            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-                if (event === 'SIGNED_IN' && session) {
-                    setStatus('Autenticado com sucesso! Redirecionando...')
-                    window.location.href = '/setup';
-                } else if (event === 'SIGNED_OUT') {
-                    // Check for error in URL only if we are truly stuck
-                    const params = new URLSearchParams(window.location.hash.substring(1)); // Remove #
+            if (accessToken && !refreshToken) {
+                await handlePartialSession(supabase, accessToken);
+                return;
+            }
+
+            checkUrlErrors();
+        }
+
+        handleAuth();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                setStatus('Autenticado com sucesso! Redirecionando...')
+                if (typeof globalThis !== 'undefined' && globalThis.window) {
+                    globalThis.window.location.href = '/setup';
+                }
+            } else if (event === 'SIGNED_OUT') {
+                if (typeof globalThis !== 'undefined' && globalThis.window) {
+                    const params = new URLSearchParams(globalThis.window.location.hash.substring(1));
                     const error = params.get('error_description')
                     if (error) {
                         setStatus(`Erro: ${error}`)
                     }
                 }
-            })
-
-            // 3. Fallback: Check standard URL params for errors
-            const queryParams = new URLSearchParams(window.location.search)
-            const error = queryParams.get('error_description')
-            if (error) {
-                setStatus(`Erro: ${error}`)
-                return
             }
+        })
 
-            // If we are still here after a moment, and no session, maybe prompt or wait
-            setTimeout(() => {
-                if (!session && !accessToken) {
-                    // Sometimes the hash parsing takes a split second
-                    supabase.auth.getSession().then(({ data }) => {
-                        if (!data.session) {
-                            // If still no session, check logs
-                        }
-                    })
-                }
-            }, 2000)
-
-            return () => {
-                subscription.unsubscribe()
-            }
+        return () => {
+            subscription.unsubscribe()
         }
-
-        handleAuth()
     }, [router])
 
     return (
@@ -124,7 +146,7 @@ export default function RedeemPage() {
                 </div>
 
                 <button
-                    onClick={() => window.location.reload()}
+                    onClick={() => { if (typeof globalThis !== 'undefined' && globalThis.window) globalThis.window.location.reload() }}
                     className="mt-6 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm"
                 >
                     Tentar Novamente

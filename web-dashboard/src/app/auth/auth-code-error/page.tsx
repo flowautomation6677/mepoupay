@@ -5,23 +5,23 @@ import { AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function AuthErrorPage({ searchParams }: { searchParams: Promise<{ error?: string, error_description?: string }> }) {
+export default function AuthErrorPage({ searchParams }: { readonly searchParams: Promise<{ error?: string, error_description?: string }> }) {
     const [errorMsg, setErrorMsg] = useState("Carregando...");
     const router = useRouter();
 
     useEffect(() => {
         // Recovery Logic: Check if we actually have a token in the hash!
-        if (typeof window !== 'undefined' && window.location.hash && window.location.hash.includes('access_token')) {
+        if (typeof globalThis !== 'undefined' && globalThis.window?.location.hash?.includes('access_token')) {
             console.log("Recovering session from hash...");
             // Redirect to redeem page to handle it
-            router.replace('/auth/redeem' + window.location.hash);
+            router.replace('/auth/redeem' + globalThis.window.location.hash);
             return;
         }
 
         // Standard Error Display
         searchParams.then(params => {
             const msg = params?.error_description
-                ? decodeURIComponent(params.error_description.replace(/\+/g, " "))
+                ? decodeURIComponent(params.error_description.replaceAll("+", " "))
                 : "Ocorreu um erro ao validar seu acesso. Isso pode acontecer se o link já foi usado ou expirou.";
             setErrorMsg(msg);
         });
