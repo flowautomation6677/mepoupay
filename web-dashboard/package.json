@@ -40,7 +40,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.1.11",
     "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.1.18",
     "tsx": "^4.21.0",
     "typescript": "^5"
   }
