@@ -17,7 +17,7 @@ async function _authenticateUser(message) {
 
     if (!user) {
         logger.warn(`🚫 Acesso Negado: ${message.from}`);
-        await evaluationService.sendText(message.from, "❌ *Acesso Negado*\n\nEste bot é privado e exclusivo para usuários convidados.\n\nPeça seu convite ao administrador para começar.");
+        await message.reply("❌ *Acesso Negado*\n\nEste bot é privado e exclusivo para usuários convidados.\n\nPeça seu convite ao administrador para começar.");
         return null;
     }
 
@@ -35,7 +35,7 @@ async function _handleLegacyHandshake(message, user) {
         if (user.savings_goal && user.monthly_income) {
             const available = user.monthly_income - user.savings_goal;
             const response = `Oi ${user.pushname || 'Campeão'}! 🐷\n\nTudo pronto. Já vi aqui que sua meta é poupar *R$ ${user.savings_goal}* este mês. 🎯\nIsso deixa você com cerca de *R$ ${available}* para gastos livres.\n\nAgora é só me avisar sempre que gastar algo. Ex: "Gastei 30 reais no almoço".\n\n👇 *Vamos testar?* Me conta sua última compra!`;
-            await evaluationService.sendText(message.from, response);
+            await message.reply(response);
             return true;
         }
     }
@@ -94,8 +94,7 @@ async function handleMessage(message) {
 
         if (message && message.from) {
             try {
-                await evaluationService.sendText(
-                    message.from,
+                await message.reply(
                     "🐛 *Debug:* Ocorreu um erro interno ao processar sua mensagem.\nVerifique os logs do servidor."
                 );
             } catch (sendErr) {
