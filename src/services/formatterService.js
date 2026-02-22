@@ -6,12 +6,20 @@ const FormatterService = {
      * Formata mensagem de sucesso para registro de transação
      */
     formatSuccessMessage(gasto) {
-        const valor = this.formatCurrency(gasto.valor, gasto.moeda);
-        const titulo = gasto.tipo === 'receita' ? '✅ Entrada Registrada!' : '✅ Gasto Registrado!';
-        const dataDisplay = formatToDisplay(gasto.data);
+        const valorReal = gasto.valor !== undefined ? gasto.valor : gasto.amount;
+        let tipoStr = 'despesa';
+        if (gasto.tipo === 'receita' || gasto.type === 'INCOME') tipoStr = 'receita';
+
+        const dataOriginal = gasto.data || gasto.date;
+        const categoriaFinal = gasto.categoria || (gasto.metadata && gasto.metadata.categoria_original) || "Outros";
+        const descricaoFinal = gasto.descricao || gasto.description;
+
+        const valor = this.formatCurrency(valorReal, gasto.moeda || 'BRL');
+        const titulo = tipoStr === 'receita' ? '✅ Entrada Registrada!' : '✅ Gasto Registrado!';
+        const dataDisplay = formatToDisplay(dataOriginal);
 
         return `${titulo}\n\n` +
-            `🪙 ${gasto.categoria} (${gasto.descricao})\n` +
+            `🪙 ${categoriaFinal} (${descricaoFinal})\n` +
             `💰 ${valor}\n` +
             `🗓️ ${dataDisplay}\n\n`;
     },

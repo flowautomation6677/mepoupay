@@ -1,0 +1,17 @@
+[
+  {
+    "id": "6f81478a-bb75-49a9-aa17-5d8cc0632972",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "account_id": "584a22f3-40e7-4ee7-ab35-cfe45af633eb",
+    "category_id": "a06da43d-6062-4f6d-bb61-857df32f0702",
+    "amount": 2,
+    "type": "EXPENSE",
+    "description": "Bala",
+    "date": "2026-01-02",
+    "metadata": {},
+    "is_recurring": false,
+    "status": "confirmed",
+    "created_at": "2026-01-02T23:03:21.85325+00:00",
+    "updated_at": "2026-02-09T14:02:38.854052+00:00"
+  }
+]

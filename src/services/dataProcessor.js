@@ -65,26 +65,84 @@ async function _processItems(transacoes) {
     return validItems;
 }
 
-function _generatePayload(validItems, embeddings, userId, data) {
+async function _generatePayload(validItems, embeddings, userId, data) {
     const confidenceScore = typeof data.confidence_score === 'number' ? data.confidence_score : 1.0;
     const status = confidenceScore < 0.7 ? 'pending_review' : 'confirmed';
 
-    const payload = validItems.map((g, idx) => ({
-        user_id: userId,
-        prompt_version: data.prompt_version || 'v1_stable',
-        valor: g.valor,
-        valor_original: g.valor_original,
-        moeda_original: g.moeda_original,
-        taxa_cambio: g.taxa_cambio,
-        categoria: g.categoria,
-        descricao: g.descricao,
-        data: formatToISO(g.data),
-        tipo: g.tipo || 'despesa',
-        embedding: embeddings[idx],
-        confidence_score: confidenceScore,
-        status: status,
-        is_validated: status === 'confirmed'
-    }));
+    // 1. Fetch user's default account
+    const { data: accountData, error: accountError } = await adminClient
+        .from('accounts')
+        .select('id')
+        .eq('user_id', userId)
+        .limit(1)
+        .single();
+
+    if (!accountData) {
+        throw new Error("Usuário não possui uma conta (carteira) configurada.");
+    }
+
+    const payload = [];
+
+    // 2. Map and fetch categories for each item
+    for (let idx = 0; idx < validItems.length; idx++) {
+        const g = validItems[idx];
+        let category_id = null;
+
+        if (g.categoria) {
+            const { data: catData } = await adminClient
+                .from('categories')
+                .select('id')
+                .eq('user_id', userId)
+                .ilike('name', g.categoria)
+                .limit(1)
+                .single();
+            if (catData) category_id = catData.id;
+        }
+
+        if (!category_id) {
+            const { data: fallbackCat } = await adminClient
+                .from('categories')
+                .select('id')
+                .eq('user_id', userId)
+                .ilike('name', 'Outros')
+                .limit(1)
+                .single();
+            if (fallbackCat) category_id = fallbackCat.id;
+        }
+
+        if (!category_id) {
+            const { data: anyCat } = await adminClient
+                .from('categories')
+                .select('id')
+                .eq('user_id', userId)
+                .limit(1)
+                .single();
+            if (anyCat) category_id = anyCat.id;
+        }
+
+        const typeEnum = g.tipo === 'receita' ? 'INCOME' : 'EXPENSE';
+
+        payload.push({
+            user_id: userId,
+            account_id: accountData.id,
+            category_id: category_id,
+            amount: g.valor,
+            type: typeEnum,
+            description: g.descricao || 'Item sem descrição',
+            date: formatToISO(g.data),
+            metadata: {
+                valor_original: g.valor_original,
+                moeda_original: g.moeda_original,
+                taxa_cambio: g.taxa_cambio,
+                categoria_original: g.categoria,
+                prompt_version: data.prompt_version || 'v1_stable',
+                embedding: embeddings[idx],
+                confidence_score: confidenceScore
+            },
+            is_recurring: false,
+            status: status
+        });
+    }
 
     return { payload, status, confidenceScore };
 }
@@ -137,7 +195,7 @@ async function processExtractedData(content, userId, replyCallback) {
 
     const embeddings = await transactionEmbeddingService.generateForTransactions(validItems);
 
-    const payloadDetails = _generatePayload(validItems, embeddings, userId, data);
+    const payloadDetails = await _generatePayload(validItems, embeddings, userId, data);
 
 
     const savedTxs = await transactionRepo.createMany(payloadDetails.payload);

@@ -17,7 +17,7 @@ class TransactionRepository {
 
     async create(transactionData) {
         const { data, error } = await this.supabase
-            .from('transacoes')
+            .from('transactions')
             .insert([transactionData])
             .select()
             .single();
@@ -33,7 +33,7 @@ class TransactionRepository {
         if (!transactionsData || transactionsData.length === 0) return [];
 
         const { data, error } = await this.supabase
-            .from('transacoes')
+            .from('transactions')
             .insert(transactionsData)
             .select();
 
@@ -46,12 +46,12 @@ class TransactionRepository {
 
     async findByUserAndDateRange(userId, startDate, endDate) {
         const { data, error } = await this.supabase
-            .from('transacoes')
+            .from('transactions')
             .select('*')
             .eq('user_id', userId)
-            .gte('data', startDate)
-            .lt('data', endDate)
-            .order('data', { ascending: false });
+            .gte('date', startDate)
+            .lt('date', endDate)
+            .order('date', { ascending: false });
 
         if (error) {
             logger.error("Repo Error (Tx.findRange)", { error });
@@ -62,11 +62,11 @@ class TransactionRepository {
 
     async findTopCategories(userId, startDate) {
         const { data, error } = await this.supabase
-            .from('transacoes')
-            .select('valor, categoria')
+            .from('transactions')
+            .select('amount, categories(name)')
             .eq('user_id', userId)
-            .eq('tipo', 'despesa')
-            .gte('data', startDate);
+            .eq('type', 'EXPENSE')
+            .gte('date', startDate);
 
         if (error) {
             logger.error("Repo Error (Tx.topCat)", { error });
@@ -76,7 +76,7 @@ class TransactionRepository {
     }
 
     async searchSimilar(embedding) {
-        const { data, error } = await this.supabase.rpc('match_transacoes', {
+        const { data, error } = await this.supabase.rpc('match_transactions', {
             query_embedding: embedding,
             match_threshold: 0.5,
             match_count: 5
