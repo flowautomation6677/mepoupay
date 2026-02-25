@@ -37,17 +37,22 @@ export async function completeRegistration(token: string, password: string, name
             return { error: 'O prazo deste convite expirou.' };
         }
 
+        // Validate length and add country code 55 if missing
+        let formattedPhone = whatsapp.replace(/\D/g, '');
+        if (formattedPhone.length === 10 || formattedPhone.length === 11) {
+            formattedPhone = `55${formattedPhone}`;
+        }
+
         // 2. Create User in Supabase Auth
         // We save whatsapp in user_metadata for easy access, and in phone if we want standardized SMS (requires provider)
         const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
             email: invite.email,
             password: password,
             email_confirm: true,
-            phone: whatsapp, // Assumes masked string is compatible or sanitized? standard is E.164 usually.
-            // Let's keep it in metadata to be safe and avoid "invalid phone" errors from Supabase Auth strict validation
+            // phone: formattedPhone, // Temporarily disabled to avoid Supabase strict format errors if unexpected formats arrive
             user_metadata: {
                 full_name: name,
-                whatsapp: whatsapp // Save formatted or raw
+                whatsapp: formattedPhone // Save formatted or raw
             }
         });
 
@@ -67,6 +72,7 @@ export async function completeRegistration(token: string, password: string, name
                 id: authUser.user.id,
                 email: invite.email,
                 full_name: name,
+                whatsapp_numbers: [formattedPhone]
             });
 
         if (profileError) {

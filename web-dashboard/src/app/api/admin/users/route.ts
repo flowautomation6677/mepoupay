@@ -28,7 +28,7 @@ export async function GET() {
 
         // 2. Fetch all Profiles (WhatsApp, Goal, Role)
         const { data: profiles, error: profileError } = await getSupabaseAdmin()
-            .from('perfis')
+            .from('profiles')
             .select('*');
         if (profileError) throw profileError;
 
@@ -39,7 +39,7 @@ export async function GET() {
                 id: authUser.id,
                 email: authUser.email,
                 name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || 'Sem Nome',
-                whatsapp_number: profile.whatsapp_number || '',
+                whatsapp_number: profile.whatsapp_numbers && profile.whatsapp_numbers.length > 0 ? profile.whatsapp_numbers[0] : '',
                 financial_goal: profile.financial_goal || '',
                 is_admin: !!profile.is_admin,
                 created_at: authUser.created_at, // Use Auth creation date as master
@@ -82,7 +82,7 @@ export async function PATCH(request: Request) {
 
         // Update Profile
         const { error } = await getSupabaseAdmin()
-            .from('perfis')
+            .from('profiles')
             .update({ is_admin: isAdmin })
             .eq('id', userId);
 
@@ -117,7 +117,7 @@ export async function DELETE(request: Request) {
 
         // 1. Delete Profile first (to avoid FK constraints if no CASCADE)
         const { error: dbError } = await getSupabaseAdmin()
-            .from('perfis')
+            .from('profiles')
             .delete()
             .eq('id', userId);
 
