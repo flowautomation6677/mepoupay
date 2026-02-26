@@ -19,6 +19,7 @@ You are an expert database architect who designs data systems with integrity, pe
 When you design databases, you think:
 
 - **Data integrity is sacred**: Constraints prevent bugs at the source
+- **Row Level Security (RLS) is Non-Negotiable**: Supabase RLS MUST be enabled for every table that contains user data. NEVER bypass it in migrations.
 - **Query patterns drive design**: Design for how data is actually used
 - **Measure before optimizing**: EXPLAIN ANALYZE first, then optimize
 - **Edge-first in 2025**: Consider serverless and edge databases
@@ -63,7 +64,8 @@ Build in layers:
 1. Core tables with constraints
 2. Relationships and foreign keys
 3. Indexes based on query patterns
-4. Migration plan
+4. Supabase Row Level Security (RLS): Create Policies for SELECT, INSERT, UPDATE, DELETE.
+5. Migration plan (native SQL inside `.agent/skills/database-design/migrations/` or standard bot migrations folder)
 
 ### Phase 5: Verification
 
@@ -158,9 +160,11 @@ Before completing:
 ❌ Don't use SELECT *
 ❌ Don't ignore slow query logs
 
-### Migrations
+### Migrations & Supabase RLS
 ✅ Plan zero-downtime migrations
 ✅ Add columns as nullable first
+✅ **OBRIGATÓRIO**: Toda tabela nova criada (`CREATE TABLE`) **deve** ser acompanhada por `ALTER TABLE nome ENABLE ROW LEVEL SECURITY;`
+✅ **OBRIGATÓRIO**: Toda migração de nova tabela deve adicionar as respectivas `CREATE POLICY`.
 ✅ Create indexes CONCURRENTLY
 ✅ Have rollback plan
 
@@ -187,10 +191,11 @@ Before completing:
 When reviewing database work, verify:
 
 - [ ] **Primary Keys**: All tables have proper PKs
-- [ ] **Foreign Keys**: Relationships properly constrained
+- [ ] **Foreign Keys**: Relationships properly constrained (always linked to `profiles` or `auth.users` when applicable)
+- [ ] **Supabase RLS**: ENABLE ROW LEVEL SECURITY used, and proper Policies provided? **(CRITICAL FAULT IF MISSING)**
 - [ ] **Indexes**: Based on actual query patterns
 - [ ] **Constraints**: NOT NULL, CHECK, UNIQUE where needed
-- [ ] **Data Types**: Appropriate types for each column
+- [ ] **Data Types**: Appropriate types for each column, especially BIGINT for monetary values (cents)
 - [ ] **Naming**: Consistent, descriptive names
 - [ ] **Normalization**: Appropriate level for use case
 - [ ] **Migration**: Has rollback plan

@@ -1,5 +1,5 @@
 ---
-description: Test generation and test running command. Creates and executes tests for code.
+description: Test generation and test running command for the Mepoupay monorepo (Bot Backend + Next.js Frontend).
 ---
 
 # /test - Test Generation and Execution
@@ -10,135 +10,119 @@ $ARGUMENTS
 
 ## Purpose
 
-This command generates tests, runs existing tests, or checks test coverage.
+This command generates tests, runs existing tests, or checks test coverage, specifically tailored to Mepoupay's two main environments: the Node.js Whatsapp Bot and the Next.js Web Dashboard.
 
 ---
 
 ## Sub-commands
 
 ```
-/test                - Run all tests
-/test [file/feature] - Generate tests for specific target
-/test coverage       - Show test coverage report
-/test watch          - Run tests in watch mode
+/test backend      - Run Unit/Integration tests for the bot (Handlers/Workers)
+/test frontend     - Run E2E tests using Playwright for the Dashboard
+/test [file]       - Generate tests for a specific target
 ```
 
 ---
 
 ## Behavior
 
-### Generate Tests
+### 1. Bot (Backend) Unit Testing
 
-When asked to test a file or feature:
+When asked to test a backend file (e.g., `src/handlers/MediaHandler.js`):
 
-1. **Analyze the code**
-   - Identify functions and methods
-   - Find edge cases
-   - Detect dependencies to mock
+1. **Focus on Event Logic:** The bot operates on webhooks. Tests should mock the incoming request payload from Evolution API.
+2. **Mock Infrastructure:** Queues (`queueService`), Database (`supabase`), and External APIs (`evolutionService`, `openai`) **must** be mocked to prevent side-effects.
+3. **Framework:** Use Vitest or Jest.
+4. **Expected Assertions:** Verify if the correct job was added to the queue, or if the correct response was formulated.
 
-2. **Generate test cases**
-   - Happy path tests
-   - Error cases
-   - Edge cases
-   - Integration tests (if needed)
+### 2. Dashboard (Frontend) E2E Testing
 
-3. **Write tests**
-   - Use project's test framework (Jest, Vitest, etc.)
-   - Follow existing test patterns
-   - Mock external dependencies
+When asked to test the frontend UI (Next.js App Router):
+
+1. **Framework:** We use **Playwright** (`playwright-report`, `tests/e2e`).
+2. **Focus:** User flows. E.g., Logging in via Supabase Auth, viewing the summary dashboard, adding a category.
+3. **Resilience:** Use `page.getByRole`, `page.getByText` instead of fragile CSS selectors.
+4. **State:** Handle authentication state properly before tests (setup cookies/session).
 
 ---
 
 ## Output Format
 
-### For Test Generation
+### For E2E Playwright Tests
 
 ```markdown
-## 🧪 Tests: [Target]
+## 🧪 Running E2E Tests (Playwright)
 
-### Test Plan
-| Test Case | Type | Coverage |
-|-----------|------|----------|
-| Should create user | Unit | Happy path |
-| Should reject invalid email | Unit | Validation |
-| Should handle db error | Unit | Error case |
-
-### Generated Tests
-
-`tests/[file].test.ts`
-
-[Code block with tests]
-
----
-
-Run with: `npm test`
+```bash
+npx playwright test
 ```
 
-### For Test Execution
+✅ tests/dashboard.spec.ts (Dashboard Load)
+✅ tests/auth.spec.ts (Login Flow)
+❌ tests/transactions.spec.ts (Add Expense)
 
-```
-🧪 Running tests...
+**Failed:**
+  ✗ should show success toast after adding expense
+    Timeout 3000ms exceeded while waiting for locator('text=Sucesso').
 
-✅ auth.test.ts (5 passed)
-✅ user.test.ts (8 passed)
-❌ order.test.ts (2 passed, 1 failed)
-
-Failed:
-  ✗ should calculate total with discount
-    Expected: 90
-    Received: 100
-
-Total: 15 tests (14 passed, 1 failed)
+**Trace available:** Run `npx playwright show-trace`
 ```
 
----
+### For Backend Unit Tests
 
-## Examples
+```markdown
+## 🧪 Running Bot Tests (Vitest/Jest)
 
+```bash
+npm run test:backend
 ```
-/test src/services/auth.service.ts
-/test user registration flow
-/test coverage
-/test fix failed tests
+
+✅ src/handlers/MediaHandler.test.js
+✅ src/workers/financeWorker.test.js
+
+**Coverage:** 85% statements
 ```
 
 ---
 
 ## Test Patterns
 
-### Unit Test Structure
+### Backend Bot Test Structure (Vitest/Jest)
 
-```typescript
-describe('AuthService', () => {
-  describe('login', () => {
-    it('should return token for valid credentials', async () => {
-      // Arrange
-      const credentials = { email: 'test@test.com', password: 'pass123' };
-      
-      // Act
-      const result = await authService.login(credentials);
-      
-      // Assert
-      expect(result.token).toBeDefined();
-    });
+```javascript
+import { describe, it, expect, vi } from 'vitest';
+import * as queueService from '../../services/queueService';
+import { handleWebhook } from '../WebhookHandler';
 
-    it('should throw for invalid password', async () => {
-      // Arrange
-      const credentials = { email: 'test@test.com', password: 'wrong' };
-      
-      // Act & Assert
-      await expect(authService.login(credentials)).rejects.toThrow('Invalid credentials');
-    });
+vi.mock('../../services/queueService');
+
+describe('WebhookHandler', () => {
+  it('should push a process_message job to the queue when text is received', async () => {
+    // Arrange
+    const mockPayload = { data: { messageType: 'conversation', message: { conversation: 'Testing' } } };
+    
+    // Act
+    await handleWebhook(mockPayload);
+    
+    // Assert
+    expect(queueService.addJob).toHaveBeenCalledWith('PROCESS_MESSAGE', expect.any(Object));
   });
 });
 ```
 
----
+### Frontend E2E Structure (Playwright)
 
-## Key Principles
+```typescript
+import { test, expect } from '@playwright/test';
 
-- **Test behavior not implementation**
-- **One assertion per test** (when practical)
-- **Descriptive test names**
-- **Arrange-Act-Assert pattern**
-- **Mock external dependencies**
+test.describe('Dashboard UI', () => {
+  test('should display total balance', async ({ page }) => {
+    // Navigate and assume auth state is seeded
+    await page.goto('/dashboard');
+    
+    // Assert using accessible locators
+    await expect(page.getByRole('heading', { name: 'Saldo Atual' })).toBeVisible();
+    await expect(page.getByText('R$')).toBeVisible();
+  });
+});
+```

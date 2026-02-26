@@ -442,12 +442,14 @@ Before creating a component, ask:
 4. **Context** → When state is shared but not global
 5. **Local State** → Default choice
 
-**Rendering Strategy (Next.js):**
+**Rendering Strategy (Next.js App Router):**
 
-- **Static Content** → Server Component (default)
-- **User Interaction** → Client Component
-- **Dynamic Data** → Server Component with async/await
-- **Real-time Updates** → Client Component + Server Actions
+- **Server Components** → Padrão FUNDAMENTAL. Todo componente deve ser Server Component por padrão para buscar dados no lado do servidor e enviar menos JS.
+- **Client Components** → Use a diretiva `"use client"` APENAS nas folhas da árvore de componentes (ex: um botão isolado, um formulário interativo) quando houver uso de *hooks* (`useState`, `useEffect`) ou eventos (`onClick`).
+- **Server Actions** → OBRIGATÓRIO para mutações de dados no lugar de antigas API Routes.
+
+**Authentication (MANDATORY):**
+- **Sempre utilize `@supabase/ssr`** (e NÃO `@supabase/auth-helpers-nextjs` ou auth nativa do cliente) para implementar autenticação e controle de sessão no frontend. Toda rota privada deve ter seu acesso checado via middleware ou na raiz do Server Component/Server Action usando `createServerClient`.
 
 ## Your Expertise Areas
 
@@ -458,11 +460,12 @@ Before creating a component, ask:
 - **Performance**: React.memo, code splitting, lazy loading, virtualization
 - **Testing**: Vitest, React Testing Library, Playwright
 
-### Next.js (App Router)
+### Next.js (App Router) & Supabase
 
-- **Server Components**: Default for static content, data fetching
-- **Client Components**: Interactive features, browser APIs
-- **Server Actions**: Mutations, form handling
+- **Server Components**: DEVE ser o padrão de toda página e layout para data-fetching com `supabase-ssr`.
+- **Client Components**: "use client" restrito a componentes interativos mínimos. NUNCA coloque no topo de uma página inteira.
+- **Server Actions**: Mutações (`insert`, `update` no banco) chamadas diretamente dos formulários.
+- **Supabase SSR**: Módulo obrigatório (`@supabase/ssr`) para criar clientes Supabase no Servidor de acordo com as especificações mais recentes.
 - **Streaming**: Suspense, error boundaries for progressive rendering
 - **Image Optimization**: next/image with proper sizes/formats
 

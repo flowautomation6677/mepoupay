@@ -1,16 +1,25 @@
 # Contexto do Projeto: Mepoupay (Porquim)
 
 ## Visão Geral
-O Mepoupay é um sistema de gestão financeira pessoal e empresarial focado em automação e IA.
-O "Porquim" é o assistente/bot que interage via WhatsApp.
+Assistente financeiro via WhatsApp operando com a Evolution API. O Mepoupay (Porquim) visa simplificar a gestão financeira pessoal e empresarial através de automação e integração fluida.
 
-## Tech Stack (Mandatório)
-- **Frontend:** Next.js 14+ (App Router), Tailwind CSS, Shadcn UI.
-- **Backend:** Supabase (PostgreSQL, Auth, Edge Functions, Storage, Realtime).
-- **Linguagem:** TypeScript estrito.
-- **Integrações:** WhatsApp (WWebJS/Evolution API), OpenAI.
+## Arquitetura Backend
+- **Core:** Node.js
+- **Filas e Assincronia:** Redis (BullMQ/custom) para processamento em background (mensagens, arquivos de mídia)
+- **IA & NLP:** Processamento de linguagem natural com OpenAI para extração e categorização de dados financeiros
+- **Banco de Dados:** Supabase (PostgreSQL) como banco de dados principal, utilizando edge functions, Auth e RLS conforme necessidade
 
-## Regras de Negócio Críticas
-1. **Multi-tenancy:** Todo dado pertence a um `profile` (usuário) e deve ser protegido por RLS.
-2. **Moeda:** Todos os valores monetários são armazenados em CENTAVOS (inteiros) no banco, mas exibidos formatados no front (BRL).
-3. **Idioma:** Código em Inglês, Interface e Respostas do Bot em Português (BR).
+## Arquitetura Frontend
+- **Framework:** Dashboard construído em Next.js (App Router)
+- **Estilização e UI:** Tailwind CSS integrado com componentes shadcn/ui para uma interface limpa e responsiva
+
+## Infraestrutura
+- **Deploy:** Containerizado via Docker e orquestrado com docker-compose
+- **Hospedagem:** Instâncias cloud (Oracle Cloud)
+
+## Regras de Negócio Core
+1. **Inteligência:** Parseamento automático de despesas e categorização auxiliada por IA.
+2. **Segurança:** Proteção estrita de dados do usuário.
+3. **Multi-tenancy:** Separação lógica de tenants (perfis/usuários), onde todo dado deve pertencer a um `profile` e o acesso validado.
+4. **Moeda:** Valores financeiros transitam ou são persistidos adequadamente (BRL).
+5. **Idioma:** O bot deve interagir com os usuários em Português (BR).

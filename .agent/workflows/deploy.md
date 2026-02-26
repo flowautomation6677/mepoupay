@@ -1,8 +1,8 @@
 ---
-description: Deployment command for production releases. Pre-flight checks and deployment execution.
+description: Deployment command for production releases. Pre-flight checks and deployment execution via Docker Compose.
 ---
 
-# /deploy - Production Deployment
+# /deploy - Production Deployment (Docker)
 
 $ARGUMENTS
 
@@ -10,18 +10,16 @@ $ARGUMENTS
 
 ## Purpose
 
-This command handles production deployment with pre-flight checks, deployment execution, and verification.
+This command handles production deployment on the VPS (e.g., Hetzner/Oracle). It involves pulling the latest code, running pre-flight checks, and rebuilding the Docker containers using `docker-compose`.
 
 ---
 
 ## Sub-commands
 
 ```
-/deploy            - Interactive deployment wizard
+/deploy            - Run the full deployment pipeline
 /deploy check      - Run pre-deployment checks only
-/deploy preview    - Deploy to preview/staging
-/deploy production - Deploy to production
-/deploy rollback   - Rollback to previous version
+/deploy build      - Force rebuild of Docker images
 ```
 
 ---
@@ -33,32 +31,22 @@ Before any deployment:
 ```markdown
 ## 🚀 Pre-Deploy Checklist
 
-### Code Quality
-- [ ] No TypeScript errors (`npx tsc --noEmit`)
-- [ ] ESLint passing (`npx eslint .`)
-- [ ] All tests passing (`npm test`)
-
-### Security
-- [ ] No hardcoded secrets
-- [ ] Environment variables documented
-- [ ] Dependencies audited (`npm audit`)
+### Code Quality & Security
+- [ ] No TypeScript errors in Dashboard (`npx tsc --noEmit`)
+- [ ] ESLint passing (`npm run lint`)
+- [ ] Security check: No hardcoded secrets in `.env` or code
+- [ ] Prisma/Supabase migrations are up-to-date
 
 ### Performance
-- [ ] Bundle size acceptable
-- [ ] No console.log statements
-- [ ] Images optimized
-
-### Documentation
-- [ ] README updated
-- [ ] CHANGELOG updated
-- [ ] API docs current
+- [ ] Next.js build passes locally (`npm run build`)
+- [ ] Worker routines checked for unhandled promise rejections
 
 ### Ready to deploy? (y/n)
 ```
 
 ---
 
-## Deployment Flow
+## Deployment Flow (Docker Compose)
 
 ```
 ┌─────────────────┐
@@ -77,20 +65,21 @@ Before any deployment:
          │
          ▼
 ┌─────────────────┐
-│  Build          │
-│  application    │
+│ Git Pull Origin │
+│ Main            │
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│  Deploy to      │
-│  platform       │
+│ docker-compose  │
+│ -f docker-co... │
+│ up -d --build   │
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
 │  Health check   │
-│  & verify       │
+│  & verify logs  │
 └────────┬────────┘
          │
          ▼
@@ -98,6 +87,22 @@ Before any deployment:
 │  ✅ Complete    │
 └─────────────────┘
 ```
+
+---
+
+## Execution Commands
+
+A stack de produção do Mepoupay roda em Docker. O comando principal para aplicar as atualizações é:
+
+```bash
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+**Passos Internos:**
+1. Baixar as últimas alterações (`git pull origin main`).
+2. Reconstruir as imagens (`--build`) para garantir que as novas dependências e código do Frontend (Next.js) e Backend (Node.js Workers) sejam atualizadas.
+3. Subir os containers em background (`-d`).
+4. Verificar se os serviços essenciais (Redis, App, Worker) estão saudáveis (`docker ps`).
 
 ---
 
@@ -109,24 +114,14 @@ Before any deployment:
 ## 🚀 Deployment Complete
 
 ### Summary
-- **Version:** v1.2.3
-- **Environment:** production
-- **Duration:** 47 seconds
-- **Platform:** Vercel
-
-### URLs
-- 🌐 Production: https://app.example.com
-- 📊 Dashboard: https://vercel.com/project
-
-### What Changed
-- Added user profile feature
-- Fixed login bug
-- Updated dependencies
+- **Environment:** production (VPS / Hetzner)
+- **Method:** Docker Compose Rebuild
+- **Containers Updated:** `mepoupay-web`, `mepoupay-worker`, `redis`
 
 ### Health Check
-✅ API responding (200 OK)
-✅ Database connected
-✅ All services healthy
+✅ Web reagindo (200 OK)
+✅ Worker conectado ao Redis
+✅ Docker status: All containers Up
 ```
 
 ### Failed Deploy
@@ -135,42 +130,10 @@ Before any deployment:
 ## ❌ Deployment Failed
 
 ### Error
-Build failed at step: TypeScript compilation
-
-### Details
-```
-error TS2345: Argument of type 'string' is not assignable...
-```
+Container build failed at step: Next.js compilation
 
 ### Resolution
-1. Fix TypeScript error in `src/services/user.ts:45`
-2. Run `npm run build` locally to verify
-3. Try `/deploy` again
-
-### Rollback Available
-Previous version (v1.2.2) is still active.
-Run `/deploy rollback` if needed.
-```
-
----
-
-## Platform Support
-
-| Platform | Command | Notes |
-|----------|---------|-------|
-| Vercel | `vercel --prod` | Auto-detected for Next.js |
-| Railway | `railway up` | Needs Railway CLI |
-| Fly.io | `fly deploy` | Needs flyctl |
-| Docker | `docker compose up -d` | For self-hosted |
-
----
-
-## Examples
-
-```
-/deploy
-/deploy check
-/deploy preview
-/deploy production --skip-tests
-/deploy rollback
+1. Check standard output for Next.js build errors.
+2. Verify environment variables in the `.env` file on the server.
+3. Check Docker logs: `docker logs mepoupay-web --tail 50`.
 ```
