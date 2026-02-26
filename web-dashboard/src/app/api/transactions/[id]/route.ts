@@ -27,19 +27,18 @@ export async function PATCH(
     const updates: Record<string, any> = {}
     if (is_validated !== undefined) updates.is_validated = is_validated
     if (is_human_corrected !== undefined) updates.is_human_corrected = is_human_corrected
-    if (descricao !== undefined) updates.descricao = descricao
-    if (valor !== undefined) updates.valor = valor
-    if (categoria !== undefined) updates.categoria = categoria
+    if (descricao !== undefined) updates.description = descricao  // mapped to new schema
+    if (valor !== undefined) updates.amount = valor            // mapped to new schema
+    if (categoria !== undefined) updates.category_id = categoria  // mapped to new schema. Assuming 'categoria' contains UUID now, not string
 
-    // Let's rely on RLS if configured properly, but usually manual check is safer in ad-hoc routes.
     // Check profile first.
-    const { data: profile } = await supabase.from('perfis').select('id').eq('auth_user_id', user.id).single()
+    const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).single()
 
     if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
     const { data, error: updateError } = await supabase
-        .from('transacoes')
-        .update({ is_validated })
+        .from('transactions') // mapped to new schema
+        .update(updates)       // use the mapped updates object!
         .eq('id', id)
         .eq('user_id', profile.id)
         .select()

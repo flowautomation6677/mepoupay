@@ -39,13 +39,14 @@ export default function SetupPage() {
 
             // Try to fetch existing profile data to pre-fill
             const { data: profile } = await supabase
-                .from('perfis')
+                .from('profiles')
                 .select('*')
-                .eq('auth_user_id', user.id)
+                .eq('id', user.id) // O ID da profile agora é a propria chave estrangeira auth.users(id)
                 .single();
 
             if (profile) {
-                setWhatsapp(profile.whatsapp_number || "");
+                // Extracts the first number from the array if exists
+                setWhatsapp(profile.whatsapp_numbers && profile.whatsapp_numbers.length > 0 ? profile.whatsapp_numbers[0] : "");
             }
 
             // Name comes from Auth Metadata
@@ -80,12 +81,12 @@ export default function SetupPage() {
 
             // 2. Upsert Profile Data (Create or Update)
             const { error: profileError } = await supabase
-                .from('perfis')
+                .from('profiles')
                 .upsert({
-                    id: user.id, // Primary Key matches Auth ID
-                    auth_user_id: user.id,
-                    whatsapp_number: whatsapp,
+                    id: user.id, // A primary key (id) em profiles referencia auth.users(id) diretamente
+                    whatsapp_numbers: [whatsapp], // A nova coluna é um array de até 2 números
                     email: email,
+                    full_name: name, // Modern profile schema has full_name column
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'id' });
 

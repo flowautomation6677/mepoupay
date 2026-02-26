@@ -18,9 +18,9 @@ export default async function AdminLayout({
     }
 
     const { data: profile } = await supabase
-        .from('perfis')
+        .from('profiles')
         .select('is_admin')
-        .eq('auth_user_id', user.id)
+        .eq('id', user.id)
         .single();
 
     if (!profile?.is_admin) {

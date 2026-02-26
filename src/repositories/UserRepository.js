@@ -74,7 +74,7 @@ class UserRepository {
             logger.warn("⚠️ Cannot update name: Admin Client not available");
         }
 
-        // 2. Fallback: Check if 'name' still exists in 'perfis' for backward compatibility
+        // 2. Fallback: Check if 'name' still exists in 'profiles' for backward compatibility
         // Ignoring PGRST204 safely
     }
 
