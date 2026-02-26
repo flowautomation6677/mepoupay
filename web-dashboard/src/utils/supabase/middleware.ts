@@ -54,9 +54,9 @@ export async function updateSession(request: NextRequest) {
     // RBAC Check for Admin Routes
     if (user && request.nextUrl.pathname.startsWith('/admin')) {
         const { data: profile } = await supabase
-            .from('perfis')
+            .from('profiles')
             .select('is_admin')
-            .eq('auth_user_id', user.id)
+            .eq('id', user.id)
             .single()
 
         if (!profile?.is_admin) {

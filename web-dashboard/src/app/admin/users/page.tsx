@@ -22,7 +22,21 @@ import { DeleteModal } from "@/components/admin/DeleteModal";
 import { RoleModal } from "@/components/admin/RoleModal";
 
 // UX/UI Animation Component
-const SuccessModal = ({ isOpen, onClose, email }: { isOpen: boolean; onClose: () => void; email: string }) => {
+const SuccessModal = ({
+    isOpen,
+    onClose,
+    title = "Convite Enviado! 🚀",
+    description,
+    email,
+    buttonText = "Maravilha!"
+}: {
+    isOpen: boolean;
+    onClose: () => void;
+    title?: string;
+    description?: React.ReactNode;
+    email?: string;
+    buttonText?: string;
+}) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -33,17 +47,21 @@ const SuccessModal = ({ isOpen, onClose, email }: { isOpen: boolean; onClose: ()
                         <CheckCircle className="w-12 h-12 text-green-600" />
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold text-gray-900">Convite Enviado! 🚀</h3>
+                        <h3 className="text-xl font-bold text-gray-900">{title}</h3>
                         <p className="text-gray-500 mt-2 text-sm">
-                            O link de acesso mágico foi enviado para <br />
-                            <span className="font-semibold text-indigo-600">{email}</span>
+                            {description || (
+                                <>
+                                    O link de acesso mágico foi enviado para <br />
+                                    <span className="font-semibold text-indigo-600">{email}</span>
+                                </>
+                            )}
                         </p>
                     </div>
                     <button
                         onClick={onClose}
                         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-lg hover:shadow-indigo-500/30 active:scale-95 translate-y-0"
                     >
-                        Maravilha!
+                        {buttonText}
                     </button>
                     <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">
                         Fechar janela
@@ -101,6 +119,8 @@ export default function UsersPage() {
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
     const [userToChangeRole, setUserToChangeRole] = useState<UserData | null>(null);
     const [isChangingRole, setIsChangingRole] = useState(false);
+    const [showRoleSuccessModal, setShowRoleSuccessModal] = useState(false);
+    const [roleSuccessMessage, setRoleSuccessMessage] = useState("");
 
     async function toggleRoleConfirm() {
         if (!userToChangeRole) return;
@@ -118,8 +138,9 @@ export default function UsersPage() {
             if (data.success) {
                 setUsers(prev => (prev || []).map(u => u.id === userId ? { ...u, is_admin: !currentStatus } : u));
                 setIsRoleModalOpen(false);
+                setRoleSuccessMessage(`O usuário ${userToChangeRole.name} agora é ${!currentStatus ? 'ADMIN' : 'USER'}!`);
                 setUserToChangeRole(null);
-                alert("Role atualizada com sucesso!");
+                setShowRoleSuccessModal(true);
             } else {
                 alert("Erro ao atualizar: " + data.error);
             }
@@ -234,6 +255,13 @@ export default function UsersPage() {
                 isOpen={showSuccessModal}
                 onClose={() => setShowSuccessModal(false)}
                 email={lastInvitedEmail}
+            />
+            <SuccessModal
+                isOpen={showRoleSuccessModal}
+                onClose={() => setShowRoleSuccessModal(false)}
+                title="Sucesso! 🎉"
+                description={roleSuccessMessage}
+                buttonText="Entendido"
             />
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
