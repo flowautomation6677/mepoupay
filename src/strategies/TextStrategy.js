@@ -57,10 +57,14 @@ function _getToolsDefinition() {
 }
 
 function _buildSystemPrompts(contextStr, today) {
+    const timeZoneOptions = { timeZone: 'America/Sao_Paulo' };
+    const datePtBr = today.toLocaleDateString('pt-BR', timeZoneOptions);
+    const dateIsoBr = today.toLocaleDateString('en-CA', timeZoneOptions); // Retorna YYYY-MM-DD no fuso de SP
+
     return {
         v1_stable: `Você é o Porquim 360, um assistente financeiro focado e sério.
         🧠 Contexto: ${contextStr || "N/D"}
-        📅 Data de Hoje: ${today.toLocaleDateString('pt-BR')} (${today.toISOString().split('T')[0]})
+        📅 Data de Hoje: ${datePtBr} (${dateIsoBr})
 
         DIRETRIZES DE SEGURANÇA (GUARDRAILS):
         1. Responda sobre finanças, gastos, orçamento e economia.
@@ -91,7 +95,7 @@ function _buildSystemPrompts(contextStr, today) {
 
         DIRETRIZES DE LÓGICA E VALIDAÇÃO (CHAIN OF THOUGHT):
         1. DATAS E TEMPO (CRÍTICO):
-           - A data de hoje é ${today.toLocaleDateString('pt-BR')}.
+           - A data de hoje é ${datePtBr}.
            - SE o usuário disser "Ontem", CALCULE a data (Data set - 1 dia) e PREENCHA o campo 'data' no JSON.
            - SE disser "Anteontem", CALCULE (Dataset - 2 dias).
            - O campo 'data' ("YYYY-MM-DD") é OBRIGATÓRIO no JSON.
@@ -122,7 +126,7 @@ function _buildSystemPrompts(contextStr, today) {
 
         v2_experimental: `Você é o Porquim 360, versão Sherlock Holmes (Experimental). 🕵️‍♂️💸
         🧠 Contexto: ${contextStr || "N/D"}
-        📅 Data de Hoje: ${today.toLocaleDateString('pt-BR')} (${today.toISOString().split('T')[0]})
+        📅 Data de Hoje: ${datePtBr} (${dateIsoBr})
         
         SUA MISSÃO: Além de extrair dados, você deve inferir o contexto oculto.
         

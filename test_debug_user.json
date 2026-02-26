@@ -1,0 +1,6 @@
+{
+  "message": "TypeError: fetch failed",
+  "details": "TypeError: fetch failed\n\nCaused by: Error: getaddrinfo ENOTFOUND zmgebianjcxzzeypmfmj.supabase.co (ENOTFOUND)\nError: getaddrinfo ENOTFOUND zmgebianjcxzzeypmfmj.supabase.co\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)\n    at GetAddrInfoReqWrap.callbackTrampoline (node:internal/async_hooks:130:17)",
+  "hint": "",
+  "code": ""
+}
