@@ -19,6 +19,7 @@ import { Search, UserCog, User, ShieldCheck, Trash2, CheckCircle } from 'lucide-
 import { createBrowserClient } from "@supabase/ssr";
 import { InviteModal } from "@/components/admin/InviteModal";
 import { DeleteModal } from "@/components/admin/DeleteModal";
+import { RoleModal } from "@/components/admin/RoleModal";
 
 // UX/UI Animation Component
 const SuccessModal = ({ isOpen, onClose, email }: { isOpen: boolean; onClose: () => void; email: string }) => {
@@ -97,8 +98,15 @@ export default function UsersPage() {
     }
 
     // Role Toggle Logic
-    async function toggleRole(userId: string, currentStatus: boolean) {
-        if (!confirm(`Tem certeza que deseja mudar o status deste usuário para ${currentStatus ? 'USER' : 'ADMIN'}?`)) return;
+    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+    const [userToChangeRole, setUserToChangeRole] = useState<UserData | null>(null);
+    const [isChangingRole, setIsChangingRole] = useState(false);
+
+    async function toggleRoleConfirm() {
+        if (!userToChangeRole) return;
+
+        setIsChangingRole(true);
+        const { id: userId, is_admin: currentStatus } = userToChangeRole;
 
         try {
             const res = await fetch('/api/admin/users', {
@@ -109,12 +117,16 @@ export default function UsersPage() {
             const data = await res.json();
             if (data.success) {
                 setUsers(prev => (prev || []).map(u => u.id === userId ? { ...u, is_admin: !currentStatus } : u));
+                setIsRoleModalOpen(false);
+                setUserToChangeRole(null);
                 alert("Role atualizada com sucesso!");
             } else {
                 alert("Erro ao atualizar: " + data.error);
             }
         } catch (e) {
             alert("Erro desconhecido ao atualizar role.");
+        } finally {
+            setIsChangingRole(false);
         }
     }
 
@@ -209,6 +221,14 @@ export default function UsersPage() {
                 onConfirm={handleDeleteConfirm}
                 userName={userToDelete?.name}
                 loading={isDeleting}
+            />
+            <RoleModal
+                isOpen={isRoleModalOpen}
+                onClose={() => setIsRoleModalOpen(false)}
+                onConfirm={toggleRoleConfirm}
+                userName={userToChangeRole?.name || ''}
+                isCurrentlyAdmin={userToChangeRole?.is_admin || false}
+                loading={isChangingRole}
             />
             <SuccessModal
                 isOpen={showSuccessModal}
@@ -307,7 +327,10 @@ export default function UsersPage() {
                                                 size="xs"
                                                 variant="secondary"
                                                 color="indigo"
-                                                onClick={() => toggleRole(user.id, user.is_admin)}
+                                                onClick={() => {
+                                                    setUserToChangeRole(user);
+                                                    setIsRoleModalOpen(true);
+                                                }}
                                             >
                                                 {user.is_admin ? 'Virar User' : 'Virar Admin'}
                                             </Button>
