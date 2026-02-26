@@ -294,94 +294,98 @@ export default function UsersPage() {
                 </div>
             </div>
 
-            <Card className="glass-card ring-0 overflow-hidden">
-                <Table className="mt-5">
-                    <TableHead>
-                        <TableRow>
-                            <TableHeaderCell className="text-slate-300">Usuário</TableHeaderCell>
-                            <TableHeaderCell className="text-slate-300">Contato</TableHeaderCell>
-                            <TableHeaderCell className="text-slate-300">Meta Financeira</TableHeaderCell>
-                            <TableHeaderCell className="text-slate-300">Role</TableHeaderCell>
-                            <TableHeaderCell className="text-slate-300">Status</TableHeaderCell>
-                            <TableHeaderCell className="text-slate-300">Ações</TableHeaderCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={6} className="text-center text-slate-500 py-8">
-                                    Carregando dados completos...
-                                </TableCell>
-                            </TableRow>
-                        ) : filteredUsers.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={6} className="text-center text-slate-500 py-8">
-                                    Nenhum usuário encontrado.
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            filteredUsers.map((user) => (
-                                <TableRow key={user.id} className="hover:bg-white/5 transition-colors">
-                                    <TableCell>
-                                        <div className="flex flex-col">
-                                            <Text className="text-white font-medium">{user.name || "Sem Nome"}</Text>
-                                            <Text className="text-xs text-slate-500 font-mono">ID: {user.id.substring(0, 8)}...</Text>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex flex-col">
-                                            <Text className="text-slate-300 text-sm">{user.email}</Text>
-                                            <Text className="text-xs text-slate-500">{formatPhoneNumber(user.whatsapp_number)}</Text>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Text className="text-slate-300">{user.financial_goal || "—"}</Text>
-                                    </TableCell>
-                                    <TableCell>
-                                        {user.is_admin ? (
-                                            <Badge icon={ShieldCheck} color="indigo">ADMIN</Badge>
-                                        ) : (
-                                            <Badge icon={User} color="slate">USER</Badge>
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex gap-2">
-                                            <Badge size="xs" color="emerald">Ativo</Badge>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                size="xs"
-                                                variant="secondary"
-                                                color="indigo"
-                                                onClick={() => {
-                                                    setUserToChangeRole(user);
-                                                    setIsRoleModalOpen(true);
-                                                }}
-                                            >
-                                                {user.is_admin ? 'Virar User' : 'Virar Admin'}
-                                            </Button>
-
-                                            <Button
-                                                size="xs"
-                                                variant="secondary"
-                                                color="red"
-                                                icon={Trash2}
-                                                onClick={() => {
-                                                    setUserToDelete(user);
-                                                    setIsDeleteModalOpen(true);
-                                                }}
-                                            >
-                                                Excluir
-                                            </Button>
-                                        </div>
-                                    </TableCell>
+            <Card className="glass-card ring-0 overflow-hidden px-0 sm:px-6">
+                <div className="w-full overflow-x-auto px-4 sm:px-0">
+                    <div className="min-w-[1000px]">
+                        <Table className="mt-5">
+                            <TableHead>
+                                <TableRow>
+                                    <TableHeaderCell className="text-slate-300">Usuário</TableHeaderCell>
+                                    <TableHeaderCell className="text-slate-300">Contato</TableHeaderCell>
+                                    <TableHeaderCell className="text-slate-300">Meta Financeira</TableHeaderCell>
+                                    <TableHeaderCell className="text-slate-300">Role</TableHeaderCell>
+                                    <TableHeaderCell className="text-slate-300">Status</TableHeaderCell>
+                                    <TableHeaderCell className="text-slate-300">Ações</TableHeaderCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
+                            </TableHead>
+                            <TableBody>
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="text-center text-slate-500 py-8">
+                                            Carregando dados completos...
+                                        </TableCell>
+                                    </TableRow>
+                                ) : filteredUsers.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="text-center text-slate-500 py-8">
+                                            Nenhum usuário encontrado.
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    filteredUsers.map((user) => (
+                                        <TableRow key={user.id} className="hover:bg-white/5 transition-colors">
+                                            <TableCell>
+                                                <div className="flex flex-col">
+                                                    <Text className="text-white font-medium">{user.name || "Sem Nome"}</Text>
+                                                    <Text className="text-xs text-slate-500 font-mono">ID: {user.id.substring(0, 8)}...</Text>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-col">
+                                                    <Text className="text-slate-300 text-sm">{user.email}</Text>
+                                                    <Text className="text-xs text-slate-500">{formatPhoneNumber(user.whatsapp_number)}</Text>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Text className="text-slate-300">{user.financial_goal || "—"}</Text>
+                                            </TableCell>
+                                            <TableCell>
+                                                {user.is_admin ? (
+                                                    <Badge icon={ShieldCheck} color="indigo">ADMIN</Badge>
+                                                ) : (
+                                                    <Badge icon={User} color="slate">USER</Badge>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex gap-2">
+                                                    <Badge size="xs" color="emerald">Ativo</Badge>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        size="xs"
+                                                        variant="secondary"
+                                                        color="indigo"
+                                                        onClick={() => {
+                                                            setUserToChangeRole(user);
+                                                            setIsRoleModalOpen(true);
+                                                        }}
+                                                    >
+                                                        {user.is_admin ? 'Virar User' : 'Virar Admin'}
+                                                    </Button>
+
+                                                    <Button
+                                                        size="xs"
+                                                        variant="secondary"
+                                                        color="red"
+                                                        icon={Trash2}
+                                                        onClick={() => {
+                                                            setUserToDelete(user);
+                                                            setIsDeleteModalOpen(true);
+                                                        }}
+                                                    >
+                                                        Excluir
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </div>
             </Card>
 
             {/* Summary Stats */}

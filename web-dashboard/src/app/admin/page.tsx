@@ -52,7 +52,7 @@ export default function AdminDashboard() {
     return (
         <div className="space-y-6">
             {/* --- HEADER --- */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
@@ -82,7 +82,11 @@ export default function AdminDashboard() {
             </Grid>
 
             {/* --- ACTIVITY HEATMAP (ThePO) --- */}
-            <ThePO behaviorData={behaviorData} />
+            <div className="w-full overflow-x-auto pb-4">
+                <div className="min-w-[800px]">
+                    <ThePO behaviorData={behaviorData} />
+                </div>
+            </div>
 
         </div>
     );

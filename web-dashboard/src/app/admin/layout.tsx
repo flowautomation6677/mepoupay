@@ -1,12 +1,12 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
-import AdminSidebar from '@/components/admin/AdminSidebar';
+import AdminLayoutWrapper from '@/components/admin/AdminLayoutWrapper';
 
 export default async function AdminLayout({
     children,
-}: {
+}: Readonly<{
     children: React.ReactNode;
-}) {
+}>) {
     const supabase = await createClient();
 
     const {
@@ -29,11 +29,8 @@ export default async function AdminLayout({
     }
 
     return (
-        <div className="flex min-h-screen bg-slate-950">
-            <AdminSidebar />
-            <main className="flex-1 ml-64 p-8 overflow-y-auto">
-                {children}
-            </main>
-        </div>
+        <AdminLayoutWrapper>
+            {children}
+        </AdminLayoutWrapper>
     );
 }

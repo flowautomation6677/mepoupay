@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic'
 import StatsGrid from '@/components/dashboard/StatsGrid'
 import TransactionFeed from '@/components/dashboard/TransactionFeed'
-import { formatPhoneNumber } from '@/utils/formatters'
+
 import { DashboardData } from '@/types/dashboard'
 
 // Lazy Load ExpenseChart
@@ -44,7 +44,7 @@ export default function DashboardContent({ profile, transactions, prevTransactio
                         <div className="mt-4 flex items-center gap-2 rounded-xl bg-white/20 p-3 backdrop-blur-sm">
                             <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>
                             <span className="font-mono text-sm tracking-wide">
-                                {formatPhoneNumber(profile.whatsapp_numbers?.[0] || '')}
+                                +55 (21) 98464-6902
                             </span>
                         </div>
                         <a

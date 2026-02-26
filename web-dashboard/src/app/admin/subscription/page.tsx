@@ -16,19 +16,19 @@ export default function SubscriptionPage() {
 
             {/* INTEGRATION STATUS */}
             <Card className="glass-card ring-0 border-l-4 border-yellow-500">
-                <div className="flex justify-between items-center">
-                    <div>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="w-full">
                         <Title className="text-white flex items-center gap-2">
                             <Webhook size={20} className="text-yellow-400" />
                             Integração Kirvano
                         </Title>
                         <Text className="text-slate-400 mt-1">Configure este Webhook na Kirvano para receber atualizações de pagamento.</Text>
-                        <div className="mt-4 bg-black/50 p-2 rounded border border-white/10 font-mono text-xs text-indigo-400 flex items-center gap-2">
-                            {webhookUrl}
-                            <Badge size="xs" color="indigo">Click to Copy</Badge>
+                        <div className="mt-4 bg-black/50 p-2 rounded border border-white/10 font-mono text-xs text-indigo-400 flex flex-col sm:flex-row items-start sm:items-center gap-2 overflow-x-auto">
+                            <span className="truncate max-w-full">{webhookUrl}</span>
+                            <Badge size="xs" color="indigo" className="shrink-0">Click to Copy</Badge>
                         </div>
                     </div>
-                    <div className="text-right">
+                    <div className="sm:text-right">
                         <Badge color="yellow" size="lg">Aguardando Eventos</Badge>
                     </div>
                 </div>
