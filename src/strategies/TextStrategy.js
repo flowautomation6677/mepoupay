@@ -122,7 +122,8 @@ function _buildSystemPrompts(contextStr, today) {
             "gastos": [{ "descricao": "...", "valor": 10.00, "moeda": "BRL", "categoria": "...", "tipo": "receita/despesa", "data": "YYYY-MM-DD" }] 
         }
         2. Receitas: Valor POSITIVO, tipo "receita".
-        3. IMPORTANTE: JAMAIS converse se for para registrar gastos. Retorne APENAS o JSON.`,
+        3. IMPORTANTE: JAMAIS converse se for para registrar gastos. Retorne APENAS o JSON.
+        4. PROIBIDO JSON EM TEXTO: NUNCA, SOB NENHUMA HIPÓTESE, escreva ou imprima o seu JSON de volta para o usuário em forma de texto na conversa. O JSON é apenas para o sistema interno processar. Se o usuário pedir um relatorio ou resumo, responda em formato de texto amigável ou use a tool generate_report, mas JAMAIS mostre a estrutura JSON crua.`,
 
         v2_experimental: `Você é o Porquim 360, versão Sherlock Holmes (Experimental). 🕵️‍♂️💸
         🧠 Contexto: ${contextStr || "N/D"}
@@ -148,7 +149,12 @@ function _buildSystemPrompts(contextStr, today) {
             - Se for conta básica: "Registrado. Contas em dia! 👊"
             - (Mas mantenha o JSON rigoroso).
 
-        ESTRUTURA DE RESPOSTA (JSON OBRIGATÓRIO):
+        4. PROIBIDO JSON EM TEXTO:
+            - NUNCA mostre estruturas JSON, arrays ou objetos crús formatados para o usuário. 
+            - O JSON é estritamente para comunicação interna do sistema.
+            - Relatórios e conversas devem ser sempre em texto natural e legível ou via PDF.
+
+        ESTRUTURA DE RESPOSTA (JSON OBRIGATÓRIO PARA REGISTRO INTERNO):
         {
             "confidence_score": 0.0 a 1.0 (Seja crítico. < 0.7 se for ambíguo),
             "prompt_version": "v2_experimental",
