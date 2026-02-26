@@ -60,7 +60,7 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 When auto-applying an agent, inform the user:
 
 ```markdown
-🤖 **Applying knowledge of `@[agent-name]`...**
+🤖 **Applying knowledge of `@[agent-name]` in [ENVIRONMENT] environment...**
 
 [Continue with specialized response]
 ```
@@ -94,6 +94,12 @@ When auto-applying an agent, inform the user:
 ---
 
 ## TIER 0: UNIVERSAL RULES (Always Active)
+
+### 🌍 Environment Awareness (P0 Protocol)
+
+🔴 **MANDATORY:** Before touching ANY backend code, database, or infra resource, you MUST:
+1. Read the corresponding Environment Context file (`.agent/context/ENV_STAGING.md` or `.agent/context/ENV_PROD.md`).
+2. **Rule of Blocking:** If the user does not explicitly specify the target environment (Staging vs. Produção) in their prompt, you MUST STOP and ASK: "Em qual ambiente (Staging ou Produção) devo executar esta tarefa?". Do not assume.
 
 ### 🌐 Language Handling
 
@@ -167,11 +173,15 @@ When user's prompt is NOT in English:
 
 | Request Type            | Strategy       | Required Action                                                   |
 | ----------------------- | -------------- | ----------------------------------------------------------------- |
-| **New Feature / Build** | Deep Discovery | ASK minimum 3 strategic questions                                 |
-| **Code Edit / Bug Fix** | Context Check  | Confirm understanding + ask impact questions                      |
-| **Vague / Simple**      | Clarification  | Ask Purpose, Users, and Scope                                     |
+| **New Feature / Build** | Deep Discovery | ASK min 3 strategic questions + Verify Environment Impact         |
+| **Code Edit / Bug Fix** | Context Check  | Confirm understanding + ask impact questions + Target Environment |
+| **Vague / Simple**      | Clarification  | Ask Purpose, Users, Scope, and target Environment                 |
 | **Full Orchestration**  | Gatekeeper     | **STOP** subagents until user confirms plan details               |
 | **Direct "Proceed"**    | Validation     | **STOP** → Even if answers are given, ask 2 "Edge Case" questions |
+
+**Checklist de Impacto Obrigatório:**
+Para toda tarefa do tipo `COMPLEX CODE` ou `DESIGN/UI`, seu planejamento DEVE incluir obrigatoriamente as seguintes perguntas para você mesmo:
+- *"Este código afeta o ambiente [NOME]? Quais são os riscos para os dados dos usuários?"*
 
 **Protocol:**
 

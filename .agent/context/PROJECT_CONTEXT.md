@@ -14,8 +14,11 @@ Assistente financeiro via WhatsApp operando com a Evolution API. O Mepoupay (Por
 - **Estilização e UI:** Tailwind CSS integrado com componentes shadcn/ui para uma interface limpa e responsiva
 
 ## Infraestrutura
-- **Deploy:** Containerizado via Docker e orquestrado com docker-compose
-- **Hospedagem:** Instâncias cloud (Oracle Cloud)
+- **Documentação de Ambientes (Gatilho de Contexto):**
+  - Para testes e staging: Leia `.agent/context/ENV_STAGING.md`.
+  - Para produção (Segurança P0): Leia `.agent/context/ENV_PROD.md`.
+- **Deploy:** Containerizado via Docker e orquestrado com docker-compose na Oracle Cloud.
+- **Importante:** As variáveis de ambiente e deployments devem seguir estritamente a separação dos projetos Supabase mencionados na documentação de ambiente acima.
 
 ## Regras de Negócio Core
 1. **Inteligência:** Parseamento automático de despesas e categorização auxiliada por IA.
