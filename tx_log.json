@@ -1,0 +1,82 @@
+[
+  {
+    "id": "b4e7ad6d-9b50-488c-8266-846f93e52d26",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "amount": 700,
+    "description": "Contrato com Cliente - Gestão de Tráfego Pago",
+    "date": "2026-02-26",
+    "created_at": "2026-02-26T19:18:53.354167+00:00"
+  },
+  {
+    "id": "0cc00441-aca4-4345-ae1d-d5dd30f9d10b",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "amount": 200,
+    "description": "Placa de Vídeo",
+    "date": "2026-02-26",
+    "created_at": "2026-02-26T19:17:38.583616+00:00"
+  },
+  {
+    "id": "bd68e253-2f84-4544-ad31-1e1f94229bf7",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "amount": 100,
+    "description": "Doação para Caridade",
+    "date": "2026-02-24",
+    "created_at": "2026-02-26T02:44:36.164579+00:00"
+  },
+  {
+    "id": "35efcb8a-6f42-4162-bca7-a456f2685e34",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "amount": 100,
+    "description": "Dízimo",
+    "date": "2026-02-25",
+    "created_at": "2026-02-26T02:43:50.325561+00:00"
+  },
+  {
+    "id": "17840583-ce49-4ff4-b3af-a19a4e4e2230",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "amount": 10,
+    "description": "Pão (PicPay)",
+    "date": "2026-02-26",
+    "created_at": "2026-02-26T02:41:51.910374+00:00"
+  },
+  {
+    "id": "f6e616e6-86b0-4dc4-9981-b1dd25a89e94",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "amount": 5,
+    "description": "COXINHA",
+    "date": "2026-02-26",
+    "created_at": "2026-02-26T02:05:06.962333+00:00"
+  },
+  {
+    "id": "383b5e92-5966-4d46-87ab-5312157ec474",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "amount": 20,
+    "description": "COCA COLA",
+    "date": "2026-02-26",
+    "created_at": "2026-02-26T02:05:06.962333+00:00"
+  },
+  {
+    "id": "3b2fdffa-2224-4b1b-b58d-94b6f48f2cdf",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "amount": 3,
+    "description": "Bala",
+    "date": "2026-02-26",
+    "created_at": "2026-02-26T02:04:39.419236+00:00"
+  },
+  {
+    "id": "b4b51a51-02c1-41ba-bff6-9b20401fbf2a",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "amount": 3,
+    "description": "Bala",
+    "date": "2026-02-26",
+    "created_at": "2026-02-26T01:45:36.375717+00:00"
+  },
+  {
+    "id": "f2878e58-42b3-4d9a-90ee-e47b7dbf6eb4",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "amount": 2,
+    "description": "Pão",
+    "date": "2026-02-26",
+    "created_at": "2026-02-26T01:15:54.055234+00:00"
+  }
+]

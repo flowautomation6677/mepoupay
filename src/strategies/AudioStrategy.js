@@ -10,12 +10,15 @@ const logger = require('../services/loggerService');
 class AudioStrategy {
     async execute(message, context) {
         await message.reply('🎧 Ouvindo...');
+        let tempOgg = null;
+        let tempMp3 = null;
+
         try {
             const media = await message.downloadMedia();
 
             // Arquivos temp
-            const tempOgg = path.join(__dirname, `../../temp_${message.id.id}.ogg`);
-            const tempMp3 = path.join(__dirname, `../../temp_${message.id.id}.mp3`);
+            tempOgg = path.join(__dirname, `../../temp_${message.id.id}.ogg`);
+            tempMp3 = path.join(__dirname, `../../temp_${message.id.id}.mp3`);
 
             fs.writeFileSync(tempOgg, Buffer.from(media.data, 'base64'));
 

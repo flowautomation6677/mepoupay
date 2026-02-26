@@ -1,0 +1,39 @@
+{
+  "email_match": [
+    {
+      "id": "d72c8a00-ac4d-4a95-8e5d-8d70e10922fa",
+      "email": "israelsgic@gmail.com",
+      "whatsapp_numbers": [
+        "5521977186221"
+      ]
+    }
+  ],
+  "phone_without_9": [
+    {
+      "id": "d72c8a00-ac4d-4a95-8e5d-8d70e10922fa",
+      "email": "israelsgic@gmail.com",
+      "whatsapp_numbers": [
+        "5521977186221"
+      ]
+    }
+  ],
+  "phone_with_9": [],
+  "bot_shadow_profile": [
+    {
+      "id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  ],
+  "phone_99014": [
+    {
+      "id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  ]
+}

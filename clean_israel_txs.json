@@ -1,0 +1,262 @@
+[
+  {
+    "id": "b4e7ad6d-9b50-488c-8266-846f93e52d26",
+    "amount": 700,
+    "description": "Contrato com Cliente - Gestão de Tráfego Pago",
+    "created_at": "2026-02-26T19:18:53.354167+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "0cc00441-aca4-4345-ae1d-d5dd30f9d10b",
+    "amount": 200,
+    "description": "Placa de Vídeo",
+    "created_at": "2026-02-26T19:17:38.583616+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "bd68e253-2f84-4544-ad31-1e1f94229bf7",
+    "amount": 100,
+    "description": "Doação para Caridade",
+    "created_at": "2026-02-26T02:44:36.164579+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "35efcb8a-6f42-4162-bca7-a456f2685e34",
+    "amount": 100,
+    "description": "Dízimo",
+    "created_at": "2026-02-26T02:43:50.325561+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "17840583-ce49-4ff4-b3af-a19a4e4e2230",
+    "amount": 10,
+    "description": "Pão (PicPay)",
+    "created_at": "2026-02-26T02:41:51.910374+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "f6e616e6-86b0-4dc4-9981-b1dd25a89e94",
+    "amount": 5,
+    "description": "COXINHA",
+    "created_at": "2026-02-26T02:05:06.962333+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "383b5e92-5966-4d46-87ab-5312157ec474",
+    "amount": 20,
+    "description": "COCA COLA",
+    "created_at": "2026-02-26T02:05:06.962333+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "3b2fdffa-2224-4b1b-b58d-94b6f48f2cdf",
+    "amount": 3,
+    "description": "Bala",
+    "created_at": "2026-02-26T02:04:39.419236+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "b4b51a51-02c1-41ba-bff6-9b20401fbf2a",
+    "amount": 3,
+    "description": "Bala",
+    "created_at": "2026-02-26T01:45:36.375717+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "f2878e58-42b3-4d9a-90ee-e47b7dbf6eb4",
+    "amount": 2,
+    "description": "Pão",
+    "created_at": "2026-02-26T01:15:54.055234+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "b2017cec-c966-4e0f-a22d-c6d50776cd3b",
+    "amount": 8,
+    "description": "COCA COLA",
+    "created_at": "2026-02-23T19:19:21.10184+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "397944f5-0604-451f-9f3e-83e2b902e4b8",
+    "amount": 12,
+    "description": "COXINHA",
+    "created_at": "2026-02-23T19:19:21.10184+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "9995f4cc-682e-40c4-8ce6-18dfdbb866a8",
+    "amount": 5,
+    "description": "COXINHA",
+    "created_at": "2026-02-23T19:19:21.10184+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "f160b0a5-0572-4893-9435-d332fe12faac",
+    "amount": 17,
+    "description": "Lasanha",
+    "created_at": "2026-02-23T19:17:48.656864+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "62737b06-3384-473e-9695-d7ca3229a618",
+    "amount": 17,
+    "description": "Nescau",
+    "created_at": "2026-02-23T19:16:58.719451+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "35622f44-cbd1-4af2-9e69-67cb7d4fbf62",
+    "amount": 18,
+    "description": "Café Pimpinela",
+    "created_at": "2026-02-23T19:16:58.719451+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "7a726823-bfc2-437a-830e-93b472644a08",
+    "amount": 20,
+    "description": "Café Pimpinela",
+    "created_at": "2026-02-23T18:57:09.948814+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "48e7148f-3804-4aba-952c-a2651eafa80d",
+    "amount": 17,
+    "description": "Nescau",
+    "created_at": "2026-02-23T18:57:09.948814+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "2d0d7105-a537-47b6-b137-9d72666c3e5d",
+    "amount": 7.6,
+    "description": "Passagem Trem",
+    "created_at": "2026-02-23T18:39:45.686564+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  },
+  {
+    "id": "c11e752f-4c32-4b09-acc8-5f88567fe456",
+    "amount": 6.7,
+    "description": "Passagem Ônibus",
+    "created_at": "2026-02-23T18:39:29.587815+00:00",
+    "user_id": "d8e7bc3e-6f8f-497c-963f-f3228cd11a86",
+    "profiles": {
+      "email": "luizantonio6677@gmail.com",
+      "whatsapp_numbers": [
+        "5521990149660"
+      ]
+    }
+  }
+]
