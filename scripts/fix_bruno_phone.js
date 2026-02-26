@@ -1,5 +1,5 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '../prod.env') });
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -7,55 +7,86 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 console.log(`Connecting to: ${supabaseUrl}`);
 
-
 if (!supabaseUrl || !supabaseKey) {
     console.error("Missing Supabase credentials in environment.");
     process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
-async function fixBruno() {
-    console.log("Searching for Bruno's profile (brunopaiva055@gmail.com)...");
+async function forceCreateBruno() {
+    console.log("Forcing creation of Bruno's profile (brunopaiva055@gmail.com)...");
 
-    // Find by email
-    const { data: profile, error: searchError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', 'brunopaiva055@gmail.com')
-        .single();
+    const email = 'brunopaiva055@gmail.com';
+    const password = 'Password@123!';
+    const name = 'Bruno Paiva';
+    const formattedPhone = '556183031031';
 
-    if (searchError) {
-        console.error("Error finding profile:", searchError);
-        return;
-    }
-
-    if (!profile) {
-        console.error("Profile not found for brunopaiva055@gmail.com");
-        return;
-    }
-
-    console.log("Profile found:", profile.id);
-
-    const targetNumber = '556183031031';
-    let numbers = profile.whatsapp_numbers || [];
-
-    if (!numbers.includes(targetNumber)) {
-        numbers.push(targetNumber);
-
-        const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ whatsapp_numbers: numbers })
-            .eq('id', profile.id);
-
-        if (updateError) {
-            console.error("Failed to update profile:", updateError);
-        } else {
-            console.log("Successfully added 556183031031 to Bruno's profile!");
+    // 1. Create User in Auth
+    console.log("Creating user in Supabase Auth...");
+    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email: email,
+        password: password,
+        email_confirm: true,
+        user_metadata: {
+            full_name: name,
+            whatsapp: formattedPhone
         }
-    } else {
-        console.log("Bruno's profile already has the number 556183031031.");
+    });
+
+    if (authError) {
+        if (authError.message.includes('already registered')) {
+            console.log("User already exists in Auth, trying to fetch ID...");
+            // Alternative: we could fetch the ID if we really need to recover it
+        } else {
+            console.error("Auth Create Error:", authError);
+            return;
+        }
     }
+
+    const userId = authUser?.user?.id;
+
+    if (!userId) {
+        console.error("Could not obtain User ID.");
+        return;
+    }
+
+    // 2. Insert into Profiles
+    console.log(`Inserting into Profiles with ID: ${userId}...`);
+    const { error: profileError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+            id: userId,
+            email: email,
+            full_name: name,
+            whatsapp_numbers: [formattedPhone]
+        });
+
+    if (profileError) {
+        console.error("Failed to insert profile:", profileError);
+    } else {
+        console.log("Profile created successfully!");
+    }
+
+    // 3. Create initial account
+    console.log("Creating initial 'Conta Principal'...");
+    const { error: accountError } = await supabaseAdmin
+        .from('accounts')
+        .insert({
+            user_id: userId,
+            name: 'Conta Principal',
+            type: 'CASH',
+            initial_balance: 0.00,
+            is_active: true
+        });
+
+    if (accountError) {
+        console.error("Failed to create account:", accountError);
+    } else {
+        console.log("Conta Principal created!");
+    }
+
+    console.log("✅ Done! Bruno should now be able to use the bot.");
 }
 
-fixBruno();
+forceCreateBruno();
