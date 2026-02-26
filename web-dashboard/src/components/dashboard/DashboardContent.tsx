@@ -48,7 +48,7 @@ export default function DashboardContent({ profile, transactions, prevTransactio
                             </span>
                         </div>
                         <a
-                            href={`https://wa.me/${profile.whatsapp_numbers?.[0] || process.env.NEXT_PUBLIC_SUPPORT_PHONE || '5521984646902'}?text=Olá! Quero falar com o Me Poupay.`}
+                            href="https://wa.me/5521984646902?text=Olá! Quero falar com o Me Poupay."
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mt-4 block w-full rounded-xl bg-white py-3 text-center text-sm font-bold text-indigo-600 transition hover:bg-indigo-50"
