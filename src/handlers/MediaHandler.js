@@ -98,7 +98,8 @@ class MediaHandler {
                 mediaData: base64Data,
                 mimeType: mime,
                 filename: filename,
-                body: message.body
+                body: message.body,
+                instanceName: message.instanceName
             });
             return true; // Handled
         }

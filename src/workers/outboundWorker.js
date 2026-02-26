@@ -16,9 +16,8 @@ connection.on('error', (err) => {
 logger.info("🔧 Outbound Message Worker Initializing...");
 
 const outboundWorker = new Worker('outbound-messages', async (job) => {
-    const { chatId, text } = job.data;
+    const { chatId, text, options } = job.data;
     logger.info(`[Outbound] PREPARING to send to ${chatId}: ${typeof text === 'string' ? text.substring(0, 30) : 'Media Object'}`);
-
 
     logger.debug(`[Outbound] Sending to ${chatId}`);
 
@@ -26,11 +25,11 @@ const outboundWorker = new Worker('outbound-messages', async (job) => {
         // Simple logic for Text vs Media
         // If 'text' is an object with base64/mimetype, treat as media
         if (typeof text === 'object' && text.data && text.mimetype) {
-            await evolutionService.sendMedia(chatId, text, 'document'); // Default to document or infer
+            await evolutionService.sendMedia(chatId, text, options?.instanceName, 'document');
         } else {
             // Ensure text is string
             const safeText = typeof text === 'string' ? text : JSON.stringify(text);
-            await evolutionService.sendText(chatId, safeText);
+            await evolutionService.sendText(chatId, safeText, options?.instanceName);
         }
     } catch (err) {
         logger.error(`[Outbound] Failed to send to ${chatId}`, err);

@@ -23,7 +23,8 @@ class FeedbackHandler {
                 userId: user.id,
                 mediaData: pendingPdfBase64,
                 password: password,
-                filename: 'locked.pdf'
+                filename: 'locked.pdf',
+                instanceName: message.instanceName
             });
             return true;
         }

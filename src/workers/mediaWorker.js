@@ -119,14 +119,14 @@ async function _processStrategyResult(result, userId, replyCallback, mockMessage
 // --- Worker ---
 
 const mediaWorker = new Worker('media-processing', async (job) => {
-    const { chatId, userId } = job.data;
+    const { chatId, userId, instanceName } = job.data;
     const type = job.name;
 
-    logger.info(`[Worker] Processing Job ${job.id}`, { type, userId });
+    logger.info(`[Worker] Processing Job ${job.id}`, { type, userId, instanceName });
 
     const reply = async (text) => {
         try {
-            await queueService.addOutbound(chatId, text);
+            await queueService.addOutbound(chatId, text, { instanceName });
         } catch (err) {
             logger.error(`[Worker] Failed to queue outbound message`, { chatId, error: err });
         }
