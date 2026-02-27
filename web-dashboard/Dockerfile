@@ -4,7 +4,7 @@ FROM node:22-alpine AS base
 FROM base AS deps
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* npm-shrinkwrap.json* ./
 RUN npm ci
 
 # Rebuild the source code only when needed
