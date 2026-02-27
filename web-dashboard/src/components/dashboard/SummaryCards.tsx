@@ -1,18 +1,15 @@
-// import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DollarSign, Calendar, TrendingUp, LucideIcon } from 'lucide-react'
-
-// Simple Card replacement since we didn't install Shadcn components via CLI
 import { Transaction } from '@/types/dashboard';
 
 // Helper Component
 function SimpleCard({ title, value, icon: Icon, color }: { title: string, value: string, icon: LucideIcon, color: string }) {
     return (
-        <div className="rounded-xl border bg-white p-6 shadow-sm">
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-center justify-between space-y-0 pb-2">
-                <h3 className="text-sm font-medium tracking-tight text-gray-500">{title}</h3>
+                <h3 className="text-sm font-medium tracking-tight text-muted-foreground">{title}</h3>
                 <Icon className={`h-4 w-4 ${color}`} />
             </div>
-            <div className="text-2xl font-bold">{value}</div>
+            <div className="text-2xl font-bold text-card-foreground">{value}</div>
         </div>
     )
 }
@@ -24,15 +21,15 @@ export default function SummaryCards({ transactions }: { transactions: Transacti
     const currentMonth = new Date().getMonth()
 
     const totalMonth = transactions
-        .filter(t => new Date(t.data).getMonth() === currentMonth)
-        .reduce((acc, t) => acc + t.valor, 0)
+        .filter(t => new Date(t.date).getMonth() === currentMonth)
+        .reduce((acc, t) => acc + t.amount, 0)
 
     const totalDay = transactions
-        .filter(t => t.data.startsWith(today))
-        .reduce((acc, t) => acc + t.valor, 0)
+        .filter(t => t.date.startsWith(today))
+        .reduce((acc, t) => acc + t.amount, 0)
 
     // Total Geral
-    const totalAll = transactions.reduce((acc, t) => acc + t.valor, 0)
+    const totalAll = transactions.reduce((acc, t) => acc + t.amount, 0)
 
     return (
         <div className="grid gap-4 md:grid-cols-3">
@@ -46,7 +43,7 @@ export default function SummaryCards({ transactions }: { transactions: Transacti
                 title="Gasto Mensal"
                 value={totalMonth.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                 icon={DollarSign}
-                color="text-green-500"
+                color="text-emerald-500"
             />
             <SimpleCard
                 title="Total Acumulado"

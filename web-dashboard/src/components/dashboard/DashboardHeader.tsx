@@ -45,37 +45,37 @@ export default function DashboardHeader({
         <motion.header
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 flex flex-col md:flex-row items-center justify-between gap-4 rounded-3xl border border-white/5 bg-slate-900/80 px-6 py-4 shadow-lg backdrop-blur-xl"
+            className="mb-8 flex flex-col md:flex-row items-center justify-between gap-4 rounded-3xl border border-border bg-card/80 px-6 py-4 shadow-sm backdrop-blur-xl"
         >
             <div className="flex items-center gap-4 w-full md:w-auto">
                 <div className="relative">
-                    <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-indigo-500 bg-slate-800">
+                    <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-primary bg-muted">
                         <img
                             src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userEmail}`}
                             alt="Avatar"
                             className="h-full w-full object-cover"
                         />
                     </div>
-                    <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-slate-900">
+                    <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-background">
                         <div className="absolute h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></div>
                     </div>
                 </div>
                 <div>
-                    <h2 className="text-sm font-medium text-slate-400">Bem-vindo,</h2>
-                    <h1 className="text-lg font-bold text-white capitalize">{userName || userEmail?.split('@')[0]}</h1>
+                    <h2 className="text-sm font-medium text-muted-foreground">Bem-vindo,</h2>
+                    <h1 className="text-lg font-bold text-foreground capitalize">{userName || userEmail?.split('@')[0]}</h1>
                 </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
                 {/* Seletor de Mês / Customizado */}
-                <div className="flex items-center gap-2 rounded-xl border border-white/5 bg-white/5 p-1">
+                <div className="flex items-center gap-2 rounded-xl border border-border bg-secondary/50 p-1">
                     {customStart ? (
-                        <div className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-indigo-300">
+                        <div className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-primary">
                             <Calendar size={14} />
                             <span>Período Personalizado</span>
                             <button
                                 onClick={() => router.push('/dashboard')}
-                                className="ml-2 rounded-full hover:bg-white/10 p-1"
+                                className="ml-2 rounded-full hover:bg-accent p-1"
                             >
                                 X
                             </button>
@@ -84,17 +84,17 @@ export default function DashboardHeader({
                         <>
                             <button
                                 onClick={() => handleMonthChange(-1)}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+                                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition"
                             >
                                 <ChevronLeft size={16} />
                             </button>
-                            <div className="flex items-center gap-2 px-2 min-w-[140px] justify-center text-sm font-medium text-slate-200">
-                                <Calendar size={14} className="text-indigo-400" />
+                            <div className="flex items-center gap-2 px-2 min-w-[140px] justify-center text-sm font-medium text-foreground">
+                                <Calendar size={14} className="text-primary" />
                                 <span>{MONTH_NAMES[currentMonth - 1]} {currentYear}</span>
                             </div>
                             <button
                                 onClick={() => handleMonthChange(1)}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition"
+                                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition"
                             >
                                 <ChevronRight size={16} />
                             </button>
@@ -117,23 +117,23 @@ export default function DashboardHeader({
                         type="date"
                         name="start"
                         defaultValue={customStart}
-                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-slate-300 color-scheme-dark"
+                        className="bg-secondary/50 border border-border rounded-lg px-2 py-1 text-xs text-foreground color-scheme-dark"
                         required
                     />
-                    <span className="text-slate-600">-</span>
+                    <span className="text-muted-foreground">-</span>
                     <input
                         type="date"
                         name="end"
                         defaultValue={customEnd}
-                        className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs text-slate-300 color-scheme-dark"
+                        className="bg-secondary/50 border border-border rounded-lg px-2 py-1 text-xs text-foreground color-scheme-dark"
                         required
                     />
-                    <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-1 px-3 text-xs font-bold transition">
+                    <button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg p-1 px-3 text-xs font-bold transition">
                         Ir
                     </button>
                 </form>
 
-                <button className="rounded-full border border-white/5 bg-white/5 p-2 text-slate-300 transition hover:bg-white/10 hover:text-white">
+                <button className="rounded-full border border-border bg-secondary/50 p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground">
                     <Bell size={20} />
                 </button>
             </div>

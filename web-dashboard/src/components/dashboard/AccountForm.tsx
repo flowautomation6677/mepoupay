@@ -63,10 +63,10 @@ export default function AccountForm({ profile }: Readonly<{ profile: UserProfile
 
     return (
         <form onSubmit={handleSubmit}>
-            <Card className="border-white/10 bg-slate-900/50 backdrop-blur-md text-slate-100">
+            <Card className="border-border bg-card backdrop-blur-md text-card-foreground">
                 <CardHeader>
-                    <CardTitle className="text-xl text-white">Seus Dados</CardTitle>
-                    <CardDescription className="text-slate-400">
+                    <CardTitle className="text-xl text-card-foreground">Seus Dados</CardTitle>
+                    <CardDescription className="text-muted-foreground">
                         Gerencie suas informações pessoais e de contato.
                     </CardDescription>
                 </CardHeader>
@@ -80,45 +80,45 @@ export default function AccountForm({ profile }: Readonly<{ profile: UserProfile
                     )}
 
                     <div className="space-y-2">
-                        <Label htmlFor="email" className="text-slate-300">Email</Label>
+                        <Label htmlFor="email" className="text-foreground">Email</Label>
                         <Input
                             id="email"
                             value={profile.email}
                             disabled
-                            className="bg-slate-950/50 border-white/10 text-slate-500 cursor-not-allowed"
+                            className="bg-muted/50 border-border text-muted-foreground cursor-not-allowed"
                         />
-                        <p className="text-xs text-slate-500">O email não pode ser alterado.</p>
+                        <p className="text-xs text-muted-foreground">O email não pode ser alterado.</p>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="full_name" className="text-slate-300">Nome Completo</Label>
+                        <Label htmlFor="full_name" className="text-foreground">Nome Completo</Label>
                         <Input
                             id="full_name"
                             name="full_name"
                             value={formData.full_name}
                             onChange={handleChange}
                             placeholder="Seu nome"
-                            className="bg-slate-950/50 border-white/10 text-white focus:border-indigo-500 transition-colors"
+                            className="bg-background border-border text-foreground focus:border-primary transition-colors"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="whatsapp" className="text-slate-300">WhatsApp Principal</Label>
+                        <Label htmlFor="whatsapp" className="text-foreground">WhatsApp Principal</Label>
                         <Input
                             id="whatsapp"
                             name="whatsapp"
                             value={formData.whatsapp}
                             onChange={handleChange}
                             placeholder="5521999999999"
-                            className="bg-slate-950/50 border-white/10 text-white focus:border-indigo-500 transition-colors"
+                            className="bg-background border-border text-foreground focus:border-primary transition-colors"
                         />
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted-foreground">
                             Usado para o Me Poupay AI entrar em contato. Inclua o código do país (55).
                         </p>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="financial_goal" className="text-slate-300">Meta Financeira (Mensal)</Label>
+                        <Label htmlFor="financial_goal" className="text-foreground">Meta Financeira (Mensal)</Label>
                         <Input
                             id="financial_goal"
                             name="financial_goal"
@@ -126,16 +126,16 @@ export default function AccountForm({ profile }: Readonly<{ profile: UserProfile
                             value={formData.financial_goal}
                             onChange={handleChange}
                             placeholder="0.00"
-                            className="bg-slate-950/50 border-white/10 text-white focus:border-indigo-500 transition-colors"
+                            className="bg-background border-border text-foreground focus:border-primary transition-colors"
                         />
                     </div>
 
                 </CardContent>
-                <CardFooter className="border-t border-white/5 pt-6 flex justify-end">
+                <CardFooter className="border-t border-border pt-6 flex justify-end">
                     <Button
                         type="submit"
                         disabled={loading}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
                     >
                         {loading ? "Salvando..." : "Salvar Alterações"}
                     </Button>

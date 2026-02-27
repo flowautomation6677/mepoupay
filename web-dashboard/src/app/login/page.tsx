@@ -51,9 +51,9 @@ export default function AuthPage() {
                     const error_description = params.get('error_description');
 
                     if (error_description) {
-                         setMessage({ text: decodeURIComponent(error_description), type: 'error' });
-                         setLoading(false);
-                         return;
+                        setMessage({ text: decodeURIComponent(error_description), type: 'error' });
+                        setLoading(false);
+                        return;
                     }
 
                     if (access_token) {
@@ -89,39 +89,39 @@ export default function AuthPage() {
     }, [router]);
 
     return (
-        <div className="flex min-h-screen w-full bg-[#020617] text-slate-100">
+        <div className="flex min-h-screen w-full bg-background text-foreground">
 
             {/* Coluna Esquerda: Mensagem / Branding (Desktop) */}
-            <div className="hidden w-1/2 flex-col justify-between bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-900/40 via-[#020617] to-[#020617] p-12 lg:flex">
-                <div className="font-bold text-2xl tracking-tighter text-indigo-500">
-                    Me <span className="text-white">Poupey</span>
+            <div className="hidden w-1/2 flex-col justify-between bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background p-12 lg:flex">
+                <div className="font-bold text-2xl tracking-tighter text-primary">
+                    Me <span className="text-foreground">Poupay</span>
                 </div>
                 <div className="space-y-6">
-                    <h1 className="text-6xl font-extrabold leading-tight tracking-tight text-white">
+                    <h1 className="text-6xl font-extrabold leading-tight tracking-tight text-foreground">
                         O futuro do seu <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-500">
                             dinheiro.
                         </span>
                     </h1>
-                    <p className="text-lg text-slate-400 max-w-md">
+                    <p className="text-lg text-muted-foreground max-w-md">
                         Controle gastos, visualize metas e economize com inteligência artificial.
                         Tudo conectado ao seu WhatsApp.
                     </p>
                 </div>
-                <div className="flex gap-4 text-sm text-slate-500">
-                    <span>© 2024 Me Poupey</span>
+                <div className="flex gap-4 text-sm text-muted-foreground">
+                    <span>© 2024 Me Poupay</span>
                     <span>Termos de Uso</span>
                 </div>
             </div>
 
             {/* Coluna Direita: Formulário */}
-            <div className="flex w-full items-center justify-center p-4 lg:w-1/2 bg-[#020617]">
+            <div className="flex w-full items-center justify-center p-4 lg:w-1/2 bg-background">
                 <div className="w-full max-w-md space-y-8">
 
                     {/* Logo Mobile */}
                     <div className="flex justify-center lg:hidden mb-8">
-                        <span className="text-2xl font-bold tracking-tighter text-indigo-500">
-                            Me <span className="text-white">Poupey</span>
+                        <span className="text-2xl font-bold tracking-tighter text-primary">
+                            Me <span className="text-foreground">Poupay</span>
                         </span>
                     </div>
 
@@ -132,13 +132,13 @@ export default function AuthPage() {
                         className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl"
                     >
                         <div className="mb-6 text-center">
-                            <h2 className="text-2xl font-bold text-white hidden lg:block">
+                            <h2 className="text-2xl font-bold text-foreground hidden lg:block">
                                 Acesse sua conta
                             </h2>
-                            <h2 className="text-2xl font-bold text-white lg:hidden">
+                            <h2 className="text-2xl font-bold text-foreground lg:hidden">
                                 Entrar
                             </h2>
-                            <p className="text-slate-400 text-sm mt-1">
+                            <p className="text-muted-foreground text-sm mt-1">
                                 Digite seus dados para acessar o painel.
                             </p>
                         </div>
@@ -161,18 +161,18 @@ export default function AuthPage() {
                             </AnimatePresence>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">E-mail</label>
-                                <input name="email" type="email" required placeholder="seu@email.com" className="w-full rounded-xl bg-slate-900/50 border border-white/10 px-4 py-3 text-white placeholder-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition" />
+                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">E-mail</label>
+                                <input name="email" type="email" required placeholder="seu@email.com" className="w-full rounded-xl bg-muted/50 border border-border px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition" />
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Senha</label>
-                                <input name="password" type="password" required placeholder="******" className="w-full rounded-xl bg-slate-900/50 border border-white/10 px-4 py-3 text-white placeholder-slate-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition" />
+                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
+                                <input name="password" type="password" required placeholder="******" className="w-full rounded-xl bg-muted/50 border border-border px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition" />
                                 <div className="flex justify-end pt-2">
                                     <button
                                         type="button"
                                         onClick={() => router.push('/forgot-password')}
-                                        className="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors z-10 relative hover:underline"
+                                        className="text-xs font-medium text-primary/80 hover:text-primary transition-colors z-10 relative hover:underline"
                                     >
                                         Esqueceu sua senha?
                                     </button>
@@ -183,22 +183,21 @@ export default function AuthPage() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-3.5 font-bold text-white shadow-lg shadow-indigo-500/20 transition-all hover:scale-[1.02] hover:shadow-indigo-500/30 disabled:opacity-70 disabled:hover:scale-100"
+                                    className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-primary px-8 py-3.5 font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] hover:shadow-primary/30 disabled:opacity-70 disabled:hover:scale-100"
                                 >
                                     <span className="relative z-10 flex items-center gap-2">
                                         {loading && <Loader2 className="animate-spin" size={18} />}
                                         Entrar
                                         {!loading && <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />}
                                     </span>
-                                    <div className="absolute inset-0 -z-0 bg-gradient-to-r from-purple-600 to-indigo-600 opacity-0 transition-opacity group-hover:opacity-100"></div>
                                 </button>
                             </div>
                         </form>
 
                         <div className="mt-8 flex items-center gap-4">
-                            <div className="h-px flex-1 bg-white/10"></div>
-                            <span className="text-xs text-slate-500">ou continue com</span>
-                            <div className="h-px flex-1 bg-white/10"></div>
+                            <div className="h-px flex-1 bg-border"></div>
+                            <span className="text-xs text-muted-foreground">ou continue com</span>
+                            <div className="h-px flex-1 bg-border"></div>
                         </div>
 
                         <button type="button" className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-white transition hover:bg-white/10">

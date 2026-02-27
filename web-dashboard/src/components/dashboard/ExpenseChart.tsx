@@ -79,12 +79,12 @@ export default function ExpenseChart({ transactions }: Readonly<{ transactions: 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
-                className="col-span-1 md:col-span-2 rounded-[2rem] border border-white/5 bg-slate-900/50 p-6 shadow-xl backdrop-blur-md"
+                className="col-span-1 md:col-span-2 rounded-[2rem] border border-border bg-card/50 p-6 shadow-xl backdrop-blur-md"
             >
                 <div className="mb-6 flex items-center justify-between">
                     <div>
-                        <h3 className="text-lg font-bold text-white">Análise Temporal</h3>
-                        <p className="text-sm text-slate-500">Fluxo Diário (Barras) e Acumulado (Linha)</p>
+                        <h3 className="text-lg font-bold text-card-foreground">Análise Temporal</h3>
+                        <p className="text-sm text-muted-foreground">Fluxo Diário (Barras) e Acumulado (Linha)</p>
                     </div>
                 </div>
 
@@ -110,7 +110,7 @@ export default function ExpenseChart({ transactions }: Readonly<{ transactions: 
                                 axisLine={false}
                             />
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                                contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', color: 'hsl(var(--card-foreground))' }}
                                 formatter={(value: number | undefined, name: string | undefined) => {
                                     if (value === undefined) return ['-', name];
                                     if (name === 'saldo') return [formatCurrency(value), 'Saldo Acumulado']
@@ -149,22 +149,22 @@ export default function ExpenseChart({ transactions }: Readonly<{ transactions: 
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="rounded-[2rem] border border-white/5 bg-slate-900/50 p-6 shadow-xl backdrop-blur-md"
+                    className="rounded-[2rem] border border-border bg-card/50 p-6 shadow-xl backdrop-blur-md"
                 >
-                    <h3 className="mb-4 text-lg font-bold text-white">Top Gastos</h3>
+                    <h3 className="mb-4 text-lg font-bold text-card-foreground">Top Gastos</h3>
                     <div className="space-y-4">
                         {topCategories.map((cat, i) => (
                             <div key={cat.name} className="group">
                                 <div className="mb-1 flex justify-between text-xs font-medium">
-                                    <span className="text-slate-300 group-hover:text-white transition">{cat.name}</span>
-                                    <span className="text-slate-400">{formatCurrency(cat.value)}</span>
+                                    <span className="text-muted-foreground group-hover:text-foreground transition">{cat.name}</span>
+                                    <span className="text-muted-foreground">{formatCurrency(cat.value)}</span>
                                 </div>
-                                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                                     <motion.div
                                         initial={{ width: 0 }}
                                         animate={{ width: `${(cat.value / topCategories[0].value) * 100}%` }} // Proporcional ao maior
                                         transition={{ duration: 1, delay: 0.5 + (i * 0.1) }}
-                                        className={`h-full rounded-full ${i === 0 ? 'bg-red-500' : 'bg-slate-600 group-hover:bg-indigo-500 transition-colors'}`}
+                                        className={`h-full rounded-full ${i === 0 ? 'bg-red-500' : 'bg-muted-foreground/30 group-hover:bg-primary transition-colors'}`}
                                     />
                                 </div>
                             </div>
@@ -178,15 +178,15 @@ export default function ExpenseChart({ transactions }: Readonly<{ transactions: 
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-600 to-violet-700 p-6 text-white shadow-xl"
+                    className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary to-primary/80 text-primary-foreground p-6 shadow-xl"
                 >
                     <div className="flex items-start gap-4">
-                        <div className="rounded-xl bg-white/20 p-2 backdrop-blur-md">
+                        <div className="rounded-xl bg-background/20 p-2 backdrop-blur-md">
                             <Zap size={20} className="text-yellow-300" />
                         </div>
                         <div>
                             <h4 className="font-bold text-lg">Me Poupay Insight</h4>
-                            <p className="mt-2 text-sm leading-relaxed text-indigo-100 opacity-90">
+                            <p className="mt-2 text-sm leading-relaxed text-primary-foreground/90 opacity-90">
                                 {topCategories.length > 0
                                     ? `Atenção: A categoria '${topCatName}' representa ${topCatPercent}% das suas saídas neste período. Que tal rever esses gastos?`
                                     : 'Acompanhando seus gastos para gerar recomendações inteligentes.'}
@@ -195,7 +195,7 @@ export default function ExpenseChart({ transactions }: Readonly<{ transactions: 
                             <a
                                 href="https://wa.me/55..."
                                 target="_blank"
-                                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-xs font-bold hover:bg-white/20 transition"
+                                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-background/10 px-4 py-2 text-xs font-bold hover:bg-background/20 transition"
                             >
                                 Conversar no Zap
                             </a>

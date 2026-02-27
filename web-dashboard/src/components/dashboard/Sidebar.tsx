@@ -19,6 +19,7 @@ import {
     Wallet
 } from 'lucide-react';
 import { createBrowserClient } from '@supabase/ssr';
+import { ThemeToggle } from './ThemeToggle';
 
 import { cn } from '@/lib/utils';
 
@@ -55,14 +56,14 @@ export default function Sidebar() {
     return (
         <>
             {/* Mobile Header Trigger */}
-            <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-slate-950/80 backdrop-blur-md border-b border-white/10">
-                <span className="text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
-                    <Wallet className="w-6 h-6 text-indigo-400" />
+            <div className="md:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4 bg-background/80 backdrop-blur-md border-b border-border">
+                <span className="text-xl font-bold text-foreground flex items-center gap-2">
+                    <Wallet className="w-6 h-6 text-primary" />
                     Me Poupay
                 </span>
                 <button
                     onClick={() => setIsMobileOpen(true)}
-                    className="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg"
+                    className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg"
                 >
                     <Menu />
                 </button>
@@ -84,16 +85,16 @@ export default function Sidebar() {
                             animate={{ x: 0 }}
                             exit={{ x: "-100%" }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="fixed inset-y-0 left-0 z-50 w-72 bg-slate-950 border-r border-white/10 md:hidden flex flex-col"
+                            className="fixed inset-y-0 left-0 z-50 w-72 bg-background border-r border-border md:hidden flex flex-col"
                         >
-                            <div className="flex items-center justify-between p-4 border-b border-white/10">
-                                <span className="text-xl font-bold text-white flex items-center gap-2">
-                                    <Wallet className="w-6 h-6 text-indigo-500" />
+                            <div className="flex items-center justify-between p-4 border-b border-border">
+                                <span className="text-xl font-bold text-foreground flex items-center gap-2">
+                                    <Wallet className="w-6 h-6 text-primary" />
                                     Me Poupay
                                 </span>
                                 <button
                                     onClick={() => setIsMobileOpen(false)}
-                                    className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-white/10"
+                                    className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent"
                                 >
                                     <X />
                                 </button>
@@ -103,10 +104,11 @@ export default function Sidebar() {
                                 <NavLinks pathname={pathname} items={menuItems} onClick={() => setIsMobileOpen(false)} />
                             </div>
 
-                            <div className="p-4 border-t border-white/10">
+                            <div className="flex flex-col gap-2 p-4 border-t border-border">
+                                <ThemeToggle />
                                 <button
                                     onClick={handleLogout}
-                                    className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                                    className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
                                 >
                                     <LogOut className="w-5 h-5" />
                                     Sair da Conta
@@ -122,20 +124,20 @@ export default function Sidebar() {
                 variants={sidebarVariants}
                 animate={isCollapsed ? "collapsed" : "expanded"}
                 className={cn(
-                    "hidden md:flex flex-col h-screen sticky top-0 bg-slate-950 border-r border-white/10 z-40 transition-all duration-300",
+                    "hidden md:flex flex-col h-screen sticky top-0 bg-background border-r border-border z-40 transition-all duration-300",
                 )}
             >
                 {/* Logo Area */}
-                <div className="h-20 flex items-center justify-center border-b border-white/10 relative">
+                <div className="h-20 flex items-center justify-center border-b border-border relative">
                     {isCollapsed ? (
-                        <Wallet className="w-8 h-8 text-indigo-500" />
+                        <Wallet className="w-8 h-8 text-primary" />
                     ) : (
                         <motion.span
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent flex items-center gap-2"
+                            className="text-2xl font-bold text-foreground flex items-center gap-2"
                         >
-                            <Wallet className="w-8 h-8 text-indigo-500" />
+                            <Wallet className="w-8 h-8 text-primary" />
                             Me Poupay
                         </motion.span>
                     )}
@@ -143,7 +145,7 @@ export default function Sidebar() {
                     {/* Collapse Toggle */}
                     <button
                         onClick={() => setIsCollapsed(!isCollapsed)}
-                        className="absolute -right-3 top-1/2 -translate-y-1/2 bg-slate-900 border border-white/10 text-slate-400 hover:text-white p-1 rounded-full shadow-lg"
+                        className="absolute -right-3 top-1/2 -translate-y-1/2 bg-background border border-border text-muted-foreground hover:text-foreground p-1 rounded-full shadow-lg"
                     >
                         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
                     </button>
@@ -155,11 +157,12 @@ export default function Sidebar() {
                 </div>
 
                 {/* User / Logout */}
-                <div className="p-4 border-t border-white/10">
+                <div className="flex flex-col gap-2 p-4 border-t border-border">
+                    <ThemeToggle isCollapsed={isCollapsed} />
                     <button
                         onClick={handleLogout}
                         className={cn(
-                            "flex items-center gap-3 w-full px-3 py-3 text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-500/5 rounded-xl transition-colors",
+                            "flex items-center gap-3 w-full px-3 py-3 text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors",
                             isCollapsed && "justify-center px-0"
                         )}
                         title="Sair"
@@ -186,18 +189,18 @@ function NavLinks({ pathname, items, onClick, isCollapsed = false }: Readonly<{ 
                         className={cn(
                             "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all group relative",
                             isActive
-                                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20"
-                                : "text-slate-400 hover:bg-white/5 hover:text-white",
+                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                                : "text-muted-foreground hover:bg-accent hover:text-foreground",
                             isCollapsed && "justify-center px-2"
                         )}
                         title={isCollapsed ? item.name : undefined}
                     >
-                        <item.icon className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-white" : "text-slate-500 group-hover:text-white")} />
+                        <item.icon className={cn("w-5 h-5 flex-shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground")} />
                         {!isCollapsed && <span className="whitespace-nowrap">{item.name}</span>}
 
                         {/* Tooltip for collapsed mode */}
                         {isCollapsed && (
-                            <div className="absolute left-full ml-4 px-2 py-1 bg-slate-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
+                            <div className="absolute left-full ml-4 px-2 py-1 bg-popover text-popover-foreground shadow-md text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 whitespace-nowrap">
                                 {item.name}
                             </div>
                         )}

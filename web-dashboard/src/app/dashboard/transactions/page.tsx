@@ -41,10 +41,10 @@ export default async function TransactionsPage() {
     }))
 
     return (
-        <div className="min-h-screen bg-[#0f172a] p-8 text-slate-200">
+        <div className="min-h-screen bg-background p-8 text-foreground">
             <div className="mx-auto max-w-4xl">
                 <div className="mb-6 flex items-center gap-4">
-                    <Link href="/dashboard" className="rounded-full bg-white/5 p-2 transition hover:bg-white/10">
+                    <Link href="/dashboard" className="rounded-full bg-muted p-2 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground">
                         <ChevronLeft size={24} />
                     </Link>
                     <h1 className="text-2xl font-bold">Todas as Transações</h1>

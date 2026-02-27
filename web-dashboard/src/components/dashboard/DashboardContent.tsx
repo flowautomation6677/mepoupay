@@ -9,7 +9,7 @@ import { DashboardData } from '@/types/dashboard'
 // Lazy Load ExpenseChart
 const ExpenseChart = dynamic(() => import('@/components/dashboard/ExpenseChart'), {
     ssr: false,
-    loading: () => <div className="h-[300px] w-full bg-slate-100/10 rounded-3xl animate-pulse" />
+    loading: () => <div className="h-[300px] w-full bg-muted rounded-3xl animate-pulse" />
 })
 
 export default function DashboardContent({ profile, transactions, prevTransactions }: Readonly<DashboardData>) {
@@ -36,13 +36,13 @@ export default function DashboardContent({ profile, transactions, prevTransactio
 
                 <div className="md:col-span-1 space-y-6">
                     {/* Card de Conexão */}
-                    <div className="rounded-[2rem] bg-indigo-600 p-6 text-white shadow-lg shadow-indigo-600/20">
+                    <div className="rounded-[2rem] bg-primary p-6 text-primary-foreground shadow-lg shadow-primary/20">
                         <h3 className="text-lg font-bold">Me Poupay AI</h3>
-                        <p className="mt-2 text-indigo-100 text-sm opacity-90">
+                        <p className="mt-2 text-primary-foreground/90 text-sm opacity-90">
                             Seu assistente está conectado e monitorando seus gastos pelo número:
                         </p>
-                        <div className="mt-4 flex items-center gap-2 rounded-xl bg-white/20 p-3 backdrop-blur-sm">
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>
+                        <div className="mt-4 flex items-center gap-2 rounded-xl bg-background/20 p-3 backdrop-blur-sm">
+                            <span className="h-2 w-2 animate-pulse rounded-full bg-green-400"></span>
                             <span className="font-mono text-sm tracking-wide">
                                 +55 (21) 98464-6902
                             </span>
@@ -51,7 +51,7 @@ export default function DashboardContent({ profile, transactions, prevTransactio
                             href="https://wa.me/5521984646902?text=Olá! Quero falar com o Me Poupay."
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-4 block w-full rounded-xl bg-white py-3 text-center text-sm font-bold text-indigo-600 transition hover:bg-indigo-50"
+                            className="mt-4 block w-full rounded-xl bg-background py-3 text-center text-sm font-bold text-primary transition hover:bg-background/90"
                         >
                             Abrir no WhatsApp
                         </a>
