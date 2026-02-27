@@ -36,11 +36,11 @@ const MenuItem = ({ href, icon: Icon, label, onClick }: { href: string, icon: Lu
             href={href}
             onClick={onClick}
             className={`flex items-center gap-3 px-4 py-2 mx-2 rounded-lg text-sm transition-all duration-200 group ${isActive
-                ? 'bg-indigo-600/10 text-indigo-400 border-l-2 border-indigo-500'
-                : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                ? 'bg-indigo-600/10 text-indigo-600 dark:text-indigo-400 border-l-2 border-indigo-500'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-slate-200'
                 }`}
         >
-            <Icon size={18} className={isActive ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-300'} />
+            <Icon size={18} className={isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-700 dark:text-slate-500 dark:group-hover:text-slate-300'} />
             <span>{label}</span>
         </Link>
     );
@@ -48,14 +48,14 @@ const MenuItem = ({ href, icon: Icon, label, onClick }: { href: string, icon: Lu
 
 export default function AdminSidebar({ isOpen = true, onClose }: Readonly<{ isOpen?: boolean, onClose?: () => void }>) {
     return (
-        <aside className={`w-64 bg-[#09090b] border-r border-white/5 flex flex-col h-screen fixed left-0 top-0 z-50 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <aside className={`w-64 bg-white dark:bg-[#09090b] border-r border-slate-200 dark:border-white/5 flex flex-col h-screen fixed left-0 top-0 z-50 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
             {/* Header */}
-            <div className="p-6 flex items-center gap-3 border-b border-white/5">
+            <div className="p-6 flex items-center gap-3 border-b border-slate-200 dark:border-white/5">
                 <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
                     <span className="text-xl">🐷</span>
                 </div>
                 <div>
-                    <Title className="text-white text-lg font-bold tracking-tight">NEXUS</Title>
+                    <Title className="text-slate-900 dark:text-white text-lg font-bold tracking-tight">NEXUS</Title>
                     <Text className="text-xs text-slate-500">Admin Console</Text>
                 </div>
             </div>
@@ -90,16 +90,16 @@ export default function AdminSidebar({ isOpen = true, onClose }: Readonly<{ isOp
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-white/5 bg-black/20">
-                <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
+            <div className="p-4 border-t border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-black/20">
+                <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-200/50 dark:hover:bg-white/5 cursor-pointer transition-colors">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-xs font-bold text-white">
                         AD
                     </div>
                     <div className="flex-1 min-w-0">
-                        <Text className="text-white text-sm font-medium truncate">Admin Nexus</Text>
+                        <Text className="text-slate-900 dark:text-white text-sm font-medium truncate">Admin Nexus</Text>
                         <Text className="text-xs text-slate-500 truncate">Super Admin</Text>
                     </div>
-                    <LogOut size={16} className="text-slate-500 hover:text-rose-500 transition-colors" />
+                    <LogOut size={16} className="text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-500 transition-colors" />
                 </div>
             </div>
         </aside>

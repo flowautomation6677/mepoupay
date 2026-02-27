@@ -58,10 +58,10 @@ export default function AdminDashboard() {
                         <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                         <Text className="text-emerald-400 font-mono text-xs tracking-wider uppercase">System Operational</Text>
                     </div>
-                    <Title className="text-3xl font-bold mt-1 tracking-tight text-white">
+                    <Title className="text-3xl font-bold mt-1 tracking-tight text-slate-900 dark:text-white">
                         Visão Geral
                     </Title>
-                    <Text className="text-slate-400">Resumo operacional do Nexus.</Text>
+                    <Text className="text-slate-500 dark:text-slate-400">Resumo operacional do Nexus.</Text>
                 </div>
                 <Badge color="indigo" size="lg" icon={Cpu}>v2.1.0</Badge>
             </div>
@@ -72,8 +72,8 @@ export default function AdminDashboard() {
                     <Card key={item.title} className="glass-card ring-0 border-t-4 border-indigo-500">
                         <Flex alignItems="start">
                             <div>
-                                <Text className="text-slate-400 uppercase text-xs font-bold tracking-widest">{item.title}</Text>
-                                <Metric className="text-white mt-2">{item.metric}</Metric>
+                                <Text className="text-slate-500 dark:text-slate-400 uppercase text-xs font-bold tracking-widest">{item.title}</Text>
+                                <Metric className="text-slate-900 dark:text-white mt-2">{item.metric}</Metric>
                             </div>
                             <Icon icon={item.icon} variant="solid" color={item.color as any} size="lg" className="shadow-lg rounded-xl" />
                         </Flex>

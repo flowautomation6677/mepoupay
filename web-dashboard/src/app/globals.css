@@ -4,8 +4,10 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%; /* White */
-    --foreground: 222 47% 11%; /* Slate 950 */
+    --background: 0 0% 100%;
+    /* White */
+    --foreground: 222 47% 11%;
+    /* Slate 950 */
 
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
@@ -13,14 +15,17 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 142 71% 45%; /* IDV Green */
+    --primary: 142 71% 45%;
+    /* IDV Green */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%; /* Slate 100 */
+    --secondary: 210 40% 96.1%;
+    /* Slate 100 */
     --secondary-foreground: 222 47% 11%;
 
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%; /* Slate 500 */
+    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Slate 500 */
 
     --accent: 210 40% 96.1%;
     --accent-foreground: 222 47% 11%;
@@ -28,24 +33,29 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%; /* Slate 200 */
+    --border: 214.3 31.8% 91.4%;
+    /* Slate 200 */
     --input: 214.3 31.8% 91.4%;
-    --ring: 142 71% 45%; /* IDV Green */
+    --ring: 142 71% 45%;
+    /* IDV Green */
 
     --radius: 1rem;
   }
 
   .dark {
-    --background: 222 47% 11%; /* Slate 950ish */
+    --background: 222 47% 11%;
+    /* Slate 950ish */
     --foreground: 210 40% 98%;
 
-    --card: 217 33% 17%; /* Slate 900ish */
+    --card: 217 33% 17%;
+    /* Slate 900ish */
     --card-foreground: 210 40% 98%;
 
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 142 71% 45%; /* IDV Green matches light mode */
+    --primary: 142 71% 45%;
+    /* IDV Green matches light mode */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 217 32% 17%;
@@ -70,6 +80,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -80,12 +91,15 @@
   .glass {
     @apply bg-white/5 backdrop-blur-lg border border-white/10 shadow-xl;
   }
+
   .glass-card {
-    @apply bg-slate-900/50 backdrop-blur-md border border-slate-700/50 shadow-lg rounded-3xl;
+    @apply bg-white/80 dark:bg-slate-900/50 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 shadow-lg rounded-3xl;
   }
+
   .neon-text-emerald {
     text-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
   }
+
   .neon-text-indigo {
     text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
   }

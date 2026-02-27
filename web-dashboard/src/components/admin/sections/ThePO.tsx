@@ -25,7 +25,7 @@ interface BehaviorItem {
     activity_count: number;
 }
 
-export default function ThePO({ behaviorData }: { behaviorData: BehaviorItem[] }) {
+export default function ThePO({ behaviorData }: Readonly<{ behaviorData: BehaviorItem[] }>) {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -35,7 +35,7 @@ export default function ThePO({ behaviorData }: { behaviorData: BehaviorItem[] }
     // Process Heatmap Data (Transform DB row {day, hour, count} -> Grid)
     const heatmapGrid = useMemo(() => {
         // Initialize 7x24 grid with 0
-        const grid = Array(7).fill(0).map(() => Array(24).fill(0));
+        const grid = new Array(7).fill(0).map(() => new Array(24).fill(0));
         let maxVal = 0;
 
         behaviorData.forEach(item => {
@@ -50,16 +50,15 @@ export default function ThePO({ behaviorData }: { behaviorData: BehaviorItem[] }
     }, [behaviorData]);
 
     const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    // const hours = [0, 6, 12, 18, 23];
 
     // Helper for color intensity
     const getIntensity = (val: number, max: number) => {
-        if (val === 0) return 'bg-slate-800/50';
+        if (val === 0) return 'bg-slate-100 dark:bg-slate-800/50';
         const ratio = val / (max || 1);
-        if (ratio < 0.25) return 'bg-indigo-900/40';
-        if (ratio < 0.50) return 'bg-indigo-700/60';
-        if (ratio < 0.75) return 'bg-indigo-500/80';
-        return 'bg-indigo-400';
+        if (ratio < 0.25) return 'bg-indigo-200 dark:bg-indigo-900/40';
+        if (ratio < 0.5) return 'bg-indigo-400 dark:bg-indigo-700/60';
+        if (ratio < 0.75) return 'bg-indigo-600 dark:bg-indigo-500/80';
+        return 'bg-indigo-800 dark:bg-indigo-400';
     };
 
     if (!isMounted) return null;
@@ -71,11 +70,11 @@ export default function ThePO({ behaviorData }: { behaviorData: BehaviorItem[] }
             <Card className="glass-card ring-0">
                 <div className="flex items-center justify-between mb-6">
                     <div>
-                        <Title className="text-white flex items-center gap-2">
-                            <Clock size={20} className="text-indigo-400" />
+                        <Title className="text-slate-900 dark:text-white flex items-center gap-2">
+                            <Clock size={20} className="text-indigo-600 dark:text-indigo-400" />
                             Ritmo Biológico do Usuário
                         </Title>
-                        <Text className="text-slate-400">Intensidade de uso por dia da semana e hora.</Text>
+                        <Text className="text-slate-500 dark:text-slate-400">Intensidade de uso por dia da semana e hora.</Text>
                     </div>
                 </div>
 
@@ -84,7 +83,7 @@ export default function ThePO({ behaviorData }: { behaviorData: BehaviorItem[] }
                         {/* Header Hours */}
                         <div className="flex mb-2 pl-10">
                             {Array.from({ length: 24 }).map((_, i) => (
-                                <div key={i} className="flex-1 text-[10px] text-slate-500 text-center">
+                                <div key={`header-hour-${i}`} className="flex-1 text-[10px] text-slate-500 text-center">
                                     {i % 3 === 0 ? `${i}h` : ''}
                                 </div>
                             ))}
@@ -92,14 +91,14 @@ export default function ThePO({ behaviorData }: { behaviorData: BehaviorItem[] }
 
                         {/* Grid Rows */}
                         {heatmapGrid.grid.map((row, dayIdx) => (
-                            <div key={dayIdx} className="flex items-center mb-1">
-                                <div className="w-10 text-xs text-slate-400 font-medium">{days[dayIdx]}</div>
+                            <div key={`heatmap-day-${dayIdx}`} className="flex items-center mb-1">
+                                <div className="w-10 text-xs text-slate-500 dark:text-slate-400 font-medium">{days[dayIdx]}</div>
                                 <div className="flex-1 flex gap-1">
                                     {row.map((val, hourIdx) => (
                                         <div
                                             key={`${dayIdx}-${hourIdx}`}
                                             title={`${val} interações às ${hourIdx}h`}
-                                            className={`h-6 flex-1 rounded-sm transition-all hover:ring-1 ring-white/20 cursor-help ${getIntensity(val, heatmapGrid.maxVal)}`}
+                                            className={`h-6 flex-1 rounded-sm transition-all hover:ring-1 ring-slate-300 dark:ring-white/20 cursor-help ${getIntensity(val, heatmapGrid.maxVal)}`}
                                         />
                                     ))}
                                 </div>
@@ -112,7 +111,7 @@ export default function ThePO({ behaviorData }: { behaviorData: BehaviorItem[] }
             {/* 2. Funnel & Features */}
             <Grid numItems={1} numItemsMd={2} className="gap-6">
                 <Card className="glass-card ring-0">
-                    <Title className="text-white mb-4">Funil de Retenção (Semanal)</Title>
+                    <Title className="text-slate-900 dark:text-white mb-4">Funil de Retenção (Semanal)</Title>
                     <BarList
                         data={funnelData}
                         color="indigo"
@@ -122,7 +121,7 @@ export default function ThePO({ behaviorData }: { behaviorData: BehaviorItem[] }
                 </Card>
 
                 <Card className="glass-card ring-0">
-                    <Title className="text-white mb-4">Top Funcionalidades</Title>
+                    <Title className="text-slate-900 dark:text-white mb-4">Top Funcionalidades</Title>
                     <div className="flex items-center gap-4">
                         <DonutChart
                             className="h-40 w-40"
