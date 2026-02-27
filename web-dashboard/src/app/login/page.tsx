@@ -97,9 +97,10 @@ export default function AuthPage() {
                     Me <span className="text-foreground">Poupay</span>
                 </div>
                 <div className="space-y-6">
-                    <h1 className="text-6xl font-extrabold leading-tight tracking-tight text-foreground">
+                    <h1 className="text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight text-foreground">
+                        A Ferramenta que <br />
                         te ajuda a <span className="text-primary">cuidar</span> <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-lime-400 to-yellow-400">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-lime-500 to-yellow-400">
                             dos seus gastos
                         </span>
                     </h1>
