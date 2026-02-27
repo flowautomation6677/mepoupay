@@ -1,7 +1,9 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useTheme } from 'next-themes';
 import {
     LayoutDashboard,
     Users,
@@ -14,6 +16,8 @@ import {
     DollarSign,
     Settings,
     LogOut,
+    Sun,
+    Moon,
     LucideIcon
 } from 'lucide-react';
 import { Title, Text } from "@tremor/react";
@@ -47,6 +51,13 @@ const MenuItem = ({ href, icon: Icon, label, onClick }: { href: string, icon: Lu
 };
 
 export default function AdminSidebar({ isOpen = true, onClose }: Readonly<{ isOpen?: boolean, onClose?: () => void }>) {
+    const { theme, setTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     return (
         <aside className={`w-64 bg-white dark:bg-[#09090b] border-r border-slate-200 dark:border-white/5 flex flex-col h-screen fixed left-0 top-0 z-50 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
             {/* Header */}
@@ -99,7 +110,34 @@ export default function AdminSidebar({ isOpen = true, onClose }: Readonly<{ isOp
                         <Text className="text-slate-900 dark:text-white text-sm font-medium truncate">Admin Nexus</Text>
                         <Text className="text-xs text-slate-500 truncate">Super Admin</Text>
                     </div>
-                    <LogOut size={16} className="text-slate-400 hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-500 transition-colors" />
+                    {mounted && (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setTheme(theme === 'dark' ? 'light' : 'dark');
+                            }}
+                            className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-indigo-600 dark:text-slate-500 dark:hover:bg-white/5 dark:hover:text-indigo-400 transition-colors"
+                            aria-label="Alternar modo de cor"
+                            title="Alternar tema"
+                        >
+                            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                        </button>
+                    )}
+                    <button
+                        type="button"
+                        className="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-rose-600 dark:text-slate-500 dark:hover:bg-white/5 dark:hover:text-rose-500 transition-colors"
+                        aria-label="Sair do sistema"
+                        title="Sair"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            // futuro handler de logout
+                        }}
+                    >
+                        <LogOut size={16} />
+                    </button>
                 </div>
             </div>
         </aside>
