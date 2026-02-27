@@ -98,9 +98,9 @@ export default function AuthPage() {
                 </div>
                 <div className="space-y-6">
                     <h1 className="text-6xl font-extrabold leading-tight tracking-tight text-foreground">
-                        O futuro do seu <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-500">
-                            dinheiro.
+                        te ajuda a <span className="text-primary">cuidar</span> <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-lime-400 to-yellow-400">
+                            dos seus gastos
                         </span>
                     </h1>
                     <p className="text-lg text-muted-foreground max-w-md">
