@@ -20,7 +20,7 @@
     "@supabase/supabase-js": "^2.95.3",
     "axios": "^1.13.2",
     "body-parser": "^2.2.1",
-    "bullmq": "^5.66.2",
+    "bullmq": "^5.66.4",
     "csv-parse": "^6.1.0",
     "date-fns": "^4.1.0",
     "dotenv": "^16.6.1",
