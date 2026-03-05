@@ -58,12 +58,30 @@ function _buildFewShotExamples() {
             output: { gastos: [{ descricao: "Conta de Luz", valor: 150, categoria: "Moradia", tipo: "despesa", data: "YYYY-MM-DD" }] }
         },
         {
+            input: "Mandei 80 conto pro joao pelo pix e recebi 150 de troco do aluguel",
+            output: {
+                gastos: [
+                    { descricao: "Pix para Joao", valor: 80, categoria: "Pessoal", tipo: "despesa", data: "YYYY-MM-DD" },
+                    { descricao: "Troco do aluguel", valor: 150, categoria: "Moradia", tipo: "receita", data: "YYYY-MM-DD" }
+                ]
+            }
+        },
+        {
             input: "Caiu o salário 3200",
             output: { gastos: [{ descricao: "Salário", valor: 3200, categoria: "Salário", tipo: "receita", data: "YYYY-MM-DD" }] }
         },
+
         {
-            input: "Mandei 80 conto pro joao pelo pix",
-            output: { gastos: [{ descricao: "Pix para Joao", valor: 80, categoria: "Pessoal", tipo: "despesa", data: "YYYY-MM-DD" }] }
+            input: "5800 de entrada do Pablo Marçal",
+            output: { gastos: [{ descricao: "Entrada do Pablo Marçal", valor: 5800, categoria: "Renda Extra", tipo: "receita", data: "YYYY-MM-DD" }] }
+        },
+        {
+            input: "Não é gasto é entrada de dinheiro",
+            output: { pergunta: "Entendido! Vou corrigir o último lançamento. Confirma que o valor de 5800 foi uma ENTRADA (Receita)?" }
+        },
+        {
+            input: "Excluir",
+            output: { acao: "excluir_ultimo", confirmado: true }
         }
     ];
 
@@ -126,22 +144,32 @@ function _buildSystemPrompts(contextStr, today) {
 
         REGRAS DE CLASSIFICAÇÃO (CRÍTICO - SIGA EXATAMENTE):
         SAÍDA DE DINHEIRO (tipo: "despesa"): Verbos "Gastei", "Comprei", "Paguei", "Mandei", "Transferi", "Enviei", "Fiz pix para", "Pix pro".
-        ENTRADA DE DINHEIRO (tipo: "receita"): Verbos "Recebi", "Ganhei", "Caiu", "Entrou", "Depositaram", "Pix de", "Pix do", "Transferência de", "Salário".
+        ENTRADA DE DINHEIRO (tipo: "receita"): Termos "Recebi", "Ganhei", "Caiu", "Entrou", "Entrada", "Entrada de", "Depositaram", "Pix de", "Pix do", "Transferência de", "Salário".
         DÚVIDA: Analise o contexto. "Pix do João" = receita (alguém me mandou). "Pix pro João" = despesa (eu mandei).
 
-        INTENÇÃO DE CORREÇÃO (RESPONDA EM TEXTO, NÃO REGISTRE):
+        INTENÇÃO DE CORREÇÃO (RESPONDA EM TEXTO, NÃO REGISTRE NOVAMENTE):
         Verbos: "Errei", "Errou", "Foi errado", "Era pra ser", "Não era isso", "Não é gasto é entrada", "Não é entrada é gasto",
         "Corrige", "Corrigir", "Corrija", "Muda", "Mudar", "Altera", "Alterar", "Edita", "Editar",
         "Muda o valor", "Muda a descrição", "Muda a categoria", "Não foi isso", "Na verdade foi",
         "Quero corrigir", "Quero editar", "Quero mudar".
-        -> Ação: Responda em texto amigável confirmando o que o usuário quer corrigir. Ex: "Entendido! O que devo corrigir: o valor, a descrição ou o tipo (entrada/saída)? 🐷"
-        -> NÃO registre nada. NÃO gere JSON de transação.
+        -> Ação: Retorne um JSON simples: { "pergunta": "Entendido! O que devo corrigir: o valor, a descrição ou o tipo (entrada/saída)? 🐷" }
+        -> NÃO registre gastos novos!
 
         EXCLUSÃO / CANCELAMENTO (GERE JSON ESPECIAL):
         Verbos: "Excluir", "Exclui", "Excluí", "Apaga", "Apagar", "Deleta", "Deletar", "Remove", "Remover",
         "Cancela", "Cancelar", "Desfaz", "Desfazer", "Não registra", "Esquece esse", "Esquece o último".
-        -> Ação: Retorne APENAS este JSON: { "acao": "excluir_ultimo", "confirmado": true }
-        -> NÃO gere transação. NÃO converse.
+        -> Ação: Retorne APENAS este JSON exato: { "acao": "excluir_ultimo", "confirmado": true }
+        -> NUNCA retorne "Nenhuma entrada foi registrada". Apenas o JSON!
+
+        NEGAÇÃO E CONDICIONAIS (NÃO REGISTRE):
+        Se o input contiver condicionais, intenções não realizadas ou recusas (Ex: "quase comprei", "ia pagar mas não paguei", "não vou transferir", "talvez eu gaste").
+        -> Ação: Retorne JSON simples: { "pergunta": "Entendi que isso ainda não aconteceu ou foi cancelado. Quer que eu registre mesmo assim? 🐷" }
+
+        TOLERÂNCIA A ERROS DE DIGITAÇÃO (TYPO TOLERANCE):
+        Usuários digitam rápido. Infira palavras erradas foneticamente ou por contexto:
+        - "rxebi", "rcebi", "receb" -> Recebi (Receita).
+        - "traferi", "mandd", "pgei" -> Transferi, Mandei, Paguei (Despesa).
+        - "ubêr", "ubr" -> Uber (Despesa/Transporte).
 
         EXEMPLOS DE TREINAMENTO (FEW-SHOT - APRENDA COM ESTES PADRÕES):
 ${fewShotBlock}
@@ -157,11 +185,8 @@ ${fewShotBlock}
            - "Não me arrependi" -> Valor mantém-se.
            - "Não foi caro" -> Comentário, não correção.
 
-        3. ANÁLISE CRONOLÓGICA (CORREÇÕES):
+        3. ANÁLISE CRONOLÓGICA (CORREÇÕES DE VALOR):
            - "20, não 30" -> O "não" cancela o 20. O 30 é o novo candidato.
-        
-        4. CANCELAMENTO TOTAL:
-           - "esquece", "cancelar tudo" -> NADA registrado.
 
         5. AMBIGUIDADE CAÓTICA: "Abacaxi" -> Responda: "Quanto custou?".
         6. POLIGLOTA: "twenty bucks" -> 20.00.
@@ -184,16 +209,19 @@ ${fewShotBlock}
 
         REGRAS DE CLASSIFICAÇÃO (CRÍTICO):
         SAÍDA (tipo: "despesa"): "Gastei", "Comprei", "Paguei", "Mandei", "Enviei", "Pix pro/para".
-        ENTRADA (tipo: "receita"): "Recebi", "Ganhei", "Caiu", "Entrou", "Pix de/do", "Salário".
+        ENTRADA (tipo: "receita"): "Recebi", "Ganhei", "Caiu", "Entrou", "Entrada", "Entrada de", "Pix de/do", "Salário".
 
-        INTENÇÃO DE CORREÇÃO (RESPONDA EM TEXTO, NÃO REGISTRE):
+        INTENÇÃO DE CORREÇÃO (JSON PERGUNTA):
         Verbos: "Errei", "Era pra ser", "Não era isso", "Corrige", "Muda", "Altera", "Edita", "Na verdade foi",
         "Quero corrigir", "Não é gasto é entrada", "Não é entrada é gasto".
-        -> Responda confirmando o que corrigir. NÃO gere JSON de transação.
+        -> Retorne: { "pergunta": "O que devo corrigir no último lançamento?" }
 
         EXCLUSÃO / CANCELAMENTO (GERE JSON ESPECIAL):
         Verbos: "Excluir", "Exclui", "Apaga", "Deleta", "Remove", "Cancela", "Desfaz", "Esquece esse".
         -> Retorne APENAS: { "acao": "excluir_ultimo", "confirmado": true }
+
+        NEGAÇÃO E CONDICIONAIS: Se disser "quase comprei" ou "não paguei", retorne { "pergunta": "Devo registrar mesmo assim?" }
+        TYPO TOLERANCE: Aceite erros bizarros (ex: "rcebi" = recebi, "pgei" = paguei).
 
         EXEMPLOS DE TREINAMENTO (FEW-SHOT):
 ${fewShotBlock}

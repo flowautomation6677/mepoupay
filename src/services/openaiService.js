@@ -164,6 +164,44 @@ async function _chatCompletion(messages, tools = [], model = "gpt-4o") {
     if (tools.length > 0) {
         params.tools = tools;
         params.tool_choice = "auto";
+    } else {
+        params.response_format = {
+            type: "json_schema",
+            json_schema: {
+                name: "financial_assistant_response",
+                strict: true,
+                schema: {
+                    type: "object",
+                    properties: {
+                        confidence_score: { type: ["number", "null"], description: "0.0 a 1.0" },
+                        raciocinio_logico: { type: ["string", "null"] },
+                        pergunta: { type: ["string", "null"] },
+                        ignorar: { type: ["boolean", "null"] },
+                        resposta: { type: ["string", "null"] },
+                        acao: { type: ["string", "null"] },
+                        confirmado: { type: ["boolean", "null"] },
+                        gastos: {
+                            type: ["array", "null"],
+                            items: {
+                                type: "object",
+                                properties: {
+                                    descricao: { type: "string" },
+                                    valor: { type: "number" },
+                                    moeda: { type: ["string", "null"] },
+                                    categoria: { type: ["string", "null"] },
+                                    tipo: { type: "string" },
+                                    data: { type: ["string", "null"] }
+                                },
+                                required: ["descricao", "valor", "moeda", "categoria", "tipo", "data"],
+                                additionalProperties: false
+                            }
+                        }
+                    },
+                    required: ["confidence_score", "raciocinio_logico", "pergunta", "ignorar", "resposta", "acao", "confirmado", "gastos"],
+                    additionalProperties: false
+                }
+            }
+        };
     }
 
     const completion = await openai.chat.completions.create(params);
