@@ -1,6 +1,6 @@
 require('dotenv').config();
 const OpenAI = require('openai');
-const fs = require('fs');
+const fs = require('node:fs');
 const logger = require('./loggerService'); // Adjusted path context
 
 const openai = new OpenAI({
