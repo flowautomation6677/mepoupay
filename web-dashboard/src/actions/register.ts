@@ -2,8 +2,35 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-// We need a Service Role client to create users directly without email confirmation
-// and to read the invites table securely.
+/**
+ * Normalizes a Brazilian phone number to the canonical format:
+ * 55 (country) + 2-digit DDD + 9 (9th digit) + 8 digits = 13 digits total.
+ * e.g. "61996761655" → "5561996761655"
+ *      "6196761655"  → "5561996761655"  (adds the 9)
+ *      "5561996761655" → "5561996761655" (already canonical)
+ */
+function normalizeBrazilianPhone(raw: string): string {
+    const digits = raw.replaceAll(/\D/g, '');
+
+    // Remove country code if present to work with local number
+    const local = digits.startsWith('55') ? digits.slice(2) : digits;
+
+    // local should be: DDD (2) + optional 9 + 8 digits = 10 or 11 digits
+    if (local.length === 10) {
+        // Missing the 9th digit — add it after DDD
+        const withNinth = local.slice(0, 2) + '9' + local.slice(2);
+        return `55${withNinth}`;
+    }
+
+    if (local.length === 11) {
+        // Already has 9th digit
+        return `55${local}`;
+    }
+
+    // Unknown format — return as-is with country code
+    return digits.startsWith('55') ? digits : `55${digits}`;
+}
+
 const getSupabaseAdmin = () => {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
@@ -12,6 +39,7 @@ const getSupabaseAdmin = () => {
     }
     return createClient(supabaseUrl, supabaseServiceKey);
 };
+
 
 export async function completeRegistration(token: string, password: string, name: string, whatsapp: string, initialBalance: number) {
     const supabaseAdmin = getSupabaseAdmin();
@@ -37,11 +65,8 @@ export async function completeRegistration(token: string, password: string, name
             return { error: 'O prazo deste convite expirou.' };
         }
 
-        // Validate length and add country code 55 if missing
-        let formattedPhone = whatsapp.replace(/\D/g, '');
-        if (formattedPhone.length === 10 || formattedPhone.length === 11) {
-            formattedPhone = `55${formattedPhone}`;
-        }
+        // Normalize to canonical BR format: 55 + DDD (2) + 9 + 8 digits = 13 chars
+        const formattedPhone = normalizeBrazilianPhone(whatsapp);
 
         // 2. Create User in Supabase Auth
         // We save whatsapp in user_metadata for easy access, and in phone if we want standardized SMS (requires provider)

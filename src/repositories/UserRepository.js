@@ -5,54 +5,48 @@ const logger = require('../services/loggerService');
 const supabase = adminClient || publicClient;
 
 /**
- * Handles the Brazilian "9th digit" inconsistency.
- * WhatsApp may deliver a number without the 9th digit (e.g., 556196761655)
- * but the DB may have stored it with the digit (e.g., 5561996761655), or vice-versa.
- * Returns an array of variants to try, starting with the original.
+ * Normalizes a Brazilian phone number to the canonical format:
+ * 55 (country) + 2-digit DDD + 9 (9th digit) + 8 digits = 13 digits total.
+ * Handles input from WhatsApp (which may omit the 9th digit) and manual entry.
  */
-function _buildBrazilianPhoneVariants(phone) {
-    const variants = [phone];
+function normalizeBrazilianPhone(phone) {
+    const digits = phone.replaceAll(/\D/g, '');
+    const local = digits.startsWith('55') ? digits.slice(2) : digits;
 
-    // Only applies to Brazilian numbers (starts with 55 + DDD + number)
-    // Format with 9: 55 + 2-digit DDD + 9 + 8 digits = 13 chars
-    // Format without 9: 55 + 2-digit DDD + 8 digits = 12 chars
-    if (phone.startsWith('55') && phone.length === 12) {
-        // Received without 9 — try adding it after DDD (position 4)
-        const withNinth = phone.slice(0, 4) + '9' + phone.slice(4);
-        variants.push(withNinth);
-    } else if (phone.startsWith('55') && phone.length === 13) {
-        // Received with 9 — try removing it (position 4)
-        const withoutNinth = phone.slice(0, 4) + phone.slice(5);
-        variants.push(withoutNinth);
+    if (local.length === 10) {
+        // Missing 9th digit — insert after DDD
+        return '55' + local.slice(0, 2) + '9' + local.slice(2);
     }
-
-    return variants;
+    if (local.length === 11) {
+        return '55' + local;
+    }
+    // Unknown format — return as-is
+    return digits.startsWith('55') ? digits : '55' + digits;
 }
 
 class UserRepository {
     async findByPhone(phone) {
-        // Gera variantes (com/sem 9º dígito BR) e busca com overlap em uma única query
-        const phonesToTry = _buildBrazilianPhoneVariants(phone);
+        // Normaliza para o formato canônico BR e faz uma única query exata
+        const normalized = normalizeBrazilianPhone(phone);
 
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
-            .overlaps('whatsapp_numbers', phonesToTry)
+            .contains('whatsapp_numbers', [normalized])
             .single();
 
         if (error && error.code !== 'PGRST116') {
-            logger.error("Repo Error (User.find)", { error });
+            logger.error('Repo Error (User.find)', { error });
             return null;
         }
 
-        logger.debug(`UserRepository findByPhone: ${phone} -> ${data ? 'found' : 'not found'}`);
+        logger.debug(`UserRepository findByPhone: ${phone} -> ${normalized} -> ${data ? 'found' : 'not found'}`);
         return data || null;
     }
 
     async create(phone, name = null) {
-        // 1. Prepare Payload
-        // 'profiles' uses 'whatsapp_numbers' (array)
-        const payload = { whatsapp_numbers: [phone] };
+        const normalized = normalizeBrazilianPhone(phone);
+        const payload = { whatsapp_numbers: [normalized] };
 
         // 2. Insert into Profiles
         const { data, error } = await supabase
