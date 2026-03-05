@@ -2,7 +2,7 @@ import { DollarSign, Calendar, TrendingUp, LucideIcon } from 'lucide-react'
 import { Transaction } from '@/types/dashboard';
 
 // Helper Component
-function SimpleCard({ title, value, icon: Icon, color }: { title: string, value: string, icon: LucideIcon, color: string }) {
+function SimpleCard({ title, value, icon: Icon, color }: Readonly<{ title: string, value: string, icon: LucideIcon, color: string }>) {
     return (
         <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-center justify-between space-y-0 pb-2">
@@ -14,7 +14,7 @@ function SimpleCard({ title, value, icon: Icon, color }: { title: string, value:
     )
 }
 
-export default function SummaryCards({ transactions }: { transactions: Transaction[] }) {
+export default function SummaryCards({ transactions }: Readonly<{ transactions: Transaction[] }>) {
     if (!transactions) return null
 
     const today = new Date().toISOString().slice(0, 10)

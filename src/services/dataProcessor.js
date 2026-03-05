@@ -7,7 +7,7 @@ const transactionRepo = new TransactionRepository(adminClient);
 const transactionEmbeddingService = require('./transactionEmbeddingService');
 const currencyService = require('./currencyService');
 const FormatterService = require('../services/formatterService');
-const { formatToISO } = require('../utils/dateUtility');
+const { formatToISO, getExactTimestamp } = require('../utils/dateUtility');
 
 // --- DATA PROCESSOR (Batch Optimization) ---
 
@@ -129,7 +129,7 @@ async function _generatePayload(validItems, embeddings, userId, data) {
             amount: g.valor,
             type: typeEnum,
             description: g.descricao || 'Item sem descrição',
-            date: formatToISO(g.data),
+            date: getExactTimestamp(g.data),
             metadata: {
                 valor_original: g.valor_original,
                 moeda_original: g.moeda_original,

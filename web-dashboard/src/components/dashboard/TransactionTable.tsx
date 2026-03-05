@@ -1,7 +1,7 @@
 import { formatCurrency } from '@/utils/formatters'
 import { Transaction } from '@/types/dashboard'
 
-export default function TransactionTable({ transactions }: { transactions: Transaction[] }) {
+export default function TransactionTable({ transactions }: Readonly<{ transactions: Transaction[] }>) {
     return (
         <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
             <div className="p-6 border-b border-border">

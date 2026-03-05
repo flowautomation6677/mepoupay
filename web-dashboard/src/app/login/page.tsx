@@ -41,8 +41,8 @@ export default function AuthPage() {
     // Efeito para capturar Token no Hash (Redirecionamento do Invite/Magic Link)
     useEffect(() => {
         const handleHash = async () => {
-            const hash = window.location.hash;
-            if (hash && hash.includes('access_token')) {
+            const hash = globalThis.location.hash;
+            if (hash?.includes('access_token')) {
                 setLoading(true);
                 try {
                     const params = new URLSearchParams(hash.substring(1));
@@ -162,13 +162,13 @@ export default function AuthPage() {
                             </AnimatePresence>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">E-mail</label>
-                                <input name="email" type="email" required placeholder="seu@email.com" className="w-full rounded-xl bg-muted/50 border border-border px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition" />
+                                <label htmlFor="email" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">E-mail</label>
+                                <input id="email" name="email" type="email" required placeholder="seu@email.com" className="w-full rounded-xl bg-muted/50 border border-border px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition" />
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
-                                <input name="password" type="password" required placeholder="******" className="w-full rounded-xl bg-muted/50 border border-border px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition" />
+                                <label htmlFor="password" className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
+                                <input id="password" name="password" type="password" required placeholder="******" className="w-full rounded-xl bg-muted/50 border border-border px-4 py-3 text-foreground placeholder-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary outline-none transition" />
                                 <div className="flex justify-end pt-2">
                                     <button
                                         type="button"

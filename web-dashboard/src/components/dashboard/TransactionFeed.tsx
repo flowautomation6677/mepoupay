@@ -61,7 +61,7 @@ const formatDateGroup = (dateStr: string) => {
 
 import { Transaction } from '@/types/dashboard'
 
-export default function TransactionFeed({ transactions }: { transactions: Transaction[] }) {
+export default function TransactionFeed({ transactions }: Readonly<{ transactions: Transaction[] }>) {
     const router = useRouter()
 
     const handleApprove = async (id: string) => {

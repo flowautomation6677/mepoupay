@@ -4,6 +4,15 @@ const {
     _processTransactionData
 } = require('../src/handlers/AiConversationHandler');
 
+const mockProcessExtractedData = jest.fn().mockResolvedValue({
+    status: 'success',
+    transactions: []
+});
+
+jest.mock('../src/services/dataProcessor', () => ({
+    processExtractedData: (...args) => mockProcessExtractedData(...args)
+}));
+
 describe('AiConversationHandler - Helper Functions', () => {
     describe('_parseAIResponse', () => {
         test('deve extrair JSON de texto com prefixo', () => {
@@ -105,17 +114,14 @@ describe('AiConversationHandler - Helper Functions', () => {
     });
 
     describe('_processTransactionData', () => {
-        let mockMessage, mockUser, mockProcessExtractedData;
+        let mockMessage, mockUser;
 
         beforeEach(() => {
-            mockProcessExtractedData = jest.fn().mockResolvedValue({
+            mockProcessExtractedData.mockClear();
+            mockProcessExtractedData.mockResolvedValue({
                 status: 'success',
                 transactions: []
             });
-
-            jest.mock('../src/services/dataProcessor', () => ({
-                processExtractedData: mockProcessExtractedData
-            }));
 
             mockMessage = {
                 reply: jest.fn().mockResolvedValue(true)

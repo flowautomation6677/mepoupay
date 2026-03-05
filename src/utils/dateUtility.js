@@ -46,8 +46,38 @@ function formatToDisplay(date) {
     return format(d, 'dd/MM/yyyy');
 }
 
+/**
+ * Formata data preservando hora exata para "hoje" ou fixando 12:00 BRT para dias passados
+ * Previne que o DB zere a hora para meia-noite (UTC) e a UI exiba 21:00 do dia anterior.
+ * @param {Date|string} date 
+ * @returns {string} ISO Date String with Offset
+ */
+function getExactTimestamp(dateStr) {
+    if (!dateStr) return new Date().toISOString();
+
+    const d = typeof dateStr === 'string' ? parseAnyDate(dateStr) : dateStr;
+    if (!isValid(d)) return new Date().toISOString();
+
+    // Compare dates in BRT to avoid UTC midnight crossing changing the perceived day
+    const TIMEZONE = 'America/Sao_Paulo';
+    const toBRTDateStr = (dt) =>
+        new Intl.DateTimeFormat('sv', { timeZone: TIMEZONE }).format(dt); // returns 'YYYY-MM-DD'
+
+    const formattedDbDate = format(d, 'yyyy-MM-dd'); // always local date from parseAnyDate
+    const todayBRT = toBRTDateStr(new Date());
+
+    if (formattedDbDate === todayBRT) {
+        // It's today in BRT. Return the exact current timestamp.
+        return new Date().toISOString();
+    } else {
+        // Past or future date. Fix to noon BRT to avoid timezone day-shift.
+        return `${formattedDbDate}T12:00:00-03:00`;
+    }
+}
+
 module.exports = {
     parseAnyDate,
     formatToISO,
-    formatToDisplay
+    formatToDisplay,
+    getExactTimestamp
 };

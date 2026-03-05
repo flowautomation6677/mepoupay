@@ -1,6 +1,6 @@
 {
-  "message": "TypeError: fetch failed",
-  "details": "TypeError: fetch failed\n\nCaused by: Error: getaddrinfo ENOTFOUND zmgebianjcxzzeypmfmj.supabase.co (ENOTFOUND)\nError: getaddrinfo ENOTFOUND zmgebianjcxzzeypmfmj.supabase.co\n    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)\n    at GetAddrInfoReqWrap.callbackTrampoline (node:internal/async_hooks:130:17)",
-  "hint": "",
-  "code": ""
+  "code": "PGRST205",
+  "details": null,
+  "hint": "Perhaps you meant the table 'public.profiles'",
+  "message": "Could not find the table 'public.perfis' in the schema cache"
 }

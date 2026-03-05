@@ -12,7 +12,7 @@ interface StatsGridProps {
     currentBalance?: number
 }
 
-export default function StatsGrid({ transactions, prevTransactions, financialGoal, currentBalance }: StatsGridProps) {
+export default function StatsGrid({ transactions, prevTransactions, financialGoal, currentBalance }: Readonly<StatsGridProps>) {
     // Current Month Stats
     const income = transactions
         .filter(t => t.type === 'INCOME')
@@ -23,7 +23,7 @@ export default function StatsGrid({ transactions, prevTransactions, financialGoa
         .reduce((acc, t) => acc + Number(t.amount), 0)
 
     // Use pre-calculated balance if available (Optimized), otherwise calculate (Fallback)
-    const balance = currentBalance !== undefined ? currentBalance : (income - expense)
+    const balance = currentBalance ?? (income - expense)
 
     // Previous Month Stats
     const prevIncome = prevTransactions
@@ -37,7 +37,7 @@ export default function StatsGrid({ transactions, prevTransactions, financialGoa
     const prevBalance = prevIncome - prevExpense
 
     const balanceDiff = balance - prevBalance
-    const balanceGrowth = prevBalance !== 0 ? (balanceDiff / Math.abs(prevBalance)) * 100 : 0
+    const balanceGrowth = prevBalance === 0 ? 0 : (balanceDiff / Math.abs(prevBalance)) * 100
     const isPositiveGrowth = balanceDiff >= 0
 
     // Cashflow

@@ -4,7 +4,7 @@ import * as React from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
-export function ThemeToggle({ isCollapsed = false }: { isCollapsed?: boolean }) {
+export function ThemeToggle({ isCollapsed = false }: Readonly<{ isCollapsed?: boolean }>) {
     const { theme, setTheme } = useTheme()
     const [mounted, setMounted] = React.useState(false)
 

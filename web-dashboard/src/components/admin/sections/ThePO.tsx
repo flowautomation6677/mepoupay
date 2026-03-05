@@ -82,16 +82,16 @@ export default function ThePO({ behaviorData }: Readonly<{ behaviorData: Behavio
                     <div className="min-w-[600px]">
                         {/* Header Hours */}
                         <div className="flex mb-2 pl-10">
-                            {Array.from({ length: 24 }).map((_, i) => (
-                                <div key={`header-hour-${i}`} className="flex-1 text-[10px] text-slate-500 text-center">
-                                    {i % 3 === 0 ? `${i}h` : ''}
+                            {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
+                                <div key={`header-hour-${hour}`} className="flex-1 text-[10px] text-slate-500 text-center">
+                                    {hour % 3 === 0 ? `${hour}h` : ''}
                                 </div>
                             ))}
                         </div>
 
                         {/* Grid Rows */}
                         {heatmapGrid.grid.map((row, dayIdx) => (
-                            <div key={`heatmap-day-${dayIdx}`} className="flex items-center mb-1">
+                            <div key={`heatmap-day-${days[dayIdx]}`} className="flex items-center mb-1">
                                 <div className="w-10 text-xs text-slate-500 dark:text-slate-400 font-medium">{days[dayIdx]}</div>
                                 <div className="flex-1 flex gap-1">
                                     {row.map((val, hourIdx) => (

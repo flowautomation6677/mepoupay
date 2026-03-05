@@ -11,36 +11,79 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function fixAdmin() {
-    console.log("--- 1. Procurando usuário luizantonio6677@gmail.com no Auth ---");
+async function findAuthUser(email) {
     const { data: usersData, error: authError } = await supabase.auth.admin.listUsers();
-
     if (authError || !usersData?.users) {
         console.error("Failed to list Auth users:", authError);
-        return;
+        return null;
     }
+    return usersData.users.find(u => u.email === email);
+}
 
-    const user = usersData.users.find(u => u.email === 'luizantonio6677@gmail.com');
+async function getOldProfile(userId) {
+    const { data: oldProfile, error: oldError } = await supabase
+        .from('perfis')
+        .select('*')
+        .eq('auth_user_id', userId)
+        .single();
+
+    if (oldError) {
+        console.error("-> Erro ao buscar em perfis:", oldError.message);
+    } else {
+        console.log("-> Encontrado em perfis! is_admin:", oldProfile.is_admin);
+    }
+    return oldProfile;
+}
+
+async function createNewProfile(user, oldProfile) {
+    console.log("-> Perfil não existe na tabela nova. Criando agora...");
+    const { error: insertError } = await supabase.from('profiles').insert([{
+        id: user.id,
+        email: user.email,
+        is_admin: true,
+        full_name: user.user_metadata?.full_name || 'Admin',
+        whatsapp_numbers: oldProfile?.whatsapp_number ? [oldProfile.whatsapp_number] : []
+    }]);
+    if (insertError) {
+        console.error("Falha ao criar profile:", insertError.message);
+    } else {
+        console.log("✅ Profile criado com sucesso como Admin!");
+    }
+}
+
+async function updateExistingProfile(user, currentProfile, oldProfile) {
+    console.log("-> Perfil já existe na tabela nova. Atualizando permissão para is_admin = true...");
+    const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ is_admin: true })
+        .eq('id', user.id);
+
+    if (updateError) console.error("Falha ao atualizar profile:", updateError.message);
+    else console.log("✅ Permissão de admin concedida ao usuário luizantonio6677@gmail.com na nova tabela 'profiles'!");
+
+    // Fix WhatsApp Numbers if empty
+    if (!currentProfile.whatsapp_numbers || currentProfile.whatsapp_numbers.length === 0) {
+        if (oldProfile?.whatsapp_number) {
+            await supabase.from('profiles').update({ whatsapp_numbers: [oldProfile.whatsapp_number] }).eq('id', user.id);
+            console.log("✅ Número de WhatsApp migrado com sucesso.");
+        }
+    }
+}
+
+async function fixAdmin() {
+    const targetEmail = 'luizantonio6677@gmail.com';
+    console.log(`--- 1. Procurando usuário ${targetEmail} no Auth ---`);
+
+    const user = await findAuthUser(targetEmail);
     if (!user) {
-        console.error("User luizantonio6677@gmail.com not found in Auth system.");
+        console.error(`User ${targetEmail} not found in Auth system.`);
         return;
     }
 
     console.log("-> Encontrado! Auth ID:", user.id);
 
     console.log("--- 2. Buscando dados na tabela antiga 'perfis' ---");
-    const { data: oldProfile, error: oldError } = await supabase
-        .from('perfis')
-        .select('*')
-        .eq('auth_user_id', user.id)
-        .single();
-
-    if (oldError) {
-        console.error("-> Erro ao buscar em perfis:", oldError.message);
-        // Don't exit, maybe we just need to set is_admin to true in profiles directly
-    } else {
-        console.log("-> Encontrado em perfis! is_admin:", oldProfile.is_admin);
-    }
+    const oldProfile = await getOldProfile(user.id);
 
     console.log("--- 3. Verificando tabela nova 'profiles' ---");
     const { data: currentProfile, error: currentError } = await supabase
@@ -50,35 +93,10 @@ async function fixAdmin() {
         .single();
 
     if (currentError && currentError.code === 'PGRST116') {
-        console.log("-> Perfil não existe na tabela nova. Criando agora...");
-        // Have to create it
-        const { error: insertError } = await supabase.from('profiles').insert([{
-            id: user.id,
-            email: user.email,
-            is_admin: true,
-            full_name: user.user_metadata?.full_name || 'Admin',
-            whatsapp_numbers: oldProfile?.whatsapp_number ? [oldProfile.whatsapp_number] : []
-        }]);
-        if (insertError) console.error("Falha ao criar profile:", insertError.message);
-        else console.log("✅ Profile criado com sucesso como Admin!");
+        await createNewProfile(user, oldProfile);
     } else if (currentProfile) {
-        console.log("-> Perfil já existe na tabela nova. Atualizando permissão para is_admin = true...");
-        const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ is_admin: true })
-            .eq('id', user.id);
-
-        if (updateError) console.error("Falha ao atualizar profile:", updateError.message);
-        else console.log("✅ Permissão de admin concedida ao usuário luizantonio6677@gmail.com na nova tabela 'profiles'!");
-
-        // Fix WhatsApp Numbers if empty
-        if (!currentProfile.whatsapp_numbers || currentProfile.whatsapp_numbers.length === 0) {
-            if (oldProfile?.whatsapp_number) {
-                await supabase.from('profiles').update({ whatsapp_numbers: [oldProfile.whatsapp_number] }).eq('id', user.id);
-                console.log("✅ Número de WhatsApp migrado com sucesso.");
-            }
-        }
+        await updateExistingProfile(user, currentProfile, oldProfile);
     }
 }
 
-fixAdmin();
+fixAdmin().catch(console.error);
