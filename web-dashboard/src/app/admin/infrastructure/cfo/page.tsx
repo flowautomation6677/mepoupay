@@ -16,10 +16,10 @@ export default function CFOPage() {
             if (fin && fin.length > 0) setFinanceData(fin);
             else {
                 setFinanceData([
-                    { date: '2023-10-01', est_cost_usd: 0.45 },
-                    { date: '2023-10-02', est_cost_usd: 0.52 },
-                    { date: '2023-10-04', est_cost_usd: 1.20 },
-                    { date: '2023-10-05', est_cost_usd: 0.80 },
+                    { date: '2026-03-01', est_cost_usd: 0.45 },
+                    { date: '2026-03-02', est_cost_usd: 0.52 },
+                    { date: '2026-03-04', est_cost_usd: 1.20 },
+                    { date: '2026-03-05', est_cost_usd: 0.80 },
                 ]);
             }
         }
