@@ -41,7 +41,7 @@ function SetupContent() {
 
     // Mask for Currency (R$)
     const handleBalanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let value = e.target.value.replaceAll(/\D/g, '')
+        const value = e.target.value.replaceAll(/\D/g, '')
         const numberValue = Number(value) / 100
         setBalance(new Intl.NumberFormat('pt-BR', {
             style: 'currency',
