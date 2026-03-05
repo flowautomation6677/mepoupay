@@ -129,6 +129,20 @@ function _buildSystemPrompts(contextStr, today) {
         ENTRADA DE DINHEIRO (tipo: "receita"): Verbos "Recebi", "Ganhei", "Caiu", "Entrou", "Depositaram", "Pix de", "Pix do", "Transferência de", "Salário".
         DÚVIDA: Analise o contexto. "Pix do João" = receita (alguém me mandou). "Pix pro João" = despesa (eu mandei).
 
+        INTENÇÃO DE CORREÇÃO (RESPONDA EM TEXTO, NÃO REGISTRE):
+        Verbos: "Errei", "Errou", "Foi errado", "Era pra ser", "Não era isso", "Não é gasto é entrada", "Não é entrada é gasto",
+        "Corrige", "Corrigir", "Corrija", "Muda", "Mudar", "Altera", "Alterar", "Edita", "Editar",
+        "Muda o valor", "Muda a descrição", "Muda a categoria", "Não foi isso", "Na verdade foi",
+        "Quero corrigir", "Quero editar", "Quero mudar".
+        -> Ação: Responda em texto amigável confirmando o que o usuário quer corrigir. Ex: "Entendido! O que devo corrigir: o valor, a descrição ou o tipo (entrada/saída)? 🐷"
+        -> NÃO registre nada. NÃO gere JSON de transação.
+
+        EXCLUSÃO / CANCELAMENTO (GERE JSON ESPECIAL):
+        Verbos: "Excluir", "Exclui", "Excluí", "Apaga", "Apagar", "Deleta", "Deletar", "Remove", "Remover",
+        "Cancela", "Cancelar", "Desfaz", "Desfazer", "Não registra", "Esquece esse", "Esquece o último".
+        -> Ação: Retorne APENAS este JSON: { "acao": "excluir_ultimo", "confirmado": true }
+        -> NÃO gere transação. NÃO converse.
+
         EXEMPLOS DE TREINAMENTO (FEW-SHOT - APRENDA COM ESTES PADRÕES):
 ${fewShotBlock}
 
@@ -158,7 +172,7 @@ ${fewShotBlock}
         1. Registro: Retorne JSON: 
         { 
             "raciocinio_logico": "Explique o cálculo.",
-            "gastos": [{ "descricao": "...", "valor": 10.00, "moeda": "BRL", "categoria": "...", "tipo": "receita/despesa", "data": "YYYY-MM-DD" }] 
+            "gastos": [{ "descricao": "...", "valor": 10, "moeda": "BRL", "categoria": "...", "tipo": "receita/despesa", "data": "YYYY-MM-DD" }] 
         }
         2. Receitas: Valor POSITIVO, tipo "receita".
         3. IMPORTANTE: JAMAIS converse se for para registrar gastos. Retorne APENAS o JSON.
@@ -171,6 +185,15 @@ ${fewShotBlock}
         REGRAS DE CLASSIFICAÇÃO (CRÍTICO):
         SAÍDA (tipo: "despesa"): "Gastei", "Comprei", "Paguei", "Mandei", "Enviei", "Pix pro/para".
         ENTRADA (tipo: "receita"): "Recebi", "Ganhei", "Caiu", "Entrou", "Pix de/do", "Salário".
+
+        INTENÇÃO DE CORREÇÃO (RESPONDA EM TEXTO, NÃO REGISTRE):
+        Verbos: "Errei", "Era pra ser", "Não era isso", "Corrige", "Muda", "Altera", "Edita", "Na verdade foi",
+        "Quero corrigir", "Não é gasto é entrada", "Não é entrada é gasto".
+        -> Responda confirmando o que corrigir. NÃO gere JSON de transação.
+
+        EXCLUSÃO / CANCELAMENTO (GERE JSON ESPECIAL):
+        Verbos: "Excluir", "Exclui", "Apaga", "Deleta", "Remove", "Cancela", "Desfaz", "Esquece esse".
+        -> Retorne APENAS: { "acao": "excluir_ultimo", "confirmado": true }
 
         EXEMPLOS DE TREINAMENTO (FEW-SHOT):
 ${fewShotBlock}

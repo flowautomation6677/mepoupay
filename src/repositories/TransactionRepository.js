@@ -89,6 +89,34 @@ class TransactionRepository {
         return data || [];
     }
 
+    async deleteLastByUser(userId) {
+        const { data: last, error: findError } = await this.supabase
+            .from('transactions')
+            .select('id, description, amount, type')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (findError || !last) {
+            logger.warn("Repo: no transaction found to delete", { userId });
+            return null;
+        }
+
+        const { error: deleteError } = await this.supabase
+            .from('transactions')
+            .delete()
+            .eq('id', last.id);
+
+        if (deleteError) {
+            logger.error("Repo Error (Tx.deleteLast)", { error: deleteError });
+            throw deleteError;
+        }
+
+        logger.info("Tx deleted (last)", { userId, txId: last.id });
+        return last;
+    }
+
     // Static helper if needed, or factory
     static withClient(client) {
         return new TransactionRepository(client);

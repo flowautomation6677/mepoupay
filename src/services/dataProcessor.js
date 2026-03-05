@@ -15,7 +15,7 @@ const { formatToISO, getExactTimestamp } = require('../utils/dateUtility');
 
 function _parseContent(content) {
     try {
-        let data = typeof content === 'string' ? JSON.parse(content.replace(/```json|```/g, '').trim()) : content;
+        let data = typeof content === 'string' ? JSON.parse(content.replaceAll(/```json|```/g, '').trim()) : content;
         if (typeof data === 'string') data = JSON.parse(data);
         return data;
     } catch {
@@ -66,11 +66,11 @@ async function _processItems(transacoes) {
 }
 
 async function _generatePayload(validItems, embeddings, userId, data) {
-    const confidenceScore = typeof data.confidence_score === 'number' ? data.confidence_score : 1.0;
+    const confidenceScore = typeof data.confidence_score === 'number' ? data.confidence_score : 1;
     const status = confidenceScore < 0.7 ? 'pending_review' : 'confirmed';
 
     // 1. Fetch user's default account
-    const { data: accountData, error: accountError } = await adminClient
+    const { data: accountData } = await adminClient
         .from('accounts')
         .select('id')
         .eq('user_id', userId)
@@ -186,6 +186,14 @@ async function processExtractedData(content, userId, replyCallback) {
 
     if (data.pergunta) return replyCallback(data.pergunta);
     if (data.ignorar) return replyCallback(data.resposta || "🤖 Olá!");
+
+    // Deletion intent from AI
+    if (data.acao === 'excluir_ultimo' && data.confirmado) {
+        const deleted = await transactionRepo.deleteLastByUser(userId);
+        if (!deleted) return replyCallback("🤔 Não encontrei nenhum lançamento para excluir.");
+        const tipo = deleted.type === 'INCOME' ? 'receita' : 'despesa';
+        return replyCallback(`🗑️ Lançamento excluído!\n\n*${deleted.description}* (${tipo}) — R$ ${Number(deleted.amount).toFixed(2)}`);
+    }
 
     const transacoes = _normalizeTransactions(data);
     if (!transacoes.length) return replyCallback("🤔 Não encontrei transações nem valor total nesta fatura.");
