@@ -31,32 +31,22 @@ function _buildBrazilianPhoneVariants(phone) {
 
 class UserRepository {
     async findByPhone(phone) {
-        // Retorna POJO (Plain Old JavaScript Object) ou null
-        // Busca se o telefone está contido no array 'whatsapp_numbers'
-        // Normaliza o número para lidar com o nono dígito brasileiro:
-        // WhatsApp às vezes entrega sem o 9 (556196761655) mas o DB pode ter com ele (5561996761655)
+        // Gera variantes (com/sem 9º dígito BR) e busca com overlap em uma única query
         const phonesToTry = _buildBrazilianPhoneVariants(phone);
 
-        for (const candidate of phonesToTry) {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .contains('whatsapp_numbers', [candidate])
-                .single();
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .overlaps('whatsapp_numbers', phonesToTry)
+            .single();
 
-            if (error && error.code !== 'PGRST116') {
-                logger.error("Repo Error (User.find)", { error });
-                return null;
-            }
-
-            if (data) {
-                logger.debug(`UserRepository findByPhone: found via ${candidate}`, { data });
-                return data;
-            }
+        if (error && error.code !== 'PGRST116') {
+            logger.error("Repo Error (User.find)", { error });
+            return null;
         }
 
-        logger.debug(`UserRepository findByPhone: not found for ${phone}`);
-        return null;
+        logger.debug(`UserRepository findByPhone: ${phone} -> ${data ? 'found' : 'not found'}`);
+        return data || null;
     }
 
     async create(phone, name = null) {
