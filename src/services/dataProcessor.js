@@ -65,6 +65,36 @@ async function _processItems(transacoes) {
     return validItems;
 }
 
+async function _resolveCategory(userId, categoria) {
+    if (categoria) {
+        const { data: catData } = await adminClient
+            .from('categories')
+            .select('id')
+            .eq('user_id', userId)
+            .ilike('name', categoria)
+            .limit(1)
+            .single();
+        if (catData) return catData.id;
+    }
+
+    const { data: fallbackCat } = await adminClient
+        .from('categories')
+        .select('id')
+        .eq('user_id', userId)
+        .ilike('name', 'Outros')
+        .limit(1)
+        .single();
+    if (fallbackCat) return fallbackCat.id;
+
+    const { data: anyCat } = await adminClient
+        .from('categories')
+        .select('id')
+        .eq('user_id', userId)
+        .limit(1)
+        .single();
+    return anyCat?.id ?? null;
+}
+
 async function _generatePayload(validItems, embeddings, userId, data) {
     const confidenceScore = typeof data.confidence_score === 'number' ? data.confidence_score : 1;
     const status = confidenceScore < 0.7 ? 'pending_review' : 'confirmed';
@@ -86,39 +116,7 @@ async function _generatePayload(validItems, embeddings, userId, data) {
     // 2. Map and fetch categories for each item
     for (let idx = 0; idx < validItems.length; idx++) {
         const g = validItems[idx];
-        let category_id = null;
-
-        if (g.categoria) {
-            const { data: catData } = await adminClient
-                .from('categories')
-                .select('id')
-                .eq('user_id', userId)
-                .ilike('name', g.categoria)
-                .limit(1)
-                .single();
-            if (catData) category_id = catData.id;
-        }
-
-        if (!category_id) {
-            const { data: fallbackCat } = await adminClient
-                .from('categories')
-                .select('id')
-                .eq('user_id', userId)
-                .ilike('name', 'Outros')
-                .limit(1)
-                .single();
-            if (fallbackCat) category_id = fallbackCat.id;
-        }
-
-        if (!category_id) {
-            const { data: anyCat } = await adminClient
-                .from('categories')
-                .select('id')
-                .eq('user_id', userId)
-                .limit(1)
-                .single();
-            if (anyCat) category_id = anyCat.id;
-        }
+        const category_id = await _resolveCategory(userId, g.categoria);
 
         const typeEnum = g.tipo === 'receita' ? 'INCOME' : 'EXPENSE';
 

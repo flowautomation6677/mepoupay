@@ -3,15 +3,13 @@ const logger = require('../services/loggerService');
 
 class TransactionRepository {
     constructor(supabaseClient) {
-        if (!supabaseClient) {
-            // Fallback to public client if service key is missing, 
-            // OR log error if strict isolation is needed. sw
-            // For now, logging warning and falling back to check what was passed.
+        if (supabaseClient) {
+            this.supabase = supabaseClient;
+        } else {
+            // Fallback to public client if service key is missing
             const { supabase } = require('../services/supabaseClient');
             this.supabase = supabase;
             logger.warn("TransactionRepository initialized with NULL client. Falling back to public client.");
-        } else {
-            this.supabase = supabaseClient;
         }
     }
 
