@@ -22,6 +22,7 @@ const {
     TextStrategy: strategy,
     _checkMaliciousInput,
     _buildRAGContext,
+    _buildFewShotExamples,
     _handleToolCall
 } = require('../src/strategies/TextStrategy');
 
@@ -349,6 +350,47 @@ describe('TextStrategy - Refactored Functions', () => {
                 expect.any(Array),
                 expect.any(String)
             );
+        });
+    });
+    describe('Few-Shot Prompting', () => {
+        test('deve conter exemplo de pix recebido (caso crítico de receita) no system prompt', async () => {
+            cacheService.get.mockResolvedValue(null);
+            openaiService.generateEmbedding.mockResolvedValue(null);
+            openaiService.chatCompletion.mockResolvedValue({
+                choices: [{ message: { content: 'OK' } }]
+            });
+            routerService.route.mockReturnValue('gpt-4');
+
+            await strategy.execute('Recebi 500 do pix do joao', mockMessage, mockUser, []);
+
+            const callArgs = openaiService.chatCompletion.mock.calls[0][0];
+            const systemMsg = callArgs.find(m => m.role === 'system');
+            expect(systemMsg.content).toContain('Recebi 500 do pix do joao');
+            expect(systemMsg.content).toContain('"tipo":"receita"');
+        });
+
+        test('deve listar verbos de entrada no system prompt', async () => {
+            cacheService.get.mockResolvedValue(null);
+            openaiService.generateEmbedding.mockResolvedValue(null);
+            openaiService.chatCompletion.mockResolvedValue({
+                choices: [{ message: { content: 'OK' } }]
+            });
+            routerService.route.mockReturnValue('gpt-4');
+
+            await strategy.execute('test', mockMessage, mockUser, []);
+
+            const callArgs = openaiService.chatCompletion.mock.calls[0][0];
+            const systemMsg = callArgs.find(m => m.role === 'system');
+            expect(systemMsg.content).toMatch(/Recebi|Ganhei|Caiu|Entrou/);
+        });
+
+        test('_buildFewShotExamples deve retornar string com todos os casos', () => {
+            const result = _buildFewShotExamples();
+            expect(typeof result).toBe('string');
+            expect(result).toContain('Recebi 500 do pix do joao');
+            expect(result).toContain('receita');
+            expect(result).toContain('despesa');
+            expect(result).toContain('Mandei 80 conto pro joao pelo pix');
         });
     });
 });

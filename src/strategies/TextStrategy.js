@@ -32,6 +32,46 @@ async function _buildRAGContext(text) {
     return similarDocs.map(d => `- ${d.descricao}: R$ ${d.valor}`).join('\n');
 }
 
+function _buildFewShotExamples() {
+    // Curated examples covering edge cases in the golden_dataset
+    // Keep this list short to avoid token overflow (~10 examples max)
+    const examples = [
+        {
+            input: "Almoço no Restaurante Silva R$ 25,00",
+            output: { gastos: [{ descricao: "Almoço no Restaurante Silva", valor: 25, categoria: "Alimentação", tipo: "despesa", data: "YYYY-MM-DD" }] }
+        },
+        {
+            input: "Recebi 500 do pix do joao",
+            output: { gastos: [{ descricao: "Pix do Joao", valor: 500, categoria: "Renda Extra", tipo: "receita", data: "YYYY-MM-DD" }] }
+        },
+        {
+            input: "Gastei 50 pila na gasolina e 200 no mercado",
+            output: {
+                gastos: [
+                    { descricao: "Gasolina", valor: 50, categoria: "Transporte", tipo: "despesa", data: "YYYY-MM-DD" },
+                    { descricao: "Mercado", valor: 200, categoria: "Alimentação", tipo: "despesa", data: "YYYY-MM-DD" }
+                ]
+            }
+        },
+        {
+            input: "Paguei a conta de luz 150 reais",
+            output: { gastos: [{ descricao: "Conta de Luz", valor: 150, categoria: "Moradia", tipo: "despesa", data: "YYYY-MM-DD" }] }
+        },
+        {
+            input: "Caiu o salário 3200",
+            output: { gastos: [{ descricao: "Salário", valor: 3200, categoria: "Salário", tipo: "receita", data: "YYYY-MM-DD" }] }
+        },
+        {
+            input: "Mandei 80 conto pro joao pelo pix",
+            output: { gastos: [{ descricao: "Pix para Joao", valor: 80, categoria: "Pessoal", tipo: "despesa", data: "YYYY-MM-DD" }] }
+        }
+    ];
+
+    return examples
+        .map(ex => `Usuário: "${ex.input}"\nAssistente: ${JSON.stringify(ex.output)}`)
+        .join('\n\n');
+}
+
 function _getToolsDefinition() {
     return [
         { type: "function", function: { name: "get_financial_health", description: "Saúde financeira.", parameters: { type: "object", properties: {}, required: [] } } },
@@ -61,6 +101,8 @@ function _buildSystemPrompts(contextStr, today) {
     const datePtBr = today.toLocaleDateString('pt-BR', timeZoneOptions);
     const dateIsoBr = today.toLocaleDateString('en-CA', timeZoneOptions); // Retorna YYYY-MM-DD no fuso de SP
 
+    const fewShotBlock = _buildFewShotExamples();
+
     return {
         v1_stable: `Você é o Porquim 360, um assistente financeiro focado e sério.
         🧠 Contexto: ${contextStr || "N/D"}
@@ -82,16 +124,13 @@ function _buildSystemPrompts(contextStr, today) {
         [Receitas]: Salário, Renda Extra, Investimentos, Presentes/Prêmios, Estorno.
         * Se não couber em nenhuma, use "Outros".
 
+        REGRAS DE CLASSIFICAÇÃO (CRÍTICO - SIGA EXATAMENTE):
+        SAÍDA DE DINHEIRO (tipo: "despesa"): Verbos "Gastei", "Comprei", "Paguei", "Mandei", "Transferi", "Enviei", "Fiz pix para", "Pix pro".
+        ENTRADA DE DINHEIRO (tipo: "receita"): Verbos "Recebi", "Ganhei", "Caiu", "Entrou", "Depositaram", "Pix de", "Pix do", "Transferência de", "Salário".
+        DÚVIDA: Analise o contexto. "Pix do João" = receita (alguém me mandou). "Pix pro João" = despesa (eu mandei).
 
-        EXEMPLOS (FEW-SHOT):
-        User: "Gastei vintão no busão"
-        Assistant: { "gastos": [{ "descricao": "Ônibus (Busão)", "valor": 20.00, "categoria": "Transporte" }] }
-
-        User: "3 brejas por 15 contos"
-        Assistant: { "gastos": [{ "descricao": "Cerveja (Breja)", "valor": 15.00, "categoria": "Lazer" }] }
-
-        User: "Depositei 1k na poupança"
-        Assistant: { "gastos": [{ "descricao": "Depósito Poupança", "valor": 1000.00, "categoria": "Investimento", "tipo": "receita" }] }
+        EXEMPLOS DE TREINAMENTO (FEW-SHOT - APRENDA COM ESTES PADRÕES):
+${fewShotBlock}
 
         DIRETRIZES DE LÓGICA E VALIDAÇÃO (CHAIN OF THOUGHT):
         1. DATAS E TEMPO (CRÍTICO):
@@ -128,6 +167,13 @@ function _buildSystemPrompts(contextStr, today) {
         v2_experimental: `Você é o Porquim 360, versão Sherlock Holmes (Experimental). 🕵️‍♂️💸
         🧠 Contexto: ${contextStr || "N/D"}
         📅 Data de Hoje: ${datePtBr} (${dateIsoBr})
+
+        REGRAS DE CLASSIFICAÇÃO (CRÍTICO):
+        SAÍDA (tipo: "despesa"): "Gastei", "Comprei", "Paguei", "Mandei", "Enviei", "Pix pro/para".
+        ENTRADA (tipo: "receita"): "Recebi", "Ganhei", "Caiu", "Entrou", "Pix de/do", "Salário".
+
+        EXEMPLOS DE TREINAMENTO (FEW-SHOT):
+${fewShotBlock}
         
         SUA MISSÃO: Além de extrair dados, você deve inferir o contexto oculto.
         
@@ -310,6 +356,7 @@ module.exports = {
     // Exporting helpers for testing
     _checkMaliciousInput,
     _buildRAGContext,
+    _buildFewShotExamples,
     _getToolsDefinition,
     _buildSystemPrompts,
     _selectPromptVersion,
