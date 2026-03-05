@@ -77,7 +77,9 @@ export async function completeRegistration(token: string, password: string, name
 
         if (profileError) {
             console.error("Profile Create Error:", profileError);
-            return { success: true, warning: "Usuário criado, mas houve um erro ao configurar o perfil inicial." };
+            // Rollback: delete the auth user to avoid orphan accounts
+            await supabaseAdmin.auth.admin.deleteUser(authUser.user.id);
+            return { error: `Erro ao configurar o perfil (${profileError.message}). Por favor, entre em contato com o suporte.` };
         }
 
         // 4. Create Initial Account (Carteira Principal)
