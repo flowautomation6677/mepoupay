@@ -4,23 +4,59 @@ const logger = require('../services/loggerService');
 // Use Admin Client for Bot operations
 const supabase = adminClient || publicClient;
 
+/**
+ * Handles the Brazilian "9th digit" inconsistency.
+ * WhatsApp may deliver a number without the 9th digit (e.g., 556196761655)
+ * but the DB may have stored it with the digit (e.g., 5561996761655), or vice-versa.
+ * Returns an array of variants to try, starting with the original.
+ */
+function _buildBrazilianPhoneVariants(phone) {
+    const variants = [phone];
+
+    // Only applies to Brazilian numbers (starts with 55 + DDD + number)
+    // Format with 9: 55 + 2-digit DDD + 9 + 8 digits = 13 chars
+    // Format without 9: 55 + 2-digit DDD + 8 digits = 12 chars
+    if (phone.startsWith('55') && phone.length === 12) {
+        // Received without 9 — try adding it after DDD (position 4)
+        const withNinth = phone.slice(0, 4) + '9' + phone.slice(4);
+        variants.push(withNinth);
+    } else if (phone.startsWith('55') && phone.length === 13) {
+        // Received with 9 — try removing it (position 4)
+        const withoutNinth = phone.slice(0, 4) + phone.slice(5);
+        variants.push(withoutNinth);
+    }
+
+    return variants;
+}
+
 class UserRepository {
     async findByPhone(phone) {
         // Retorna POJO (Plain Old JavaScript Object) ou null
         // Busca se o telefone está contido no array 'whatsapp_numbers'
-        const { data, error } = await supabase
-            .from('profiles') // Updated table name
-            .select('*')
-            .contains('whatsapp_numbers', [phone])
-            .single();
+        // Normaliza o número para lidar com o nono dígito brasileiro:
+        // WhatsApp às vezes entrega sem o 9 (556196761655) mas o DB pode ter com ele (5561996761655)
+        const phonesToTry = _buildBrazilianPhoneVariants(phone);
 
-        logger.debug(`UserRepository findByPhone: ${phone}`, { data });
+        for (const candidate of phonesToTry) {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .contains('whatsapp_numbers', [candidate])
+                .single();
 
-        if (error && error.code !== 'PGRST116') {
-            logger.error("Repo Error (User.find)", { error });
-            return null;
+            if (error && error.code !== 'PGRST116') {
+                logger.error("Repo Error (User.find)", { error });
+                return null;
+            }
+
+            if (data) {
+                logger.debug(`UserRepository findByPhone: found via ${candidate}`, { data });
+                return data;
+            }
         }
-        return data || null;
+
+        logger.debug(`UserRepository findByPhone: not found for ${phone}`);
+        return null;
     }
 
     async create(phone, name = null) {
