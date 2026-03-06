@@ -6,6 +6,10 @@
     * **O Erro:** A IA implementou a lógica em `ClearContextCommand.js` e atualizou o dispatcher *antes* de escrever qualquer teste, confiando apenas em teste manual no WhatsApp.
     * **A Correção:** NUNCA escreva lógica de negócio (implementação) sem ter um teste vermelho (falhando) antes.
     * **A Regra:** Para qualquer novo Comando/Handler, crie `src/tests/commands/[Nome].test.js` primeiro. Valide se o handler é chamado. Só *depois* implemente a lógica.
+* **[CRÍTICO] Correção de Bug Frontend SEM Teste:**
+    * **O Erro:** A IA corrigiu um bug de fuso horário em `TransactionFeed.tsx` mas não criou um teste unitário para garantir que a regressão não ocorra.
+    * **A Correção:** NENHUMA alteração (nova feature ou correção de bug) no Frontend deve ser feita sem ser acompanhada pelo seu respectivo teste em `__tests__`.
+    * **A Regra:** Se você alterar a renderização baseada em lógica de um componente (ex: manipulação de datas), crie ou atualize o teste unitário do componente com a string exata que causou o bug ANTES ou JUNTO da correção.
 
 ## 2. 🧪 Estratégia de Testes (Mandatos XP)
 * **Sem APIs Reais nos Testes:** Nunca chame endpoints reais da OpenAI, Evolution API ou Supabase durante o `npm test`. Sempre use mocks do Jest.
