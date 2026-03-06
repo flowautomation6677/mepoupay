@@ -42,21 +42,31 @@ const getColor = (category: string, type: string) => {
 }
 
 
-const formatDateGroup = (dateStr: string) => {
-    const date = new Date(dateStr)
+const formatDateGroup = (dateKey: string) => {
+    // Parse pure 'YYYY-MM-DD' key as local date to prevent UTC timezone shifts (21:00 of previous day)
+    const [year, month, day] = dateKey.split('-').map(Number)
+    const date = new Date(year, month - 1, day)
+
     const today = new Date()
     const yesterday = new Date(today)
     yesterday.setDate(yesterday.getDate() - 1)
 
-    // Resetando horas para comparar apenas datas
-    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    // Resetting times to midnight local time for fair comparison
     const t = new Date(today.getFullYear(), today.getMonth(), today.getDate())
     const y = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate())
 
-    if (d.getTime() === t.getTime()) return 'Hoje'
-    if (d.getTime() === y.getTime()) return 'Ontem'
+    if (date.getTime() === t.getTime()) return 'Hoje'
+    if (date.getTime() === y.getTime()) return 'Ontem'
 
     return date.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })
+}
+
+const formatTransactionTime = (dateStr: string) => {
+    if (!dateStr.includes('T') || dateStr.endsWith('00:00:00+00:00') || dateStr.endsWith('00:00:00.000Z')) {
+        return ''; // Don't show confusing times like 21:00 for timezone-less dates
+    }
+    const date = new Date(dateStr)
+    return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
 import { Transaction } from '@/types/dashboard'
@@ -153,7 +163,7 @@ export default function TransactionFeed({ transactions }: Readonly<{ transaction
                                         </span>
                                         <div className="flex items-center gap-2">
                                             <span className="text-[10px] text-muted-foreground">
-                                                {new Date(t.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                                {formatTransactionTime(t.date)}
                                             </span>
                                             {t.is_validated && (
                                                 <CheckCircle size={12} className="text-emerald-500/50" />
