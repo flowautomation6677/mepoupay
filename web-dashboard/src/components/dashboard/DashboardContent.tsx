@@ -16,18 +16,19 @@ const ExpenseChart = dynamic(() => import('@/components/dashboard/ExpenseChart')
 })
 
 export default function DashboardContent({ profile, transactions, prevTransactions }: Readonly<DashboardData>) {
-    if (!profile) return null;
-
+    // ⚠️ All hooks MUST be called before any conditional return (Rules of Hooks)
     const [aiFilter, setAiFilter] = useState<string | null>(null);
 
     const handleCommand = useCallback((command: string) => {
         const category = extractCategoryFromCommand(command);
-        setAiFilter(category); // null means 'no filter matched' — shows original
+        setAiFilter(category);
     }, []);
 
     const handleClear = useCallback(() => {
         setAiFilter(null);
     }, []);
+
+    if (!profile) return null;
 
     const filteredTransactions = aiFilter
         ? transactions.filter(t => t.category === aiFilter)
