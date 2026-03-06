@@ -1,5 +1,5 @@
 const resetCommand = require('../commands/ResetCommand');
-const forgotCommand = require('../commands/ForgotCommand');
+const clearContextCommand = require('../commands/ClearContextCommand');
 const reportCommand = require('../commands/ReportCommand');
 const onboardingCommand = require('../commands/OnboardingCommand');
 
@@ -7,7 +7,7 @@ class CommandDispatcher {
     constructor() {
         this.commands = [
             resetCommand,
-            forgotCommand,
+            clearContextCommand,
             reportCommand,
             onboardingCommand
         ];
