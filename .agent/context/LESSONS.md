@@ -33,3 +33,36 @@
 ## 5. 🛡️ Segurança & Auth
 * **Políticas RLS:** O Row Level Security (RLS) deve ser ativado imediatamente na criação de tabelas no Supabase.
 * **Limpeza de Contexto:** Ao usar `/esquecer`, NÃO delete o registro do usuário (`users` table). Apenas limpe o histórico de sessão/thread no Redis e Supabase.
+
+## 6. 📜 Protocolos Operacionais (Manual de Execução XP)
+> **GUIA DE SOBREVIVÊNCIA:** Siga este roteiro exato para cada tipo de tarefa. Não pule etapas.
+
+### 🟢 CENÁRIO 1: Nova Feature (New Feature)
+**Objetivo:** Criar algo novo (ex: Rotas, Componentes, Tabelas).
+1.  **A Ordem (Navigator):** Espere o usuário definir *o que* ele quer. Não assuma a implementação.
+2.  **🔴 RED (O Teste):**
+    * **Ação:** Proponha e escreva *apenas* o arquivo de teste (ex: `*.test.js` ou `*.spec.tsx`).
+    * **Regra:** Não crie o arquivo de implementação ainda.
+    * **Validação:** Rode o teste e mostre o erro (`FAIL`). Se passar de primeira, o teste está errado.
+3.  **🟢 GREEN (A Solução):**
+    * **Ação:** Escreva a implementação mínima para passar no teste.
+    * **Validação:** Rode o teste novamente (`PASS`).
+4.  **🔵 REFACTOR:** Melhore o código apenas após o verde.
+
+### 🟠 CENÁRIO 2: Correção de Bug (Bug Fix)
+**Objetivo:** Consertar algo quebrado sem criar novos bugs.
+1.  **A Denúncia:** O usuário reporta o erro.
+2.  **🔴 Reprodução (A Vacina):**
+    * **Ação:** Crie um caso de teste que *simule* o bug relatado.
+    * **Obrigatório:** O teste **DEVE FALHAR** primeiro. Isso prova que o bug existe e que você o entendeu.
+3.  **🟢 A Correção:**
+    * **Ação:** Ajuste o código para tratar o caso.
+    * **Validação:** O teste deve passar.
+4.  **Regressão:** Rode testes relacionados para garantir que nada mais quebrou.
+
+### 🟣 CENÁRIO 3: Governança (Atualização de Regras)
+**Objetivo:** Quando o usuário ensina algo novo ou corrige seu comportamento.
+1.  **Gatilho:** O usuário diz "Não use X", "Use Y" ou "Você errou Z".
+2.  **Ação Imediata:** Não apenas peça desculpas.
+3.  **Registro:** Adicione uma nova linha neste arquivo (`LESSONS.md`) na seção apropriada documentando o erro e a solução correta.
+4.  **Confirmação:** Avise ao usuário: "Regra adicionada ao LESSONS.md".
