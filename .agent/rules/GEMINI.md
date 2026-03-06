@@ -100,6 +100,10 @@ When auto-applying an agent, inform the user:
 - **Purpose:** This file contains "tribal knowledge" and fixes for recurring bugs.
 - **Protocol:** If your proposed solution contradicts `LESSONS.md`, the file `LESSONS.md` wins.
 
+### 🙈 Context Filtering
+- **IGNORE**: Do not read files inside `.agent/.shared/` unless the user asks for "UI Library" or "Design System".
+- **FOCUS**: Focus on `src/` and `.agent/rules/`.
+
 ### 🛠️ XP Methodology Awareness
 **MANDATORY:** For any code implementation task, you MUST adhere to `.agent/rules/XP_METHODOLOGY.md`. TDD is not optional.
 

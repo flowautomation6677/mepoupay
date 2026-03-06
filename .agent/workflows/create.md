@@ -14,24 +14,30 @@ This command starts a new application creation process.
 
 ### Steps:
 
-1. **Request Analysis**
-   - Understand what the user wants
-   - If information is missing, use `conversation-manager` skill to ask
+# Workflow: XP Feature Implementation (TDD)
 
-2. **Project Planning**
-   - Use `project-planner` agent for task breakdown
-   - Determine tech stack
-   - Plan file structure
-   - Create plan file and proceed to building
+1.  **Analysis & Strategy**
+    - Identify the user goal.
+    - Check `.agent/context/LESSONS.md` for pitfalls.
+    - Select necessary patterns from `.agent/skills/`.
 
-3. **Application Building (TDD/XP Enforcement)**
-   - **Analyze:** Understand the objective.
-   - **Test Spec:** Propose which unit or integration tests cover this scenario.
-   - **Test Writing (Red):** Write the test file (e.g., `src/services/__tests__/newService.test.js`).
-   - **Error Validation:** Confirm the test fails (Simulate or ask for output).
-   - **Implementation (Green):** Write the functional code.
-   - **Green Check:** Run the test again and verify it passes.
-   - **Refactor (Blue):** Clean up the code.
+2.  **🔴 RED: The Test**
+    - Create or locate the test file (e.g., `src/tests/...`).
+    - Write a failing test case that asserts the desired behavior.
+    - **STOP & RUN**: Execute the test to confirm it fails correctly.
+
+3.  **🟢 GREEN: The Implementation**
+    - Write the *minimum* code in the actual file to pass the test.
+    - Do not worry about perfection yet. Focus on passing the test.
+    - **STOP & RUN**: Execute the test again to confirm it passes.
+
+4.  **🔵 REFACTOR: The Cleanup**
+    - Apply Clean Code principles (DRY, naming, small functions).
+    - Ensure implementation matches Architecture patterns.
+    - Run verify script: `npm test` or `npm run lint`.
+
+5.  **Documentation**
+    - Update `LESSONS.md` if a new tricky edge case was discovered.
 
 4. **Preview**
    - Start with `auto_preview.py` when complete

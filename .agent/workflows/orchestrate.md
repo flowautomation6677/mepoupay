@@ -26,11 +26,11 @@ $ARGUMENTS
 
 | Task Type | REQUIRED Agents (minimum) |
 |-----------|---------------------------|
-| **Web App** | frontend-specialist, backend-specialist, test-engineer |
-| **API** | backend-specialist, security-auditor, test-engineer |
-| **UI/Design** | frontend-specialist, seo-specialist, performance-optimizer |
-| **Database** | database-architect, backend-specialist, security-auditor |
-| **Full Stack** | project-planner, frontend-specialist, backend-specialist, devops-engineer |
+| **Web App** | xp-developer, test-engineer, devops-engineer |
+| **API** | xp-developer, security-auditor, test-engineer |
+| **UI/Design** | xp-developer, seo-specialist, performance-optimizer |
+| **Database** | xp-developer, database-architect, security-auditor |
+| **Full Stack** | project-planner, xp-developer, devops-engineer |
 | **Debug** | debugger, explorer-agent, test-engineer |
 | **Security** | security-auditor, penetration-tester, devops-engineer |
 
@@ -77,20 +77,19 @@ Do you approve? (Y/N)
 | Parallel Group | Agents |
 |----------------|--------|
 | Foundation | `database-architect`, `security-auditor` |
-| Core | `backend-specialist`, `frontend-specialist` |
+| Core | `xp-developer` |
 | Polish | `test-engineer`, `devops-engineer` |
 
 > ✅ After user approval, invoke multiple agents in PARALLEL.
 
-## Available Agents (17 total)
+## Available Agents
 
 | Agent | Domain | Use When |
 |-------|--------|----------|
 | `project-planner` | Planning | Task breakdown, PLAN.md |
 | `explorer-agent` | Discovery | Codebase mapping |
-| `frontend-specialist` | UI/UX | React, Vue, CSS, HTML |
-| `backend-specialist` | Server | API, Node.js, Python |
-| `database-architect` | Data | SQL, NoSQL, Schema |
+| `xp-developer` | Full Stack | React, Node.js, SQL, implementation via TDD |
+| `database-architect` | Data | Complex SQL, Schema, RLS |
 | `security-auditor` | Security | Vulnerabilities, Auth |
 | `penetration-tester` | Security | Active testing |
 | `test-engineer` | Testing | Unit, E2E, Coverage |
@@ -111,8 +110,7 @@ Do you approve? (Y/N)
 Identify ALL domains this task touches:
 ```
 □ Security     → security-auditor, penetration-tester
-□ Backend/API  → backend-specialist
-□ Frontend/UI  → frontend-specialist
+□ Full Stack   → xp-developer
 □ Database     → database-architect
 □ Testing      → test-engineer
 □ DevOps       → devops-engineer
@@ -141,8 +139,7 @@ Use the project-planner agent to create PLAN.md
 **PHASE 2 (Implementation - after approval):**
 ```
 Invoke agents in PARALLEL:
-Use the frontend-specialist agent to [task]
-Use the backend-specialist agent to [task]
+Use the xp-developer agent to [task]
 Use the test-engineer agent to [task]
 ```
 
@@ -198,7 +195,7 @@ Combine all agent outputs into unified report.
 | # | Agent | Focus Area | Status |
 |---|-------|------------|--------|
 | 1 | project-planner | Task breakdown | ✅ |
-| 2 | frontend-specialist | UI implementation | ✅ |
+| 2 | xp-developer | Core implementation via TDD | ✅ |
 | 3 | test-engineer | Verification scripts | ✅ |
 
 ### Verification Scripts Executed

@@ -14,73 +14,20 @@ This command activates DEBUG mode for systematic investigation of issues, errors
 
 ---
 
-## Behavior
+# Workflow: XP Bug Fixing
 
-When `/debug` is triggered:
+1.  **Replication (The Test)**
+    - Do NOT touch the implementation code yet.
+    - Create a test case that reproduces the reported bug.
+    - Run the test -> MUST FAIL (This confirms the bug exists).
 
-1. **Gather information**
-   - Error message
-   - Reproduction steps
-   - Expected vs actual behavior
-   - Recent changes
+2.  **Fix (The Green)**
+    - Modify the implementation to handle the edge case.
+    - Run the test -> MUST PASS.
 
-2. **Form hypotheses**
-   - List possible causes
-   - Order by likelihood
-
-3. **Investigate systematically**
-   - Test each hypothesis
-   - Check logs, data flow
-   - Use elimination method
-
-4. **Fix and prevent**
-   - Apply fix
-   - Explain root cause
-   - Add prevention measures
-
----
-
-## Output Format
-
-```markdown
-## 🔍 Debug: [Issue]
-
-### 1. Symptom
-[What's happening]
-
-### 2. Information Gathered
-- Error: `[error message]`
-- File: `[filepath]`
-- Line: [line number]
-
-### 3. Hypotheses
-1. ❓ [Most likely cause]
-2. ❓ [Second possibility]
-3. ❓ [Less likely cause]
-
-### 4. Investigation
-
-**Testing hypothesis 1:**
-[What I checked] → [Result]
-
-**Testing hypothesis 2:**
-[What I checked] → [Result]
-
-### 5. Root Cause
-🎯 **[Explanation of why this happened]**
-
-### 6. Fix
-```[language]
-// Before
-[broken code]
-
-// After
-[fixed code]
-```
-
-### 7. Prevention
-🛡️ [How to prevent this in the future]
-```
+3.  **Regression Check**
+    - Run all related tests to ensure no regression.
+    - Update `LESSONS.md` prevents this bug from recurring.
 
 ---
 
