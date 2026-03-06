@@ -1,8 +1,11 @@
 'use client'
 
+import { useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import StatsGrid from '@/components/dashboard/StatsGrid'
 import TransactionFeed from '@/components/dashboard/TransactionFeed'
+import AiAssistantWidget from '@/components/dashboard/AiAssistantWidget'
+import { extractCategoryFromCommand } from '@/utils/dashboard/categoryFilter'
 
 import { DashboardData } from '@/types/dashboard'
 
@@ -15,47 +18,47 @@ const ExpenseChart = dynamic(() => import('@/components/dashboard/ExpenseChart')
 export default function DashboardContent({ profile, transactions, prevTransactions }: Readonly<DashboardData>) {
     if (!profile) return null;
 
+    const [aiFilter, setAiFilter] = useState<string | null>(null);
+
+    const handleCommand = useCallback((command: string) => {
+        const category = extractCategoryFromCommand(command);
+        setAiFilter(category); // null means 'no filter matched' — shows original
+    }, []);
+
+    const handleClear = useCallback(() => {
+        setAiFilter(null);
+    }, []);
+
+    const filteredTransactions = aiFilter
+        ? transactions.filter(t => t.category === aiFilter)
+        : transactions;
+
     return (
         <>
             {/* Bento Grid Principal (Zone 1: KPIs) */}
             <StatsGrid
-                transactions={transactions}
+                transactions={filteredTransactions}
                 prevTransactions={prevTransactions}
                 financialGoal={profile.financial_goal || 0}
                 currentBalance={profile.balance}
             />
 
             {/* Gráficos Neon */}
-            <ExpenseChart transactions={transactions} />
+            <ExpenseChart transactions={filteredTransactions} />
 
             {/* Feed e Widget Lateral (GridLayout) */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <div className="md:col-span-2">
-                    <TransactionFeed transactions={transactions} />
+                    <TransactionFeed transactions={filteredTransactions} />
                 </div>
 
                 <div className="md:col-span-1 space-y-6">
-                    {/* Card de Conexão */}
-                    <div className="rounded-[2rem] bg-primary p-6 text-primary-foreground shadow-lg shadow-primary/20">
-                        <h3 className="text-lg font-bold">Me Poupay AI</h3>
-                        <p className="mt-2 text-primary-foreground/90 text-sm opacity-90">
-                            Seu assistente está conectado e monitorando seus gastos pelo número:
-                        </p>
-                        <div className="mt-4 flex items-center gap-2 rounded-xl bg-background/20 p-3 backdrop-blur-sm">
-                            <span className="h-2 w-2 animate-pulse rounded-full bg-green-400"></span>
-                            <span className="font-mono text-sm tracking-wide">
-                                +55 (21) 98464-6902
-                            </span>
-                        </div>
-                        <a
-                            href="https://wa.me/5521984646902?text=Olá! Quero falar com o Me Poupay."
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mt-4 block w-full rounded-xl bg-background py-3 text-center text-sm font-bold text-primary transition hover:bg-background/90"
-                        >
-                            Abrir no WhatsApp
-                        </a>
-                    </div>
+                    {/* AI Conversational Widget */}
+                    <AiAssistantWidget
+                        onCommand={handleCommand}
+                        activeFilter={aiFilter}
+                        onClear={handleClear}
+                    />
                 </div>
             </div>
         </>

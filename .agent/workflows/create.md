@@ -39,9 +39,9 @@ This command starts a new application creation process.
 5.  **Documentation**
     - Update `LESSONS.md` if a new tricky edge case was discovered.
 
-4. **Preview**
-   - Start with `auto_preview.py` when complete
-   - Present URL to user
+6.  **Preview**
+    - Start with `auto_preview.py` when complete
+    - Present URL to user
 
 ---
 

@@ -13,6 +13,7 @@ const config: Config = {
     // Add more setup options before each test is run
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
     testPathIgnorePatterns: ['<rootDir>/e2e/'],
+    modulePathIgnorePatterns: ['<rootDir>/.next/standalone/'],
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
     },
