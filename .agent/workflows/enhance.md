@@ -33,10 +33,13 @@ This command adds features or makes updates to existing application.
    Should I start?"
    ```
 
-4. **Apply**
-   - Call relevant agents
-   - Make changes
-   - Test
+4. **Apply (TDD/XP Enforcement)**
+   - **Test Spec:** Propose tests for the new feature or enhancement.
+   - **Test Writing (Red):** Write or update the test file.
+   - **Error Validation:** Confirm the test fails.
+   - **Implementation (Green):** Write the functional code.
+   - **Green Check:** Run the test again and verify it passes.
+   - **Refactor (Blue):** Clean up the code.
 
 5. **Update Preview**
    - Hot reload or restart

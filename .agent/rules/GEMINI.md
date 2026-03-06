@@ -36,7 +36,7 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 | **QUESTION**     | "what is", "how does", "explain"           | TIER 0 only                    | Text Response               |
 | **SURVEY/INTEL** | "analyze", "list files", "overview"        | TIER 0 + Explorer              | Session Intel (No File)     |
 | **SIMPLE CODE**  | "fix", "add", "change" (single file)       | TIER 0 + TIER 1 (lite)         | Inline Edit                 |
-| **COMPLEX CODE** | "build", "create", "implement", "refactor" | TIER 0 + TIER 1 (full) + Agent | **{task-slug}.md Required** |
+| **COMPLEX CODE** | "build", "create", "implement", "refactor" | TIER 0 + XP Rules + Agent      | TDD Cycle + Code            |
 | **DESIGN/UI**    | "design", "UI", "page", "dashboard"        | TIER 0 + TIER 1 + Agent        | **{task-slug}.md Required** |
 | **SLASH CMD**    | /create, /orchestrate, /debug              | Command-specific flow          | Variable                    |
 
@@ -95,6 +95,14 @@ When auto-applying an agent, inform the user:
 
 ## TIER 0: UNIVERSAL RULES (Always Active)
 
+### 🧠 Active Context Loading (LESSONS.md)
+**MANDATORY:** Before analyzing any task or writing code, you MUST read `.agent/context/LESSONS.md`.
+- **Purpose:** This file contains "tribal knowledge" and fixes for recurring bugs.
+- **Protocol:** If your proposed solution contradicts `LESSONS.md`, the file `LESSONS.md` wins.
+
+### 🛠️ XP Methodology Awareness
+**MANDATORY:** For any code implementation task, you MUST adhere to `.agent/rules/XP_METHODOLOGY.md`. TDD is not optional.
+
 ### 🌍 Environment Awareness (P0 Protocol)
 
 🔴 **MANDATORY:** Before touching ANY backend code, database, or infra resource, you MUST:
@@ -109,12 +117,14 @@ When user's prompt is NOT in English:
 2. **Respond in user's language** - match their communication
 3. **Code comments/variables** remain in English
 
-### 🧹 Clean Code (Global Mandatory)
+### 🧹 Clean Code & XP Protocol (Global Mandatory)
 
-**ALL code MUST follow `@[skills/clean-code]` rules. No exceptions.**
+**ALL code MUST follow `@[skills/clean-code]` AND `.agent/rules/XP_METHODOLOGY.md`. No exceptions.**
 
-- **Code**: Concise, direct, no over-engineering. Self-documenting.
+- **TDD FIRST**: You are FORBIDDEN from writing implementation code without first presenting or writing the corresponding test case.
+- **Code**: Concise, direct, no over-engineering (YAGNI). Self-documenting.
 - **Testing**: Mandatory. Pyramid (Unit > Int > E2E) + AAA Pattern.
+- **Process**: Follow the RED -> GREEN -> REFACTOR cycle defined in `XP_METHODOLOGY.md`.
 - **Performance**: Measure first. Adhere to 2025 standards (Core Web Vitals).
 - **Infra/Safety**: 5-Phase Deployment. Verify secrets security.
 
@@ -158,10 +168,10 @@ When user's prompt is NOT in English:
 | Project Type                           | Primary Agent         | Skills                        |
 | -------------------------------------- | --------------------- | ----------------------------- |
 | **MOBILE** (iOS, Android, RN, Flutter) | `mobile-developer`    | mobile-design                 |
-| **WEB** (Next.js, React web)           | `frontend-specialist` | frontend-design               |
-| **BACKEND** (API, server, DB)          | `backend-specialist`  | api-patterns, database-design |
+| **WEB** (Next.js, React web)           | `xp-developer`        | frontend-specialist           |
+| **BACKEND** (API, server, DB)          | `xp-developer`        | backend-specialist, database-architect |
 
-> 🔴 **Mobile + frontend-specialist = WRONG.** Mobile = mobile-developer ONLY.
+> 🔴 **Mobile + xp-developer = WRONG.** Mobile = mobile-developer ONLY.
 
 ### 🛑 Socratic Gate
 
@@ -233,7 +243,7 @@ Para toda tarefa do tipo `COMPLEX CODE` ou `DESIGN/UI`, seu planejamento DEVE in
 | -------- | ----------------- | -------------------------------------------- |
 | **plan** | `project-planner` | 4-phase methodology. NO CODE before Phase 4. |
 | **ask**  | -                 | Focus on understanding. Ask questions.       |
-| **edit** | `orchestrator`    | Execute. Check `{task-slug}.md` first.       |
+| **edit** | `xp-developer`    | Execute via TDD. Check context first.        |
 
 **Plan Mode (4-Phase):**
 
@@ -252,7 +262,7 @@ Para toda tarefa do tipo `COMPLEX CODE` ou `DESIGN/UI`, seu planejamento DEVE in
 
 | Task         | Read                            |
 | ------------ | ------------------------------- |
-| Web UI/UX    | `.agent/frontend-specialist.md` |
+| Web UI/UX    | `.agent/skills/frontend-specialist/SKILL.md` |
 | Mobile UI/UX | `.agent/mobile-developer.md`    |
 
 **These agents contain:**
@@ -270,8 +280,8 @@ Para toda tarefa do tipo `COMPLEX CODE` ou `DESIGN/UI`, seu planejamento DEVE in
 
 ### Agents & Skills
 
-- **Masters**: `orchestrator`, `project-planner`, `security-auditor` (Cyber/Audit), `backend-specialist` (API/DB), `frontend-specialist` (UI/UX), `mobile-developer`, `debugger`, `game-developer`
-- **Key Skills**: `clean-code`, `brainstorming`, `app-builder`, `frontend-design`, `mobile-design`, `plan-writing`, `behavioral-modes`
+- **Masters**: `orchestrator`, `project-planner`, `security-auditor` (Cyber/Audit), `xp-developer`, `mobile-developer`, `debugger`, `game-developer`
+- **Key Skills**: `clean-code`, `frontend-specialist` (UI/UX), `backend-specialist` (API/DB), `database-architect`, `brainstorming`, `app-builder`, `frontend-design`, `mobile-design`, `plan-writing`, `behavioral-modes`
 
 ### Key Scripts
 

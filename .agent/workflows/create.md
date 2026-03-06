@@ -24,12 +24,14 @@ This command starts a new application creation process.
    - Plan file structure
    - Create plan file and proceed to building
 
-3. **Application Building (After Approval)**
-   - Orchestrate with `app-builder` skill
-   - Coordinate expert agents:
-     - `database-architect` → Schema
-     - `backend-specialist` → API
-     - `frontend-specialist` → UI
+3. **Application Building (TDD/XP Enforcement)**
+   - **Analyze:** Understand the objective.
+   - **Test Spec:** Propose which unit or integration tests cover this scenario.
+   - **Test Writing (Red):** Write the test file (e.g., `src/services/__tests__/newService.test.js`).
+   - **Error Validation:** Confirm the test fails (Simulate or ask for output).
+   - **Implementation (Green):** Write the functional code.
+   - **Green Check:** Run the test again and verify it passes.
+   - **Refactor (Blue):** Clean up the code.
 
 4. **Preview**
    - Start with `auto_preview.py` when complete
