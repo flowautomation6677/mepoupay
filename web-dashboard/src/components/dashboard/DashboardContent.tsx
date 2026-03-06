@@ -21,7 +21,8 @@ export default function DashboardContent({ profile, transactions, prevTransactio
 
     const handleCommand = useCallback((command: string) => {
         const category = extractCategoryFromCommand(command);
-        setAiFilter(category);
+        // Store both the detected category AND the raw command for fallback matching
+        setAiFilter(category ?? command);
     }, []);
 
     const handleClear = useCallback(() => {
@@ -31,7 +32,13 @@ export default function DashboardContent({ profile, transactions, prevTransactio
     if (!profile) return null;
 
     const filteredTransactions = aiFilter
-        ? transactions.filter(t => t.category === aiFilter)
+        ? transactions.filter(t => {
+            // Primary: match by canonical category name (case-insensitive)
+            const categoryMatch = t.category?.toLowerCase().includes(aiFilter.toLowerCase());
+            // Fallback: match by description keywords (case-insensitive)
+            const descriptionMatch = t.description?.toLowerCase().includes(aiFilter.toLowerCase());
+            return categoryMatch || descriptionMatch;
+        })
         : transactions;
 
     return (
