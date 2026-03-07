@@ -13,7 +13,15 @@
 * **[CRÍTICO] Perda de Contexto em Confirmações ("Sim"):**
     * **O Erro:** Quando a IA fazia uma pergunta para confirmar um gasto ("Devo registrar?") e o usuário respondia apenas "Sim", a IA perdia o contexto e respondia com uma saudação genérica.
     * **A Correção:** Adicionado few-shot examples específicos para respostas curtas ("Sim", "Pode registrar") e instruções explícitas nos system prompts (`v1_stable` e `v2_experimental`) para retornar IMEDIATAMENTE o JSON com os gastos da pergunta anterior, extraídos do RAG da conversa.
+    * **A Regra:** Se você alterar a renderização baseada em lógica de um componente (ex: manipulação de datas), crie ou atualize o teste unitário do componente com a string exata que causou o bug ANTES ou JUNTO da correção.
+* **[CRÍTICO] Perda de Contexto em Confirmações ("Sim"):**
+    * **O Erro:** Quando a IA fazia uma pergunta para confirmar um gasto ("Devo registrar?") e o usuário respondia apenas "Sim", a IA perdia o contexto e respondia com uma saudação genérica.
+    * **A Correção:** Adicionado few-shot examples específicos para respostas curtas ("Sim", "Pode registrar") e instruções explícitas nos system prompts (`v1_stable` e `v2_experimental`) para retornar IMEDIATAMENTE o JSON com os gastos da pergunta anterior, extraídos do RAG da conversa.
     * **A Regra:** Sempre que adicionar novos fluxos conversacionais (ex: perguntas de confirmação), garanta que o modelo saiba exatamente como lidar com as respostas isoladas ("Sim", "Não") usando o histórico da conversa e explicitly instruindo o retorno do JSON correto.
+* **[CRÍTICO] Alucinação de Datas na Extração de Imagens:**
+    * **O Erro:** Ao enviar fotos de recibos sem uma data escrita manual (ex: caderno de anotações), o gpt-4o (Vision API) inferia datas do passado e alucinava o ano (ex: 2023).
+    * **A Correção:** A função `_analyzeImage` foi refatorada para injetar programaticamente a string com a data *de hoje*, exigindo que se o recibo não tiver data, o preenchimento seja a data vigente.
+    * **A Regra:** TODA requisição feita a modelos gerativos financeiros (GPT-4o para texto ou imagens) DEVE conter, incondicionalmente, a "Data de Hoje" no system prompt (timezone `America/Sao_Paulo`) para prevenir alucinações cronológicas.
 
 ## 2. 🧪 Estratégia de Testes (Mandatos XP)
 * **Sem APIs Reais nos Testes:** Nunca chame endpoints reais da OpenAI, Evolution API ou Supabase durante o `npm test`. Sempre use mocks do Jest.

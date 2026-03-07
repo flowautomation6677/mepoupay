@@ -49,8 +49,16 @@ async function _transcribeAudio(filePath) {
 
 async function _analyzeImage(base64Image, mimetype) {
     const start = Date.now();
+    const timeZoneOptions = { timeZone: 'America/Sao_Paulo' };
+    const today = new Date();
+    const datePtBr = today.toLocaleDateString('pt-BR', timeZoneOptions);
+    const dateIsoBr = today.toLocaleDateString('en-CA', timeZoneOptions); // Retorna YYYY-MM-DD no fuso de SP
+
     const systemPromptVision = `Atue como um extrator de dados financeiros de recibos, comprovantes e anotações.
     Analise a imagem e extraia TODAS as transações (Receitas e Despesas).
+    
+    A data de hoje é: ${datePtBr} (${dateIsoBr}).
+    Se a imagem não mostrar uma data clara, use OBRIGATORIAMENTE a data de hoje no formato YYYY-MM-DD para preencher o campo 'data'.
     
     Regras:
     1. "SALÁRIO", "VENDA", "PIX RECEBIDO", "DÍZIMO" (se for entrada), etc -> tipo: 'receita'.
