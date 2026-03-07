@@ -9,7 +9,11 @@
 * **[CRÍTICO] Correção de Bug Frontend SEM Teste:**
     * **O Erro:** A IA corrigiu um bug de fuso horário em `TransactionFeed.tsx` mas não criou um teste unitário para garantir que a regressão não ocorra.
     * **A Correção:** NENHUMA alteração (nova feature ou correção de bug) no Frontend deve ser feita sem ser acompanhada pelo seu respectivo teste em `__tests__`.
-    * **A Regra:** Se você alterar a renderização baseada em lógica de um componente (ex: manipulação de datas), crie ou atualize o teste unitário do componente com a string exata que causou o bug ANTES ou JUNTO da correção.
+        * **A Regra:** Se você alterar a renderização baseada em lógica de um componente (ex: manipulação de datas), crie ou atualize o teste unitário do componente com a string exata que causou o bug ANTES ou JUNTO da correção.
+* **[CRÍTICO] Perda de Contexto em Confirmações ("Sim"):**
+    * **O Erro:** Quando a IA fazia uma pergunta para confirmar um gasto ("Devo registrar?") e o usuário respondia apenas "Sim", a IA perdia o contexto e respondia com uma saudação genérica.
+    * **A Correção:** Adicionado few-shot examples específicos para respostas curtas ("Sim", "Pode registrar") e instruções explícitas nos system prompts (`v1_stable` e `v2_experimental`) para retornar IMEDIATAMENTE o JSON com os gastos da pergunta anterior, extraídos do RAG da conversa.
+    * **A Regra:** Sempre que adicionar novos fluxos conversacionais (ex: perguntas de confirmação), garanta que o modelo saiba exatamente como lidar com as respostas isoladas ("Sim", "Não") usando o histórico da conversa e explicitly instruindo o retorno do JSON correto.
 
 ## 2. 🧪 Estratégia de Testes (Mandatos XP)
 * **Sem APIs Reais nos Testes:** Nunca chame endpoints reais da OpenAI, Evolution API ou Supabase durante o `npm test`. Sempre use mocks do Jest.
@@ -29,6 +33,12 @@
 ## 4. 🖥️ Frontend (Next.js App Router)
 * **Supabase Client:** NÃO use `createClient` genérico. Use `src/utils/supabase/server.ts` (Server Components) ou `src/utils/supabase/client.ts` (Client Components).
 * **Server Actions:** Prefira Server Actions em vez de rotas de API para mutações de formulário.
+* **[CRÍTICO] Hooks após `return` condicional (Rules of Hooks):**
+    * **O Erro:** `useState`/`useCallback` foram escritos **depois** de um `if (!profile) return null`. O React viola silenciosamente — sem erro no console, sem aviso visível — e o estado nunca atualiza.
+    * **A Regra:** SEMPRE declare todos os hooks no **topo** da função, antes de qualquer `return` condicional. A ordem dos hooks nunca pode ser condicional.
+* **[ATENÇÃO] Nunca use match exato (`===`) contra strings geradas por IA/banco:**
+    * **O Erro:** Filtro usava `t.category === aiFilter`. Categorias vêm do nome livre criado pela IA no banco (pode ser "Uber", "uber", "TRANSPORTE") — o match sempre falhava silenciosamente.
+    * **A Regra:** Em filtros de texto que comparam com dados vindos do banco via IA, sempre use `.toLowerCase().includes(...)` — nunca `===`.
 
 ## 5. 🛡️ Segurança & Auth
 * **Políticas RLS:** O Row Level Security (RLS) deve ser ativado imediatamente na criação de tabelas no Supabase.

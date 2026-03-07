@@ -80,6 +80,10 @@ function _buildFewShotExamples() {
             output: { pergunta: "Entendido! Vou corrigir o último lançamento. Confirma que o valor de 5800 foi uma ENTRADA (Receita)?" }
         },
         {
+            input: "Sim / Pode registrar / Confirmo / Exatamente / Isso aí",
+            output: { raciocinio_logico: "O usuário confirmou a pergunta anterior. Vou registrar o gasto/receita com base no contexto.", gastos: [{ descricao: "Referência ao contexto", valor: 5800, categoria: "Renda Extra", tipo: "receita", data: "YYYY-MM-DD" }] }
+        },
+        {
             input: "Excluir",
             output: { acao: "excluir_ultimo", confirmado: true }
         }
@@ -165,6 +169,10 @@ function _buildSystemPrompts(contextStr, today) {
         Se o input contiver condicionais, intenções não realizadas ou recusas (Ex: "quase comprei", "ia pagar mas não paguei", "não vou transferir", "talvez eu gaste").
         -> Ação: Retorne JSON simples: { "pergunta": "Entendi que isso ainda não aconteceu ou foi cancelado. Quer que eu registre mesmo assim? 🐷" }
 
+        CONFIRMAÇÃO DE PERGUNTA (SIM/PODE REGISTRAR):
+        Se o usuário responder com afirmações curtas (ex: "Sim", "Pode", "Pode registrar", "Isso", "Isso aí", "Exatamente", "Confirmo", "Manda bala", "Registra") APÓS você ter perguntado se devia registrar ou corrigir algo:
+        -> Ação: Retorne IMEDIATAMENTE o JSON com os "gastos" extraídos do contexto da sua pergunta anterior. NÃO responda com saudações ou perguntas vazias.
+
         TOLERÂNCIA A ERROS DE DIGITAÇÃO (TYPO TOLERANCE):
         Usuários digitam rápido. Infira palavras erradas foneticamente ou por contexto:
         - "rxebi", "rcebi", "receb" -> Recebi (Receita).
@@ -221,6 +229,9 @@ ${fewShotBlock}
         -> Retorne APENAS: { "acao": "excluir_ultimo", "confirmado": true }
 
         NEGAÇÃO E CONDICIONAIS: Se disser "quase comprei" ou "não paguei", retorne { "pergunta": "Devo registrar mesmo assim?" }
+        
+        CONFIRMAÇÕES ("Sim", "Pode registrar", "Confirmo", "Isso aí"): Se o usuário confirmar uma pergunta que você fez (ex: "Devo registrar?"), retorne imediatamente o JSON de "gastos" com os dados do histórico correspondente.
+        
         TYPO TOLERANCE: Aceite erros bizarros (ex: "rcebi" = recebi, "pgei" = paguei).
 
         EXEMPLOS DE TREINAMENTO (FEW-SHOT):
