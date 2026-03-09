@@ -230,9 +230,11 @@ async function processExtractedData(content, userId, replyCallback) {
         }
 
         if (updatedTxs && updatedTxs.length > 0) {
-            return replyCallback(`✏️ Lançamento atualizado com sucesso!\n\nNovo valor: R$ ${Number(updatedTxs[updatedTxs.length - 1].amount).toFixed(2)}`);
+            await replyCallback(`✏️ Lançamento atualizado com sucesso!\n\nNovo valor: R$ ${Number(updatedTxs[updatedTxs.length - 1].amount).toFixed(2)}`);
+            return;
         } else {
-            return replyCallback("🤔 Entendi que você queria corrigir algo, mas não encontrei transações recentes no sistema para alterar.");
+            await replyCallback("🤔 Entendi que você queria corrigir algo, mas não encontrei transações recentes no sistema para alterar.");
+            return;
         }
     }
 

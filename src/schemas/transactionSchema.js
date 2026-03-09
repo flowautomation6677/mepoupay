@@ -25,6 +25,8 @@ const AIResponseSchema = z.object({
     gastos: z.array(TransactionItemSchema).optional().describe("Alias para transacoes (legado/flexibilidade)"),
     valor: z.number().optional().describe("Campo legado para valor único (será convertido para transação)"),
     pergunta: z.string().optional(),
+    acao: z.string().optional().describe("Ação especial solicitada pela IA (ex: atualizar_ultimo, excluir_ultimo)"),
+    confirmado: z.boolean().optional(),
     ignorar: z.boolean().optional(),
     resposta: z.string().optional(),
 
