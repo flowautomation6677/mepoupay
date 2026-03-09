@@ -230,7 +230,8 @@ async function processExtractedData(content, userId, replyCallback) {
         }
 
         if (updatedTxs && updatedTxs.length > 0) {
-            await replyCallback(`✏️ Lançamento atualizado com sucesso!\n\nNovo valor: R$ ${Number(updatedTxs[updatedTxs.length - 1].amount).toFixed(2)}`);
+            const lastUpdated = updatedTxs[updatedTxs.length - 1];
+            await replyCallback(`✅ Lançamento atualizado!\n🪙 ${lastUpdated.description}\n💰 R$ ${Number(lastUpdated.amount).toFixed(2).replace('.', ',')}`);
             return;
         } else {
             await replyCallback("🤔 Entendi que você queria corrigir algo, mas não encontrei transações recentes no sistema para alterar.");
