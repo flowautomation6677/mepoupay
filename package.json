@@ -37,6 +37,7 @@
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^5.4.530",
+    "pg": "^8.20.0",
     "qrcode": "^1.5.4",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0",

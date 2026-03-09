@@ -115,6 +115,57 @@ class TransactionRepository {
         return last;
     }
 
+    async updateByIds(transactionIds, userId, updates) {
+        if (!transactionIds || transactionIds.length === 0) return [];
+
+        // Atualizar baseado nos IDs exatos recuperados da memória de curto prazo (Redis)
+        const { data, error } = await this.supabase
+            .from('transactions')
+            .update(updates)
+            .in('id', transactionIds)
+            .eq('user_id', userId)
+            .select();
+
+        if (error) {
+            logger.error("Repo Error (Tx.updateByIds)", { error, transactionIds });
+            throw error;
+        }
+
+        logger.info("Tx updated by Short-Term Memory IDs", { userId, count: data?.length });
+        return data || [];
+    }
+
+    async updateLastByUser(userId, updates) {
+        // Fallback: se o cache expirar ou não houver, atualiza só o id recém criado
+        const { data: last, error: findError } = await this.supabase
+            .from('transactions')
+            .select('id')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+        if (findError || !last) {
+            logger.warn("Repo: no transaction found to update (Fallback)", { userId });
+            return null;
+        }
+
+        const { data, error: updateError } = await this.supabase
+            .from('transactions')
+            .update(updates)
+            .eq('id', last.id)
+            .select()
+            .single();
+
+        if (updateError) {
+            logger.error("Repo Error (Tx.updateLast)", { error: updateError });
+            throw updateError;
+        }
+
+        logger.info("Tx updated (last Fallback)", { userId, txId: last.id });
+        return data;
+    }
+
     // Static helper if needed, or factory
     static withClient(client) {
         return new TransactionRepository(client);

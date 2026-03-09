@@ -51,6 +51,37 @@ const sessionService = {
     },
 
     /**
+     * Set last transaction IDs (short-term memory)
+     * @param {string} userId 
+     * @param {Array<string>} transactionIds 
+     * @param {number} ttlInSeconds 
+     */
+    async setLastTransactionIds(userId, transactionIds, ttlInSeconds = 300) {
+        try {
+            const key = `session:lastTransactions:${userId}`;
+            await redis.set(key, JSON.stringify(transactionIds), 'EX', ttlInSeconds);
+        } catch (error) {
+            console.error(`Error setting last transactions for user ${userId}:`, error);
+        }
+    },
+
+    /**
+     * Get last transaction IDs
+     * @param {string} userId 
+     * @returns {Promise<Array<string>|null>}
+     */
+    async getLastTransactionIds(userId) {
+        try {
+            const key = `session:lastTransactions:${userId}`;
+            const data = await redis.get(key);
+            return data ? JSON.parse(data) : null;
+        } catch (error) {
+            console.error(`Error getting last transactions for user ${userId}:`, error);
+            return null;
+        }
+    },
+
+    /**
      * Set pending PDF state (buffer)
      * @param {string} userId 
      * @param {string} base64Data 

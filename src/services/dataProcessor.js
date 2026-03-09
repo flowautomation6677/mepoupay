@@ -7,6 +7,7 @@ const transactionRepo = new TransactionRepository(adminClient);
 const transactionEmbeddingService = require('./transactionEmbeddingService');
 const currencyService = require('./currencyService');
 const FormatterService = require('../services/formatterService');
+const sessionService = require('../services/sessionService');
 const { formatToISO, getExactTimestamp } = require('../utils/dateUtility');
 
 // --- DATA PROCESSOR (Batch Optimization) ---
@@ -193,6 +194,48 @@ async function processExtractedData(content, userId, replyCallback) {
         return replyCallback(`🗑️ Lançamento excluído!\n\n*${deleted.description}* (${tipo}) — R$ ${Number(deleted.amount).toFixed(2)}`);
     }
 
+    // Update Direct Intent from AI with Short-Term Memory
+    if (data.acao === 'atualizar_ultimo' && data.gastos && data.gastos.length > 0) {
+        // Obter os IDs das últimas transações a partir da memória de curto prazo (Redis)
+        const lastTxIds = await sessionService.getLastTransactionIds(userId);
+
+        let updatedTxs = [];
+        const g = data.gastos[0]; // Só permite atualizar 1 pelo prompt direto
+
+        // Conversão de moeda (caso alterem valor ou moeda na correção)
+        const valParaConverter = g.valor || 0; // fallback para evitar null se só atualizou descrição
+        const { convertedValue } = valParaConverter ? await currencyService.convertValue(valParaConverter, g.moeda) : { convertedValue: null };
+
+        const updates = {};
+        if (g.valor !== undefined && convertedValue !== null) updates.amount = convertedValue;
+
+        // Evitando overwriting indesejado, como setar "Manter descrição anterior"
+        if (g.descricao && !g.descricao.includes("Manter")) updates.description = g.descricao;
+
+        if (g.categoria) {
+            const category_id = await _resolveCategory(userId, g.categoria);
+            if (category_id) updates.category_id = category_id;
+        }
+
+        if (g.tipo) {
+            updates.type = g.tipo === 'receita' ? 'INCOME' : 'EXPENSE';
+        }
+
+        // Tenta usar a memória de curto prazo. Se vazar o ttl, usa o fallback de última transação
+        if (lastTxIds && lastTxIds.length > 0) {
+            updatedTxs = await transactionRepo.updateByIds(lastTxIds, userId, updates);
+        } else {
+            const updated = await transactionRepo.updateLastByUser(userId, updates);
+            if (updated) updatedTxs = [updated];
+        }
+
+        if (updatedTxs && updatedTxs.length > 0) {
+            return replyCallback(`✏️ Lançamento atualizado com sucesso!\n\nNovo valor: R$ ${Number(updatedTxs[updatedTxs.length - 1].amount).toFixed(2)}`);
+        } else {
+            return replyCallback("🤔 Entendi que você queria corrigir algo, mas não encontrei transações recentes no sistema para alterar.");
+        }
+    }
+
     const transacoes = _normalizeTransactions(data);
     if (!transacoes.length) return replyCallback("🤔 Não encontrei transações nem valor total nesta fatura.");
 
@@ -205,6 +248,12 @@ async function processExtractedData(content, userId, replyCallback) {
 
 
     const savedTxs = await transactionRepo.createMany(payloadDetails.payload);
+
+    // Salvar estado na Memória de Curto Prazo (Short-Term Memory)
+    if (savedTxs && savedTxs.length > 0) {
+        const ids = savedTxs.map(tx => tx.id);
+        await sessionService.setLastTransactionIds(userId, ids);
+    }
 
     return _handleResponse(savedTxs, payloadDetails, data, replyCallback);
 }

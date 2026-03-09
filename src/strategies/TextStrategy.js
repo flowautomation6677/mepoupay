@@ -86,6 +86,14 @@ function _buildFewShotExamples() {
         {
             input: "Excluir",
             output: { acao: "excluir_ultimo", confirmado: true }
+        },
+        {
+            input: "mude ai eu no caso gastei 50 reais",
+            output: { acao: "atualizar_ultimo", gastos: [{ descricao: "Manter descrição anterior (implícito)", valor: 50, categoria: "Outros", tipo: "despesa", data: "YYYY-MM-DD" }] }
+        },
+        {
+            input: "na verdade a categoria foi lazer",
+            output: { acao: "atualizar_ultimo", gastos: [{ descricao: "Manter descrição anterior", valor: 50, categoria: "Lazer", tipo: "despesa", data: "YYYY-MM-DD" }] }
         }
     ];
 
@@ -151,13 +159,14 @@ function _buildSystemPrompts(contextStr, today) {
         ENTRADA DE DINHEIRO (tipo: "receita"): Termos "Recebi", "Ganhei", "Caiu", "Entrou", "Entrada", "Entrada de", "Depositaram", "Pix de", "Pix do", "Transferência de", "Salário".
         DÚVIDA: Analise o contexto. "Pix do João" = receita (alguém me mandou). "Pix pro João" = despesa (eu mandei).
 
-        INTENÇÃO DE CORREÇÃO (RESPONDA EM TEXTO, NÃO REGISTRE NOVAMENTE):
+        INTENÇÃO DE CORREÇÃO (DIRETA VS INDIRETA):
         Verbos: "Errei", "Errou", "Foi errado", "Era pra ser", "Não era isso", "Não é gasto é entrada", "Não é entrada é gasto",
-        "Corrige", "Corrigir", "Corrija", "Muda", "Mudar", "Altera", "Alterar", "Edita", "Editar",
-        "Muda o valor", "Muda a descrição", "Muda a categoria", "Não foi isso", "Na verdade foi",
-        "Quero corrigir", "Quero editar", "Quero mudar".
-        -> Ação: Retorne um JSON simples: { "pergunta": "Entendido! O que devo corrigir: o valor, a descrição ou o tipo (entrada/saída)? 🐷" }
-        -> NÃO registre gastos novos!
+        "Corrige", "Corrigir", "Corrija", "Muda", "Mudar", "Altera", "Alterar", "Edita", "Editar".
+        -> SE O USUÁRIO APENAS AVISAR QUE ERROU (sem dar o valor novo):
+           Ação: Retorne JSON: { "pergunta": "Entendido! O que devo corrigir: o valor, a descrição ou o tipo (entrada/saída)? 🐷" }
+        -> SE O USUÁRIO JÁ INFORMAR A CORREÇÃO (ex: "mude ai gastei 50 reais" ou "era no crédito"):
+           Ação: Retorne JSON exato: { "acao": "atualizar_ultimo", "gastos": [{ "descricao": "...", "valor": 50, "categoria": "...", "tipo": "despesa", "data": "YYYY-MM-DD" }] }
+           (O sistema tem memória e aplicará o novo json no lançamento que você acabou de criar).
 
         EXCLUSÃO / CANCELAMENTO (GERE JSON ESPECIAL):
         Verbos: "Excluir", "Exclui", "Excluí", "Apaga", "Apagar", "Deleta", "Deletar", "Remove", "Remover",
@@ -219,10 +228,11 @@ ${fewShotBlock}
         SAÍDA (tipo: "despesa"): "Gastei", "Comprei", "Paguei", "Mandei", "Enviei", "Pix pro/para".
         ENTRADA (tipo: "receita"): "Recebi", "Ganhei", "Caiu", "Entrou", "Entrada", "Entrada de", "Pix de/do", "Salário".
 
-        INTENÇÃO DE CORREÇÃO (JSON PERGUNTA):
+        INTENÇÃO DE CORREÇÃO (DIRETA VS INDIRETA):
         Verbos: "Errei", "Era pra ser", "Não era isso", "Corrige", "Muda", "Altera", "Edita", "Na verdade foi",
         "Quero corrigir", "Não é gasto é entrada", "Não é entrada é gasto".
-        -> Retorne: { "pergunta": "O que devo corrigir no último lançamento?" }
+        -> SE FOR SÓ UM AVISO (ex: "errei no valor"): Retorne { "pergunta": "O que devo corrigir no último lançamento?" }
+        -> SE JÁ DER A RESPOSTA (ex: "foram 50 reais"): Retorne { "acao": "atualizar_ultimo", "gastos": [{...}] }
 
         EXCLUSÃO / CANCELAMENTO (GERE JSON ESPECIAL):
         Verbos: "Excluir", "Exclui", "Apaga", "Deleta", "Remove", "Cancela", "Desfaz", "Esquece esse".
