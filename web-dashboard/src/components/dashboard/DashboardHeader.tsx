@@ -45,37 +45,51 @@ export default function DashboardHeader({
         <motion.header
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 flex flex-col md:flex-row items-center justify-between gap-4 rounded-3xl border border-border bg-card/80 px-6 py-4 shadow-sm backdrop-blur-xl"
+            className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 rounded-3xl border border-border bg-card/80 px-4 md:px-6 py-4 shadow-sm backdrop-blur-xl"
         >
-            <div className="flex items-center gap-4 w-full md:w-auto">
-                <div className="relative">
-                    <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-primary bg-muted">
-                        <img
-                            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userEmail}`}
-                            alt="Avatar"
-                            className="h-full w-full object-cover"
-                        />
+            {/* Top Row (Mobile): User Profile + Notification Bell */}
+            <div className="flex items-center justify-between w-full md:w-auto">
+                <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-primary bg-muted">
+                            <img
+                                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userEmail}`}
+                                alt="Avatar"
+                                className="h-full w-full object-cover"
+                            />
+                        </div>
+                        <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-background">
+                            <div className="absolute h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></div>
+                        </div>
                     </div>
-                    <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-background">
-                        <div className="absolute h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></div>
+                    <div>
+                        <h2 className="text-sm font-medium text-muted-foreground">Bem-vindo,</h2>
+                        <h1 className="text-lg font-bold text-foreground capitalize truncate max-w-[150px] sm:max-w-[200px]">
+                            {userName || userEmail?.split('@')[0]}
+                        </h1>
                     </div>
                 </div>
-                <div>
-                    <h2 className="text-sm font-medium text-muted-foreground">Bem-vindo,</h2>
-                    <h1 className="text-lg font-bold text-foreground capitalize">{userName || userEmail?.split('@')[0]}</h1>
-                </div>
+
+                {/* Bell is here on mobile, but at the end of the flex container on desktop */}
+                <button className="md:hidden flex-shrink-0 rounded-full border border-border bg-secondary/50 p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground">
+                    <Bell size={20} />
+                </button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+            {/* Controls Row (Mobile) / Right Side (Desktop) */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4 w-full md:w-auto md:justify-end mt-2 md:mt-0">
+
                 {/* Seletor de Mês / Customizado */}
-                <div className="flex items-center gap-2 rounded-xl border border-border bg-secondary/50 p-1">
+                <div className="flex items-center justify-between sm:justify-center gap-1 rounded-xl border border-border bg-secondary/50 p-1 w-full sm:w-auto">
                     {customStart ? (
-                        <div className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-primary">
-                            <Calendar size={14} />
-                            <span>Período Personalizado</span>
+                        <div className="flex items-center justify-between w-full px-3 py-1.5 text-sm font-medium text-primary">
+                            <div className="flex items-center gap-2">
+                                <Calendar size={14} />
+                                <span>Período Personalizado</span>
+                            </div>
                             <button
                                 onClick={() => router.push('/dashboard')}
-                                className="ml-2 rounded-full hover:bg-accent p-1"
+                                className="ml-2 rounded-full hover:bg-accent p-1 text-foreground"
                             >
                                 X
                             </button>
@@ -84,19 +98,19 @@ export default function DashboardHeader({
                         <>
                             <button
                                 onClick={() => handleMonthChange(-1)}
-                                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition"
+                                className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition"
                             >
-                                <ChevronLeft size={16} />
+                                <ChevronLeft size={18} />
                             </button>
-                            <div className="flex items-center gap-2 px-2 min-w-[140px] justify-center text-sm font-medium text-foreground">
+                            <div className="flex-1 sm:flex-none flex items-center gap-2 px-2 min-w-[140px] justify-center text-sm font-bold text-foreground">
                                 <Calendar size={14} className="text-primary" />
                                 <span>{MONTH_NAMES[currentMonth - 1]} {currentYear}</span>
                             </div>
                             <button
                                 onClick={() => handleMonthChange(1)}
-                                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition"
+                                className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition"
                             >
-                                <ChevronRight size={16} />
+                                <ChevronRight size={18} />
                             </button>
                         </>
                     )}
@@ -111,29 +125,32 @@ export default function DashboardHeader({
                         const end = formData.get('end') as string
                         if (start && end) router.push(`/dashboard?startDate=${start}&endDate=${end}`)
                     }}
-                    className="flex items-center gap-2"
+                    className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto"
                 >
-                    <input
-                        type="date"
-                        name="start"
-                        defaultValue={customStart}
-                        className="bg-secondary/50 border border-border rounded-lg px-2 py-1 text-xs text-foreground color-scheme-dark"
-                        required
-                    />
-                    <span className="text-muted-foreground">-</span>
-                    <input
-                        type="date"
-                        name="end"
-                        defaultValue={customEnd}
-                        className="bg-secondary/50 border border-border rounded-lg px-2 py-1 text-xs text-foreground color-scheme-dark"
-                        required
-                    />
-                    <button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg p-1 px-3 text-xs font-bold transition">
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <input
+                            type="date"
+                            name="start"
+                            defaultValue={customStart}
+                            className="flex-1 sm:flex-none min-w-0 bg-secondary/50 border border-border rounded-lg px-2 py-2 sm:py-1.5 text-sm sm:text-xs text-foreground color-scheme-dark"
+                            required
+                        />
+                        <span className="text-muted-foreground font-mono">-</span>
+                        <input
+                            type="date"
+                            name="end"
+                            defaultValue={customEnd}
+                            className="flex-1 sm:flex-none min-w-0 bg-secondary/50 border border-border rounded-lg px-2 py-2 sm:py-1.5 text-sm sm:text-xs text-foreground color-scheme-dark"
+                            required
+                        />
+                    </div>
+                    <button type="submit" className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg py-2 sm:py-1.5 px-4 text-sm sm:text-xs font-bold transition">
                         Ir
                     </button>
                 </form>
 
-                <button className="rounded-full border border-border bg-secondary/50 p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground">
+                {/* Bell on Desktop (Hidden on mobile) */}
+                <button className="hidden md:flex flex-shrink-0 rounded-full border border-border bg-secondary/50 p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground">
                     <Bell size={20} />
                 </button>
             </div>
