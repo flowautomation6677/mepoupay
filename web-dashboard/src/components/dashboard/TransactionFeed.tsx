@@ -1,10 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Coffee, ShoppingBag, Car, Home, HeartPulse, MoreHorizontal, GraduationCap, TrendingUp, DollarSign, Briefcase, CheckCircle, AlertTriangle } from 'lucide-react'
-import { TransactionOptions } from './TransactionOptions'
+import { TransactionCardInteraction } from './TransactionCardInteraction'
+import { TransactionDetailsPanel } from './TransactionDetailsPanel'
+import { deleteTransaction, updateTransaction } from '@/actions/transactions'
 
 // Mapeamento de ícones por categoria simples
 const getIcon = (category: string, type: string) => {
@@ -74,6 +77,21 @@ import { Transaction } from '@/types/dashboard'
 
 export default function TransactionFeed({ transactions }: Readonly<{ transactions: Transaction[] }>) {
     const router = useRouter()
+    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
+    const [isPanelOpen, setIsPanelOpen] = useState(false)
+
+    const handleEditRequest = (transaction: Transaction) => {
+        setSelectedTransaction(transaction)
+        setIsPanelOpen(true)
+    }
+
+    const handleDeleteRequest = async (transaction: Transaction) => {
+        await deleteTransaction(transaction.id)
+    }
+
+    const handleSave = async (id: string, updates: Record<string, any>) => {
+        await updateTransaction(id, updates)
+    }
 
     const handleApprove = async (id: string) => {
         try {
@@ -125,59 +143,74 @@ export default function TransactionFeed({ transactions }: Readonly<{ transaction
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: i * 0.05 }}
-                                    className="group relative flex items-center justify-between rounded-xl bg-secondary/50 p-3 px-4 transition-all hover:bg-secondary hover:shadow-lg hover:ring-1 hover:ring-primary/30"
                                 >
-                                    <div className="flex items-center gap-4">
-                                        {/* Icon Box */}
-                                        <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border border-border shadow-inner ${getColor(t.category, t.type)}`}>
-                                            {getIcon(t.category, t.type)}
-                                        </div>
+                                    <TransactionCardInteraction
+                                        transaction={t}
+                                        onEdit={handleEditRequest}
+                                        onDelete={handleDeleteRequest}
+                                    >
+                                        <div className="flex items-center justify-between p-3 px-4">
+                                            <div className="flex items-center gap-4">
+                                                {/* Icon Box */}
+                                                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border border-border shadow-inner ${getColor(t.category, t.type)}`}>
+                                                    {getIcon(t.category, t.type)}
+                                                </div>
 
-                                        <div>
-                                            <p className="font-bold text-foreground">{t.description || 'Sem descrição'}</p>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs text-muted-foreground capitalize">{t.category}</span>
+                                                <div>
+                                                    <p className="font-bold text-foreground">{t.description || 'Sem descrição'}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs text-muted-foreground capitalize">{t.category}</span>
 
-                                                {/* Reliability Badges */}
-                                                {!t.is_validated && (t.confidence_score || 0) < 0.8 && (
-                                                    <span className="flex items-center gap-1 rounded bg-yellow-500/20 px-1.5 py-0.5 text-[10px] font-bold text-yellow-500 border border-yellow-500/30">
-                                                        <AlertTriangle size={10} /> REVISAR
+                                                        {/* Reliability Badges */}
+                                                        {!t.is_validated && (t.confidence_score || 0) < 0.8 && (
+                                                            <span className="flex items-center gap-1 rounded bg-yellow-500/20 px-1.5 py-0.5 text-[10px] font-bold text-yellow-500 border border-yellow-500/30">
+                                                                <AlertTriangle size={10} /> REVISAR
+                                                            </span>
+                                                        )}
+
+                                                        {!t.is_validated && (t.confidence_score || 0) >= 0.8 && (
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); handleApprove(t.id) }}
+                                                                className="opacity-0 transition-opacity flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary sm:group-hover:opacity-100"
+                                                            >
+                                                                APROVAR
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="text-right flex flex-col items-end">
+                                                <span className={`block font-bold text-lg ${t.type === 'INCOME' ? 'text-emerald-500' : 'text-foreground'}`}>
+                                                    {t.type === 'INCOME' ? '+' : '-'} {t.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                                </span>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className="text-[10px] text-muted-foreground font-mono bg-background/50 px-1.5 py-0.5 rounded border border-border">
+                                                        {formatTransactionTime(t.date)}
                                                     </span>
-                                                )}
-
-                                                {!t.is_validated && (t.confidence_score || 0) >= 0.8 && (
-                                                    <button
-                                                        onClick={() => handleApprove(t.id)}
-                                                        className="group-hover:opacity-100 opacity-0 transition-opacity flex items-center gap-1 rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary hover:bg-primary/20"
-                                                    >
-                                                        APROVAR
-                                                    </button>
-                                                )}
-
+                                                    {t.is_validated && (
+                                                        <CheckCircle size={14} className="text-emerald-500/70" />
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div className="text-right flex flex-col items-end">
-                                        <span className={`block font-bold text-lg ${t.type === 'INCOME' ? 'text-emerald-500' : 'text-foreground'}`}>
-                                            {t.type === 'INCOME' ? '+' : '-'} {t.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                        </span>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-[10px] text-muted-foreground font-mono bg-background/50 px-1.5 py-0.5 rounded border border-border">
-                                                {formatTransactionTime(t.date)}
-                                            </span>
-                                            {t.is_validated && (
-                                                <CheckCircle size={14} className="text-emerald-500/70" />
-                                            )}
-                                            <TransactionOptions transaction={t} compact />
-                                        </div>
-                                    </div>
+                                    </TransactionCardInteraction>
                                 </motion.div>
                             ))}
                         </div>
                     </div>
                 ))}
             </div>
+
+            <TransactionDetailsPanel
+                transaction={selectedTransaction}
+                isOpen={isPanelOpen}
+                onOpenChange={setIsPanelOpen}
+                onSave={handleSave}
+                onDelete={async (id) => {
+                    await deleteTransaction(id)
+                }}
+            />
         </div>
     )
 }
