@@ -55,6 +55,7 @@ export default async function DashboardPage({
             <DashboardHeader
                 userEmail={user.email}
                 userName={user.user_metadata?.full_name || profile?.full_name}
+                avatarUrl={profile?.avatar_url}
                 currentMonth={currentMonth}
                 currentYear={currentYear}
                 customStart={customStart}

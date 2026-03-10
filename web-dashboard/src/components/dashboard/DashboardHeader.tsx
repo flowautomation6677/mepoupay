@@ -12,6 +12,7 @@ const MONTH_NAMES = [
 export default function DashboardHeader({
     userEmail,
     userName,
+    avatarUrl,
     currentMonth,
     currentYear,
     customStart,
@@ -19,6 +20,7 @@ export default function DashboardHeader({
 }: Readonly<{
     userEmail: string | undefined,
     userName?: string | null,
+    avatarUrl?: string | null,
     currentMonth: number,
     currentYear: number,
     customStart?: string,
@@ -53,7 +55,7 @@ export default function DashboardHeader({
                     <div className="relative">
                         <div className="h-10 w-10 overflow-hidden rounded-full border-2 border-primary bg-muted">
                             <img
-                                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userEmail}`}
+                                src={avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userEmail}`}
                                 alt="Avatar"
                                 className="h-full w-full object-cover"
                             />

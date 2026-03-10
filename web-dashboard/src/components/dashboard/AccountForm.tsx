@@ -1,21 +1,25 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { createBrowserClient } from "@supabase/ssr"
 import { UserProfile } from "@/types/dashboard"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Camera, Loader2 } from "lucide-react"
 
 export default function AccountForm({ profile }: Readonly<{ profile: UserProfile }>) {
     const [loading, setLoading] = useState(false)
+    const [avatarLoading, setAvatarLoading] = useState(false)
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const [formData, setFormData] = useState({
         full_name: profile.full_name || "",
         whatsapp: profile.whatsapp_numbers?.[0] || "",
-        financial_goal: profile.financial_goal?.toString() || ""
+        financial_goal: profile.financial_goal?.toString() || "",
+        avatar_url: profile.avatar_url || ""
     })
 
     const supabase = createBrowserClient(
@@ -25,6 +29,42 @@ export default function AccountForm({ profile }: Readonly<{ profile: UserProfile
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
+    }
+
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setAvatarLoading(true)
+        setMessage(null)
+
+        try {
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${profile.id}-${Math.random()}.${fileExt}`
+            const filePath = `${fileName}`
+
+            // Upload the file to the 'avatars' bucket
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, file)
+
+            if (uploadError) throw uploadError
+
+            // Retrieve the public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath)
+
+            // Update local state
+            setFormData(prev => ({ ...prev, avatar_url: publicUrl }))
+
+            setMessage({ type: 'success', text: 'Foto carregada! Clique em "Salvar Alterações" para aplicar.' })
+        } catch (error) {
+            console.error(error)
+            setMessage({ type: 'error', text: 'Erro ao enviar a foto. Tente novamente.' })
+        } finally {
+            setAvatarLoading(false)
+        }
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -39,7 +79,8 @@ export default function AccountForm({ profile }: Readonly<{ profile: UserProfile
                 .update({
                     full_name: formData.full_name,
                     whatsapp_numbers: [formData.whatsapp], // Saving as single array item
-                    financial_goal: Number.parseFloat(formData.financial_goal) || 0
+                    financial_goal: Number.parseFloat(formData.financial_goal) || 0,
+                    avatar_url: formData.avatar_url
                 })
                 .eq('id', profile.id)
 
@@ -67,10 +108,10 @@ export default function AccountForm({ profile }: Readonly<{ profile: UserProfile
                 <CardHeader>
                     <CardTitle className="text-xl text-card-foreground">Seus Dados</CardTitle>
                     <CardDescription className="text-muted-foreground">
-                        Gerencie suas informações pessoais e de contato.
+                        Gerencie suas informações pessoais e foto de perfil.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
 
                     {/* Status Message */}
                     {message && (
@@ -78,6 +119,48 @@ export default function AccountForm({ profile }: Readonly<{ profile: UserProfile
                             {message.text}
                         </div>
                     )}
+
+                    {/* Avatar Upload UI */}
+                    <div className="flex flex-col items-center gap-4 pb-4">
+                        <div
+                            className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-secondary bg-muted cursor-pointer group flex items-center justify-center transition-transform hover:scale-105"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            {avatarLoading ? (
+                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            ) : formData.avatar_url ? (
+                                <img
+                                    src={formData.avatar_url}
+                                    alt="Avatar"
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <img
+                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.email}`}
+                                    alt="Avatar Default"
+                                    className="h-full w-full object-cover opacity-80"
+                                />
+                            )}
+
+                            {/* Hover Overlay */}
+                            <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Camera className="h-6 w-6 text-white" />
+                            </div>
+                        </div>
+                        <div className="text-center">
+                            <span className="text-sm font-medium text-primary hover:underline cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                                Alterar foto
+                            </span>
+                            <p className="text-xs text-muted-foreground mt-1">JPG, PNG ou WEBP. Máx 5MB.</p>
+                        </div>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            ref={fileInputRef}
+                            onChange={handleAvatarUpload}
+                        />
+                    </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="email" className="text-foreground">Email</Label>
@@ -134,7 +217,7 @@ export default function AccountForm({ profile }: Readonly<{ profile: UserProfile
                 <CardFooter className="border-t border-border pt-6 flex justify-end">
                     <Button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || avatarLoading}
                         className="bg-primary hover:bg-primary/90 text-primary-foreground"
                     >
                         {loading ? "Salvando..." : "Salvar Alterações"}

@@ -22,6 +22,7 @@ export interface UserProfile {
     whatsapp_numbers?: string[];
     financial_goal?: number;
     balance?: number;
+    avatar_url?: string;
     created_at?: string;
 }
 
