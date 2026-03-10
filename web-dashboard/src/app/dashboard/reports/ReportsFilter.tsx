@@ -43,7 +43,7 @@ export function ReportsFilter({ currentMonth, currentCategoryId, categories }: {
         <div className="flex flex-col gap-1 w-full max-h-[300px] overflow-y-auto p-2">
             <Button
                 variant="ghost"
-                className={cn("justify-start rounded-sm", currentCategoryId === 'all' && "bg-slate-800 text-emerald-400")}
+                className={cn("justify-start rounded-sm", currentCategoryId === 'all' && "bg-accent text-emerald-500")}
                 onClick={() => { handleFilterChange('category', 'all'); setOpen(false); }}
             >
                 Todas as Categorias
@@ -52,7 +52,7 @@ export function ReportsFilter({ currentMonth, currentCategoryId, categories }: {
                 <Button
                     key={cat.id}
                     variant="ghost"
-                    className={cn("justify-start rounded-sm", currentCategoryId === cat.id && "bg-slate-800 text-emerald-400")}
+                    className={cn("justify-start rounded-sm", currentCategoryId === cat.id && "bg-accent text-emerald-500")}
                     onClick={() => { handleFilterChange('category', cat.id); setOpen(false); }}
                 >
                     {cat.name}
@@ -63,9 +63,9 @@ export function ReportsFilter({ currentMonth, currentCategoryId, categories }: {
 
     return (
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 w-full">
-            <div className="flex items-center gap-2 text-slate-400">
+            <div className="flex items-center gap-2 text-muted-foreground">
                 <Filter className="w-5 h-5 text-emerald-500" />
-                <span className="font-mono text-xs uppercase tracking-widest text-slate-300">Inteligência de Filtragem</span>
+                <span className="font-mono text-xs uppercase tracking-widest text-foreground">Inteligência de Filtragem</span>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch gap-3 w-full sm:w-auto">
@@ -74,12 +74,12 @@ export function ReportsFilter({ currentMonth, currentCategoryId, categories }: {
                 {isDesktop ? (
                     <Popover open={openDate} onOpenChange={setOpenDate}>
                         <PopoverTrigger asChild>
-                            <Button variant="outline" className="w-full sm:w-[220px] justify-start text-left font-normal bg-slate-900 border-slate-700 hover:bg-slate-800 hover:text-slate-100 rounded-sm">
+                            <Button variant="outline" className="w-full sm:w-[220px] justify-start text-left font-normal bg-background border-input hover:bg-accent hover:text-accent-foreground rounded-sm">
                                 <CalendarIcon className="mr-2 h-4 w-4 text-emerald-500" />
                                 <span className="capitalize">{dateLabel}</span>
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 bg-slate-950 border-slate-800 rounded-md" align="start">
+                        <PopoverContent className="w-auto p-0 bg-popover border-border rounded-md" align="start">
                             <Calendar
                                 mode="single"
                                 selected={parsedDate}
@@ -91,19 +91,19 @@ export function ReportsFilter({ currentMonth, currentCategoryId, categories }: {
                                     }
                                 }}
                                 defaultMonth={parsedDate}
-                                className="bg-slate-950 text-slate-50"
+                                className="bg-popover text-popover-foreground"
                             />
                         </PopoverContent>
                     </Popover>
                 ) : (
                     <Drawer open={openDate} onOpenChange={setOpenDate}>
                         <DrawerTrigger asChild>
-                            <Button variant="outline" className="w-full justify-start text-left font-normal bg-slate-900 border-slate-700 hover:bg-slate-800 hover:text-slate-100 rounded-none h-12 text-base">
+                            <Button variant="outline" className="w-full justify-start text-left font-normal bg-background border-input hover:bg-accent hover:text-accent-foreground rounded-none h-12 text-base">
                                 <CalendarIcon className="mr-2 h-5 w-5 text-emerald-500" />
                                 <span className="capitalize">{dateLabel}</span>
                             </Button>
                         </DrawerTrigger>
-                        <DrawerContent className="bg-slate-950 border-slate-800 text-slate-50">
+                        <DrawerContent className="bg-background border-border text-foreground">
                             <DrawerTitle className="sr-only">Escolher Mês</DrawerTitle>
                             <div className="p-4 py-8 flex justify-center w-full">
                                 <Calendar
@@ -128,25 +128,25 @@ export function ReportsFilter({ currentMonth, currentCategoryId, categories }: {
                 {isDesktop ? (
                     <Popover open={openCat} onOpenChange={setOpenCat}>
                         <PopoverTrigger asChild>
-                            <Button variant="outline" className="w-full sm:w-[220px] justify-start text-left font-normal bg-slate-900 border-slate-700 hover:bg-slate-800 hover:text-slate-100 rounded-sm">
+                            <Button variant="outline" className="w-full sm:w-[220px] justify-start text-left font-normal bg-background border-input hover:bg-accent hover:text-accent-foreground rounded-sm">
                                 <Layers className="mr-2 h-4 w-4 text-rose-400" />
                                 <span className="truncate">{catLabel}</span>
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[220px] p-0 bg-slate-950 border-slate-800 rounded-md" align="start">
+                        <PopoverContent className="w-[220px] p-0 bg-popover border-border rounded-md" align="start">
                             <CategoryList setOpen={setOpenCat} />
                         </PopoverContent>
                     </Popover>
                 ) : (
                     <Drawer open={openCat} onOpenChange={setOpenCat}>
                         <DrawerTrigger asChild>
-                            <Button variant="outline" className="w-full justify-start text-left font-normal bg-slate-900 border-slate-700 hover:bg-slate-800 hover:text-slate-100 rounded-none h-12 text-base">
+                            <Button variant="outline" className="w-full justify-start text-left font-normal bg-background border-input hover:bg-accent hover:text-accent-foreground rounded-none h-12 text-base">
                                 <Layers className="mr-2 h-5 w-5 text-rose-400" />
                                 <span className="truncate">{catLabel}</span>
                             </Button>
                         </DrawerTrigger>
-                        <DrawerContent className="bg-slate-950 border-slate-800 text-slate-50 max-h-[80vh]">
-                            <DrawerTitle className="px-6 pt-6 text-lg font-bold text-slate-200">Filtrar Categoria</DrawerTitle>
+                        <DrawerContent className="bg-background border-border text-foreground max-h-[80vh]">
+                            <DrawerTitle className="px-6 pt-6 text-lg font-bold text-foreground">Filtrar Categoria</DrawerTitle>
                             <div className="p-4 pb-10">
                                 <CategoryList setOpen={setOpenCat} />
                             </div>
