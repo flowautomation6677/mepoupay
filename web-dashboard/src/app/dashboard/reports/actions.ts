@@ -154,3 +154,71 @@ export async function getReportSummaryLive(month?: string, categoryId?: string):
         currentCategoryId: filterCatId || 'all'
     };
 }
+
+export type ExportTransaction = {
+    id: string;
+    date: string;
+    description: string;
+    category: string;
+    amount: number;
+    type: string;
+    gross_amount?: number;
+    discount_amount?: number;
+};
+
+export async function exportReportData(month?: string, categoryId?: string): Promise<ExportTransaction[]> {
+    const supabase = await createClient();
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+        throw new Error('Usuário não autenticado');
+    }
+
+    const now = new Date();
+    const currentMonthVal = month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const filterCatId = categoryId === 'all' ? '' : (categoryId || '');
+
+    const startOfMonth = new Date(`${currentMonthVal}-01T00:00:00.000Z`);
+    const endOfMonth = new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    // 1. Fetch Categories for mapping names
+    const { data: categoriesData } = await supabase
+        .from('categories')
+        .select('id, name')
+        .eq('user_id', user.id);
+
+    const catMap = new Map<string, string>();
+    categoriesData?.forEach(c => catMap.set(c.id, c.name));
+
+    // 2. Fetch Transactions
+    let query = supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('date', startOfMonth.toISOString())
+        .lte('date', endOfMonth.toISOString())
+        .order('date', { ascending: true }); // Chronological order is better for exports
+
+    if (filterCatId) {
+        query = query.eq('category_id', filterCatId);
+    }
+
+    const { data: transactions, error } = await query;
+
+    if (error) {
+        console.error('Erro ao buscar transações para exportação:', error);
+        throw new Error('Falha ao exportar relatórios');
+    }
+
+    // 3. Map to Export Format
+    return (transactions || []).map(tx => ({
+        id: tx.id,
+        date: tx.date ? new Date(tx.date).toISOString().split('T')[0] : 'Desconhecido',
+        description: tx.description || 'Sem descrição',
+        category: tx.category_id ? (catMap.get(tx.category_id) || 'Desconhecida') : 'Sem Categoria',
+        amount: Number(tx.amount) || 0,
+        type: tx.type === 'INCOME' ? 'Receita' : 'Despesa',
+        gross_amount: Number(tx.gross_amount) || Number(tx.amount) || 0,
+        discount_amount: Number(tx.discount_amount) || 0
+    }));
+}

@@ -8,6 +8,7 @@ import {
 import { type ReportSummary } from './actions';
 import { TrendingUp, Scissors, ArrowRight, PieChart as PieChartIcon } from 'lucide-react';
 import { ReportsFilter } from './ReportsFilter';
+import { ReportExport } from './ReportExport';
 
 interface ReportsClientProps {
     data: ReportSummary;
@@ -44,13 +45,21 @@ export default function ReportsClient({ data }: ReportsClientProps) {
             animate="show"
             className="p-4 md:p-10 min-h-full bg-background text-foreground w-full"
         >
-            {/* Header / Filtros */}
-            <motion.div variants={itemVariants} className="mb-8 md:mb-10 pb-4 border-b border-border">
-                <ReportsFilter
-                    currentMonth={data.currentMonth}
-                    currentCategoryId={data.currentCategoryId}
-                    categories={data.categories}
-                />
+            {/* Header / Filtros & Export */}
+            <motion.div variants={itemVariants} className="mb-8 md:mb-10 pb-4 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex-1 w-full">
+                    <ReportsFilter
+                        currentMonth={data.currentMonth}
+                        currentCategoryId={data.currentCategoryId}
+                        categories={data.categories}
+                    />
+                </div>
+                <div className="shrink-0 w-full sm:w-auto">
+                    <ReportExport
+                        month={data.currentMonth}
+                        categoryId={data.currentCategoryId}
+                    />
+                </div>
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
