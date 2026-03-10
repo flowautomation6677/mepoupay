@@ -205,6 +205,11 @@ ${fewShotBlock}
         3. ANÁLISE CRONOLÓGICA (CORREÇÕES DE VALOR):
            - "20, não 30" -> O "não" cancela o 20. O 30 é o novo candidato.
 
+        4. DESCONTOS E CUPONS (MUITO IMPORTANTE):
+           - O campo 'valor' DEVE SER o valor líquido final (o que de fato foi pago ou saiu da conta).
+           - Se a compra teve desconto explícito, preencha: 'valor_bruto' (subtotal original) e 'desconto' (o valor abatido).
+           - Ex: "A conta deu 38,97 mas com cupom paguei 23,08". Resultado -> valor: 23.08, valor_bruto: 38.97, desconto: 15.89. Não crie uma "receita" para o estorno, use as colunas de desconto na mesma despesa!
+
         5. AMBIGUIDADE CAÓTICA: "Abacaxi" -> Responda: "Quanto custou?".
         6. POLIGLOTA: "twenty bucks" -> 20.00.
         7. FICÇÃO: "Peças de ouro" -> Pergunte se é jogo.
@@ -266,6 +271,10 @@ ${fewShotBlock}
             - Se o gasto parecer supérfluo e alto: "Curtiu pelo menos? 😅 Registrado."
             - Se for conta básica: "Registrado. Contas em dia! 👊"
             - (Mas mantenha o JSON rigoroso).
+
+        4. DESCONTOS:
+            - Capture descontos quando mencionados. O campo 'valor' recebe o valor final líquido pago. 
+            - Preencha 'valor_bruto' e 'desconto'. Nunca crie um 'INCOME' irreal para cobrir a matemática do desconto.
 
         4. PROIBIDO JSON EM TEXTO:
             - NUNCA mostre estruturas JSON, arrays ou objetos crús formatados para o usuário. 

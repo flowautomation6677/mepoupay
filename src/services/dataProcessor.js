@@ -54,9 +54,15 @@ async function _processItems(transacoes) {
 
         const { convertedValue, exchangeRate } = await currencyService.convertValue(g.valor, g.moeda);
 
+        // Convert optional gross and discount values
+        let convertedGross = g.valor_bruto ? Number((g.valor_bruto * exchangeRate).toFixed(2)) : undefined;
+        let convertedDiscount = g.desconto ? Number((g.desconto * exchangeRate).toFixed(2)) : undefined;
+
         validItems.push({
             ...g,
             valor: convertedValue, // Valor em BRL
+            valor_bruto: convertedGross, // Valor bruto convertido se houver
+            desconto: convertedDiscount, // Desconto convertido se houver
             valor_original: g.valor, // Valor original
             moeda_original: g.moeda || 'BRL',
             taxa_cambio: exchangeRate,
@@ -126,6 +132,8 @@ async function _generatePayload(validItems, embeddings, userId, data) {
             account_id: accountData.id,
             category_id: category_id,
             amount: g.valor,
+            gross_amount: g.valor_bruto || g.valor, // fallback ao proprio valor se não houver descontos
+            discount_amount: g.desconto || 0.00,
             type: typeEnum,
             description: g.descricao || 'Item sem descrição',
             date: getExactTimestamp(g.data),

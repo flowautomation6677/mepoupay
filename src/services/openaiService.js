@@ -63,16 +63,24 @@ async function _analyzeImage(base64Image, mimetype) {
     Regras:
     1. "SALÁRIO", "VENDA", "PIX RECEBIDO", "DÍZIMO" (se for entrada), etc -> tipo: 'receita'.
     2. "MERCADO", "COMPRA", "PAGAMENTO", "DÍZIMO" (se for saída) -> tipo: 'despesa'.
-    3. Retorne JSON no formato:
+    3. Valores e Descontos (CRÍTICO PARA IFOOD/UBER):
+    - O campo 'valor' DEVE OBRIGATORIAMENTE conter o valor LÍQUIDO pago (após qualquer desconto).
+    - Se a imagem possuir itens separados (ex: Caldo 33.99) + Taxas (4.98) e um desconto aplicado formando o valor pago final (ex: Pix 23.08):
+      -> AGRUPE TUDO em uma única transação (ex: "Pedido iFood - Caldo + Taxas").
+      -> 'valor_bruto' = a soma dos produtos s/ desconto (ex: 38.97).
+      -> 'desconto' = o cupom abatido (ex: 15.89).
+      -> 'valor' = o Líquido Final Pago na Nota (ex: 23.08).
+    - NUNCA liste as linhas de forma de pagamento ("Pagamento Pix", "Cartão de Crédito", "Total Pago") como um gasto extra. Use elas *apenas como gabarito* de verificação do Valor Líquido final.
+    4. Retorne JSON no formato:
     {
         "transacoes": [
             {
                 "descricao": "Nome do item (Ex: 'Coca Cola', 'Salário')",
                 "valor": 10.50, 
+                "valor_bruto": 15.00, // opcional
+                "desconto": 4.50, // opcional
                 "categoria": "Alimentação, Transporte, Salário, Lazer...",
                 "tipo": "receita" | "despesa",
-                "data": "YYYY-MM-DD"
-            }
                 "data": "YYYY-MM-DD"
             }
         ],
@@ -114,6 +122,8 @@ async function _analyzePdfText(text) {
        - Taxas, Juros, Multas (Classifique como "Taxas/Juros")
        - Estornos
        
+    SE identificar descontos explícitos atrelados a um item ou compra, extraia-os nos campos especificados. Cuidado: O campo 'valor' é SEMPRE o líquido de fato desembolsado.
+
     IGNORE: "Saldo Anterior", "Saldo Final" (apenas transações ou total a pagar).
 
     Retorne JSON estrito:
@@ -124,6 +134,8 @@ async function _analyzePdfText(text) {
             {
                 "descricao": "Nome do estabelecimento ou transação",
                 "valor": 10.50,
+                "valor_bruto": 12.00, // opcional (subtotal original se houver desconto)
+                "desconto": 1.50, // opcional (valor deduzido se houver)
                 "categoria": "Categoria sugerida (Ex: Alimentação, Transporte, Taxas/Juros, Salário)",
                 "tipo": "despesa" | "receita",
                 "data": "YYYY-MM-DD"
@@ -195,6 +207,8 @@ async function _chatCompletion(messages, tools = [], model = "gpt-4o") {
                                 properties: {
                                     descricao: { type: "string" },
                                     valor: { type: "number" },
+                                    valor_bruto: { type: ["number", "null"] },
+                                    desconto: { type: ["number", "null"] },
                                     moeda: { type: ["string", "null"] },
                                     categoria: { type: ["string", "null"] },
                                     tipo: { type: "string" },

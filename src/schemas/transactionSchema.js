@@ -9,7 +9,9 @@ const CATEGORIAS_PERMITIDAS = [
 
 const TransactionItemSchema = z.object({
     descricao: z.string().describe("Nome ou descrição do item/transação"),
-    valor: z.number().describe("Valor monetário da transação"),
+    valor: z.number().describe("Valor líquido compensado pago monetariamente"),
+    valor_bruto: z.number().optional().describe("Valor bruto original total (produtos + taxas) antes de qualquer desconto"),
+    desconto: z.number().optional().describe("Valor do desconto (cupom/promoção) que reduziu o valor final. Ex: 10.50"),
     categoria: z.enum(CATEGORIAS_PERMITIDAS).default("Outros").describe("Categoria padronizada"),
     moeda: z.string().length(3).default("BRL").describe("Código ISO 4217 da moeda (Ex: BRL, USD, EUR)"),
     tipo: z.enum(['receita', 'despesa']).default('despesa').describe("Tipo da transação"),
