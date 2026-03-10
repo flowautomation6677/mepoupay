@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Coffee, ShoppingBag, Car, Home, HeartPulse, MoreHorizontal, GraduationCap, TrendingUp, DollarSign, Briefcase, CheckCircle, AlertTriangle } from 'lucide-react'
+import { TransactionOptions } from './TransactionOptions'
 
 // Mapeamento de ícones por categoria simples
 const getIcon = (category: string, type: string) => {
@@ -161,13 +162,14 @@ export default function TransactionFeed({ transactions }: Readonly<{ transaction
                                         <span className={`block font-bold text-lg ${t.type === 'INCOME' ? 'text-emerald-500' : 'text-foreground'}`}>
                                             {t.type === 'INCOME' ? '+' : '-'} {t.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                                         </span>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] text-muted-foreground">
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-[10px] text-muted-foreground font-mono bg-background/50 px-1.5 py-0.5 rounded border border-border">
                                                 {formatTransactionTime(t.date)}
                                             </span>
                                             {t.is_validated && (
-                                                <CheckCircle size={12} className="text-emerald-500/50" />
+                                                <CheckCircle size={14} className="text-emerald-500/70" />
                                             )}
+                                            <TransactionOptions transaction={t} compact />
                                         </div>
                                     </div>
                                 </motion.div>

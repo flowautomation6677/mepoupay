@@ -1,5 +1,6 @@
 import { formatCurrency } from '@/utils/formatters'
 import { Transaction } from '@/types/dashboard'
+import { TransactionOptions } from './TransactionOptions'
 
 export default function TransactionTable({ transactions }: Readonly<{ transactions: Transaction[] }>) {
     return (
@@ -15,6 +16,7 @@ export default function TransactionTable({ transactions }: Readonly<{ transactio
                             <th className="px-6 py-3">Categoria</th>
                             <th className="px-6 py-3">Descrição</th>
                             <th className="px-6 py-3">Valor</th>
+                            <th className="px-6 py-3 text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
@@ -29,8 +31,11 @@ export default function TransactionTable({ transactions }: Readonly<{ transactio
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-muted-foreground">{t.description || 'Sem descrição'}</td>
-                                <td className="px-6 py-4 font-medium text-foreground">
-                                    {formatCurrency(t.amount)}
+                                <td className={`px-6 py-4 font-bold ${t.type === 'INCOME' ? 'text-emerald-500' : 'text-foreground'}`}>
+                                    {t.type === 'INCOME' ? '+' : '-'} {formatCurrency(t.amount)}
+                                </td>
+                                <td className="px-6 py-4 text-right">
+                                    <TransactionOptions transaction={t} />
                                 </td>
                             </tr>
                         ))}
