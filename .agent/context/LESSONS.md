@@ -53,7 +53,11 @@
     * **A Regra:** Em filtros de texto que comparam com dados vindos do banco via IA, sempre use `.toLowerCase().includes(...)` — nunca `===`.
 
 ## 5. 🛡️ Segurança & Auth
-* **Políticas RLS:** O Row Level Security (RLS) deve ser ativado imediatamente na criação de tabelas no Supabase.
+* **Políticas RLS para Tabelas:** O Row Level Security (RLS) deve ser ativado imediatamente na criação de tabelas no Supabase.
+* **[CRÍTICO] Supabase Storage RLS (Upload de Arquivos Bloqueado):**
+    * **O Erro:** Ao criar um novo Storage Bucket (ex: `avatars`), o envio de imagens via UI falhou silenciosamente. Buckets criados com `public: true` apenas liberam a **leitura** (Select). As operações de mutação (Insert/Update/Delete) vêm estritamente bloqueadas pelo banco de dados por padrão na tabela `storage.objects`.
+    * **A Correção:** Escrever um script/migração SQL para criar as `POLICY` na tabela `storage.objects` permitindo `FOR INSERT TO authenticated`.
+    * **A Regra:** TODA vez que você planejar usar o Supabase Storage para uploads via Client-Side, OBRIGATORIAMENTE preveja e aplique as políticas RLS (`INSERT`, `UPDATE`, `DELETE`) em `storage.objects` amarradas ao `USING (bucket_id = 'nome_do_bucket')`.
 * **Limpeza de Contexto:** Ao usar `/esquecer`, NÃO delete o registro do usuário (`users` table). Apenas limpe o histórico de sessão/thread no Redis e Supabase.
 
 ## 6. 📜 Protocolos Operacionais (Manual de Execução XP)
