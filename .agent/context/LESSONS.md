@@ -41,6 +41,10 @@
 ## 4. 🖥️ Frontend (Next.js App Router)
 * **Supabase Client:** NÃO use `createClient` genérico. Use `src/utils/supabase/server.ts` (Server Components) ou `src/utils/supabase/client.ts` (Client Components).
 * **Server Actions:** Prefira Server Actions em vez de rotas de API para mutações de formulário.
+* **[CRÍTICO] Inconsistência de Tema (Light/Dark Mode) no Shadcn UI:**
+    * **O Erro:** Telas e componentes (como relatórios) foram construídos usando utilitários de cor absolutos do Tailwind (ex: `bg-slate-950`, `text-slate-50`, `border-slate-800`), o que "engessava" o componente no modo escuro, quebrando a legibilidade quando o app estava no tema claro.
+    * **A Correção:** Refatoração de todo o dashboard substituindo as cores fixas por variáveis semânticas do tema (ex: `bg-slate-950` → `bg-background`, `text-slate-50` → `text-foreground`, `border-slate-800` → `border-border`, `bg-slate-900/50` → `bg-card`).
+    * **A Regra:** NUNCA utilize cores de paleta estática (como `slate-900`, `gray-100`) para estruturar contêineres principais, fundos, bordas e textos em projetos com suporte a modos Claro/Escuro. SEMPRE utilize as variáveis semânticas (ex: `bg-background`, `text-primary`, `border-border`, `text-muted-foreground`) injetadas via classe `.dark` no `globals.css`.
 * **[CRÍTICO] Hooks após `return` condicional (Rules of Hooks):**
     * **O Erro:** `useState`/`useCallback` foram escritos **depois** de um `if (!profile) return null`. O React viola silenciosamente — sem erro no console, sem aviso visível — e o estado nunca atualiza.
     * **A Regra:** SEMPRE declare todos os hooks no **topo** da função, antes de qualquer `return` condicional. A ordem dos hooks nunca pode ser condicional.
