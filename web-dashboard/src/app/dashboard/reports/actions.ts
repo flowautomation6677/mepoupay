@@ -2,6 +2,8 @@
 
 import { createClient } from '@/utils/supabase/server';
 
+export type CategoryData = { id: string; name: string; color?: string; icon?: string };
+
 export type ReportSummary = {
     totalRevenue: number;
     totalExpenses: number;
@@ -9,25 +11,55 @@ export type ReportSummary = {
     totalDiscount: number;
     transactionsByDate: { date: string; income: number; expense: number }[];
     recentDiscounts: { id: string; description: string; gross_amount: number; discount_amount: number; amount: number; date: string }[];
+    expensesByCategory: { name: string; value: number; fill: string; categoryId: string }[];
+    categories: CategoryData[];
+    currentMonth: string;
+    currentCategoryId: string;
 };
 
-export async function getReportSummaryMock(): Promise<ReportSummary> {
+export async function getReportSummaryLive(month?: string, categoryId?: string): Promise<ReportSummary> {
     const supabase = await createClient();
 
-    // Obter usuário logado
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
         throw new Error('Usuário não autenticado');
     }
 
-    // Buscar transações (vamos limitar aos últimos 100 dias ou mês atual no mundo real, 
-    // mas usarei query geral ordenada por data para esta POC)
-    const { data: transactions, error } = await supabase
+    // Definir Mês Atual se não houver filtro
+    const now = new Date();
+    // Ajuste fuso, garantindo pegar YYYY-MM
+    const currentMonthVal = month || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const filterCatId = categoryId === 'all' ? '' : (categoryId || '');
+
+    // Construir limites do mês
+    const startOfMonth = new Date(`${currentMonthVal}-01T00:00:00.000Z`);
+    // Último dia do mês (avança 1 mês e volta 1 dia)
+    const endOfMonth = new Date(startOfMonth.getFullYear(), startOfMonth.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    // 1. Buscar Categorias do Usuário
+    const { data: categoriesData } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('user_id', user.id);
+
+    const categories: CategoryData[] = categoriesData || [];
+    const catMap = new Map<string, CategoryData>();
+    categories.forEach(c => catMap.set(c.id, c));
+
+    // 2. Buscar Transações com Filtros
+    let query = supabase
         .from('transactions')
         .select('*')
         .eq('user_id', user.id)
-        .order('date', { ascending: false })
-        .limit(1000);
+        .gte('date', startOfMonth.toISOString())
+        .lte('date', endOfMonth.toISOString())
+        .order('date', { ascending: false });
+
+    if (filterCatId) {
+        query = query.eq('category_id', filterCatId);
+    }
+
+    const { data: transactions, error } = await query;
 
     if (error) {
         console.error('Erro ao buscar transações:', error);
@@ -38,18 +70,21 @@ export async function getReportSummaryMock(): Promise<ReportSummary> {
     let totalExpenses = 0;
     let totalDiscount = 0;
 
-    // Mapa para o Gráfico
     const dateMap: Record<string, { income: number; expense: number }> = {};
-
-    // Lista de descontos
+    const categoryExpenseMap: Record<string, number> = {};
     const recentDiscounts: ReportSummary['recentDiscounts'] = [];
+
+    // Gerar Map de cores baseadas nas categorias ou default
+    const getColor = (idx: number, customColor?: string) => {
+        if (customColor) return customColor;
+        const colors = ['#f43f5e', '#3b82f6', '#f59e0b', '#8b5cf6', '#10b981', '#ec4899', '#14b8a6', '#f97316'];
+        return colors[idx % colors.length];
+    };
 
     transactions?.forEach(tx => {
         const amount = Number(tx.amount) || 0;
         const discount = Number(tx.discount_amount) || 0;
         const gross = Number(tx.gross_amount) || amount;
-
-        // Convert format date YYYY-MM-DD
         const dateStr = tx.date ? new Date(tx.date).toISOString().split('T')[0] : 'Desconhecido';
 
         if (!dateMap[dateStr]) {
@@ -63,7 +98,12 @@ export async function getReportSummaryMock(): Promise<ReportSummary> {
             totalExpenses += amount;
             dateMap[dateStr].expense += amount;
 
-            // Se houver desconto nesta despesa, soma ao Pote "Smart Money"
+            // Mapear Gastos por Categoria
+            const cId = tx.category_id || 'unassigned';
+            if (!categoryExpenseMap[cId]) categoryExpenseMap[cId] = 0;
+            categoryExpenseMap[cId] += amount;
+
+            // Retenções (Smart Money)
             if (discount > 0) {
                 totalDiscount += discount;
                 recentDiscounts.push({
@@ -78,20 +118,28 @@ export async function getReportSummaryMock(): Promise<ReportSummary> {
         }
     });
 
-    // Ordenar o mapa por data crescente para o gráfico
     const transactionsByDate = Object.entries(dateMap)
         .toSorted(([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime())
         .map(([date, values]) => ({
             date,
             income: values.income,
             expense: values.expense
-        }))
-        .slice(-30); // Ultimos 30 dias com movimento
+        }));
 
-    // Filtrar topo dos últimos descontos
     const topDiscounts = recentDiscounts
         .toSorted((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 10);
+
+    // Formatar Gastos por Categoria para o Recharts
+    let catIndex = 0;
+    const expensesByCategory = Object.entries(categoryExpenseMap)
+        .map(([cId, value]) => {
+            const catInfo = catMap.get(cId);
+            const name = catInfo?.name || 'Sem Categoria';
+            const fill = getColor(catIndex++, catInfo?.color);
+            return { name, value, fill, categoryId: cId };
+        })
+        .toSorted((a, b) => b.value - a.value); // Maiores gastos primeiro
 
     return {
         totalRevenue,
@@ -99,6 +147,10 @@ export async function getReportSummaryMock(): Promise<ReportSummary> {
         balance: totalRevenue - totalExpenses,
         totalDiscount,
         transactionsByDate,
-        recentDiscounts: topDiscounts
+        recentDiscounts: topDiscounts,
+        expensesByCategory,
+        categories,
+        currentMonth: currentMonthVal,
+        currentCategoryId: filterCatId || 'all'
     };
 }
