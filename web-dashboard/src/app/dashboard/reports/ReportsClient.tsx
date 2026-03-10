@@ -7,7 +7,8 @@ import {
     PieChart, Pie, Cell
 } from 'recharts';
 import { type ReportSummary } from './actions';
-import { TrendingUp, Scissors, ArrowRight, Filter, PieChart as PieChartIcon } from 'lucide-react';
+import { TrendingUp, Scissors, ArrowRight, PieChart as PieChartIcon } from 'lucide-react';
+import { ReportsFilter } from './ReportsFilter';
 
 interface ReportsClientProps {
     data: ReportSummary;
@@ -27,9 +28,6 @@ const itemVariants: Variants = {
 };
 
 export default function ReportsClient({ data }: ReportsClientProps) {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-
     // Formatters
     const formatCurrency = (value: number) => {
         return new Intl.NumberFormat('pt-BR', {
@@ -40,65 +38,20 @@ export default function ReportsClient({ data }: ReportsClientProps) {
 
     const isPositive = data.balance >= 0;
 
-    // Controllers do Filtro (Via Server Components URL param)
-    const handleFilterChange = (type: 'month' | 'category', value: string) => {
-        const current = new URLSearchParams(Array.from(searchParams.entries()));
-        if (value && value !== 'all') {
-            current.set(type, value);
-        } else {
-            current.delete(type);
-        }
-        router.push(`/dashboard/reports?${current.toString()}`);
-    };
-
-    // Gera opções de Meses
-    const generateMonthOptions = () => {
-        const options = [];
-        const today = new Date();
-        for (let i = 0; i < 12; i++) {
-            const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-            const label = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-            options.push({ val, label: label.charAt(0).toUpperCase() + label.slice(1) });
-        }
-        return options;
-    };
-
     return (
         <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="p-6 md:p-10 min-h-full bg-slate-950 text-slate-50 w-full"
+            className="p-4 md:p-10 min-h-full bg-slate-950 text-slate-50 w-full"
         >
             {/* Header / Filtros */}
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10 pb-4 border-b border-slate-800">
-                <div className="flex items-center gap-2 text-slate-400">
-                    <Filter className="w-5 h-5 text-emerald-500" />
-                    <span className="font-mono text-xs uppercase tracking-widest text-slate-300">Inteligência de Filtragem</span>
-                </div>
-                <div className="flex items-center gap-4 w-full sm:w-auto">
-                    <select
-                        value={data.currentMonth}
-                        onChange={(e) => handleFilterChange('month', e.target.value)}
-                        className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-sm focus:ring-emerald-500 focus:border-emerald-500 block p-2 outline-none w-full sm:w-auto"
-                    >
-                        {generateMonthOptions().map(opt => (
-                            <option key={opt.val} value={opt.val}>{opt.label}</option>
-                        ))}
-                    </select>
-
-                    <select
-                        value={data.currentCategoryId}
-                        onChange={(e) => handleFilterChange('category', e.target.value)}
-                        className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-sm focus:ring-emerald-500 focus:border-emerald-500 block p-2 outline-none w-full sm:w-auto"
-                    >
-                        <option value="all">Todas as Categorias</option>
-                        {data.categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                    </select>
-                </div>
+            <motion.div variants={itemVariants} className="mb-8 md:mb-10 pb-4 border-b border-slate-800">
+                <ReportsFilter
+                    currentMonth={data.currentMonth}
+                    currentCategoryId={data.currentCategoryId}
+                    categories={data.categories}
+                />
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -108,8 +61,8 @@ export default function ReportsClient({ data }: ReportsClientProps) {
                     {/* Hero Typographic Section */}
                     <motion.section variants={itemVariants} className="flex flex-col gap-2">
                         <h2 className="text-slate-400 font-mono text-sm uppercase tracking-widest mb-2">Visão Consolidada ({data.currentMonth})</h2>
-                        <div className="flex flex-col md:flex-row items-baseline gap-4">
-                            <h1 className={`text-6xl md:text-8xl font-black tracking-tighter ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        <div className="flex flex-col md:flex-row items-baseline gap-2 md:gap-4 mt-2">
+                            <h1 className={`text-5xl sm:text-6xl md:text-8xl font-black tracking-tighter ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
                                 {formatCurrency(data.balance)}
                             </h1>
                         </div>
