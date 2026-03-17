@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Since a trigger probably creates the profile on public.profiles via user auth signup but we can also handle missing roles. Assuming standard behavior for MePoupay:
-    await supabaseAdmin.from('profiles').update({ role, full_name: fullName }).eq('id', authData.user.id);
+    await supabaseAdmin.from('profiles').update({ is_admin: role === 'admin', full_name: fullName }).eq('id', authData.user.id);
 
     return NextResponse.json({ success: true, user: authData.user }, { status: 200 });
 
