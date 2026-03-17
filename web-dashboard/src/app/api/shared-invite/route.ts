@@ -52,7 +52,10 @@ export async function POST(req: NextRequest) {
     }
 
     const { token } = linkRecord;
-    const baseUrl = req.nextUrl.origin;
+    const host = req.headers.get('host') || 'localhost:3000';
+    const protocol = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`;
+    
     const inviteLink = `${baseUrl}/auth/join?token=${token}`;
 
     return NextResponse.json({ link: inviteLink }, { status: 200 });
