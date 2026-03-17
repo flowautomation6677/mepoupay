@@ -18,6 +18,7 @@ ALTER TABLE public.shared_invite_links ENABLE ROW LEVEL SECURITY;
 
 -- Exemplo RLS Polices:
 -- Admins (ou quem criou) podem visualizar e gerenciar:
+DROP POLICY IF EXISTS "Admins can view all shared links" ON public.shared_invite_links;
 CREATE POLICY "Admins can view all shared links"
     ON public.shared_invite_links
     FOR SELECT
@@ -27,6 +28,7 @@ CREATE POLICY "Admins can view all shared links"
       EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND is_admin = true)
     );
 
+DROP POLICY IF EXISTS "Admins can insert shared links" ON public.shared_invite_links;
 CREATE POLICY "Admins can insert shared links"
     ON public.shared_invite_links
     FOR INSERT
@@ -36,6 +38,7 @@ CREATE POLICY "Admins can insert shared links"
       EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND is_admin = true)
     );
 
+DROP POLICY IF EXISTS "Admins can update shared links" ON public.shared_invite_links;
 CREATE POLICY "Admins can update shared links"
     ON public.shared_invite_links
     FOR UPDATE
@@ -46,6 +49,7 @@ CREATE POLICY "Admins can update shared links"
     );
 
 -- Serviço / Auth public route can select valid token (we'll query using Service Role so this policy is optional, but good for Client-Side validation if needed)
+DROP POLICY IF EXISTS "Public can view active links by token" ON public.shared_invite_links;
 CREATE POLICY "Public can view active links by token"
     ON public.shared_invite_links
     FOR SELECT
@@ -57,6 +61,7 @@ CREATE POLICY "Public can view active links by token"
     );
 
 -- Trigger de updated_at
+DROP TRIGGER IF EXISTS on_update_shared_invite_links ON public.shared_invite_links;
 CREATE TRIGGER on_update_shared_invite_links
   BEFORE UPDATE ON public.shared_invite_links
   FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();

@@ -22,6 +22,14 @@
     * **O Erro:** Ao enviar fotos de recibos sem uma data escrita manual (ex: caderno de anotações), o gpt-4o (Vision API) inferia datas do passado e alucinava o ano (ex: 2023).
     * **A Correção:** A função `_analyzeImage` foi refatorada para injetar programaticamente a string com a data *de hoje*, exigindo que se o recibo não tiver data, o preenchimento seja a data vigente.
     * **A Regra:** TODA requisição feita a modelos gerativos financeiros (GPT-4o para texto ou imagens) DEVE conter, incondicionalmente, a "Data de Hoje" no system prompt (timezone `America/Sao_Paulo`) para prevenir alucinações cronológicas.
+* **[CRÍTICO] Localização Incorreta das Migrações (Supabase):**
+    * **O Erro:** Arquivos SQL de migração foram criados dentro da pasta local do Front-End (`web-dashboard/supabase/migrations/`), ferindo a arquitetura Monorepo onde o banco é compartilhado com os Bots.
+    * **A Correção:** Os scripts foram movidos para a pasta raiz `database/migrations/`.
+    * **A Regra:** NUNCA crie novos scripts de migração do Supabase dentro do web-dashboard. Todas as Migrations do projeto MePoupay DEVEM ser salvas e sequenciadas numericamente obrigatoriamente na pasta `database/migrations/` na raiz do projeto.
+* **[CRÍTICO] Validação de Administrador Incorreta (Role vs Boolean):**
+    * **O Erro:** A IA gerou um erro `Forbidden` por validar o privilégio de administrador do Supabase checando por `role = 'admin'` na tabela `profiles`.
+    * **A Correção:** A validação e as *RLS Policies* foram atualizadas para checar a coluna correta existente na arquitetura atual: `is_admin = true`.
+    * **A Regra:** Em TODO e QUALQUER lugar do sistema onde for necessário validar se um usuário é administrador (seja nas Policies do SQL de Migração ou em Rotas de API), SEMPRE verifique o campo booleano `is_admin = true` na tabela `profiles`, ignorando qualquer uso de string `role`.
 
 ## 2. 🧪 Estratégia de Testes (Mandatos XP)
 * **Sem APIs Reais nos Testes:** Nunca chame endpoints reais da OpenAI, Evolution API ou Supabase durante o `npm test`. Sempre use mocks do Jest.
