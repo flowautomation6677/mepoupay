@@ -16,7 +16,8 @@ import {
     UserCircle,
     ChevronLeft,
     ChevronRight,
-    Wallet
+    Wallet,
+    MessageCircle
 } from 'lucide-react';
 import { createBrowserClient } from '@supabase/ssr';
 import { ThemeToggle } from './ThemeToggle';
@@ -29,6 +30,7 @@ const menuItems = [
     { name: 'Planejamento', icon: Target, href: '/dashboard/planning' },
     { name: 'Me Poupay AI', icon: BrainCircuit, href: '/dashboard/ai' },
     { name: 'Relatórios', icon: FileText, href: '/dashboard/reports' },
+    { name: 'Me Poupay Bot', icon: MessageCircle, href: 'https://wa.me/5521984646902?text=Ol%C3%A1,%20Me%20Poupay!' },
     { name: 'Minha Conta', icon: UserCircle, href: '/dashboard/account' },
 ];
 
@@ -181,11 +183,14 @@ function NavLinks({ pathname, items, onClick, isCollapsed = false }: Readonly<{ 
         <>
             {items.map((item) => {
                 const isActive = pathname === item.href;
+                const isExternal = item.href.startsWith('http');
+                
                 return (
                     <Link
                         key={item.href}
                         href={item.href}
                         onClick={onClick}
+                        {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                         className={cn(
                             "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all group relative",
                             isActive

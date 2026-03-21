@@ -1,4 +1,5 @@
 import Sidebar from '@/components/dashboard/Sidebar';
+import FloatingWhatsappButton from '@/components/dashboard/FloatingWhatsappButton';
 
 export default function DashboardLayout({
     children,
@@ -14,6 +15,7 @@ export default function DashboardLayout({
                     {children}
                 </div>
             </main>
+            <FloatingWhatsappButton />
         </div>
     );
 }
