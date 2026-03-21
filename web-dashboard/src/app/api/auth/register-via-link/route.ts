@@ -4,10 +4,15 @@ import { getSupabaseAdmin } from '@/utils/supabase/admin';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { token, email, password, fullName } = body;
+    const { token, email, password, fullName, whatsapp } = body;
 
-    if (!token || !email || !password || !fullName) {
+    if (!token || !email || !password || !fullName || !whatsapp) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const rawPhone = whatsapp.replace(/\D/g, '');
+    if (rawPhone.length < 11) {
+      return NextResponse.json({ error: 'Invalid WhatsApp format' }, { status: 400 });
     }
 
     const supabaseAdmin = getSupabaseAdmin();
@@ -60,7 +65,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Since a trigger probably creates the profile on public.profiles via user auth signup but we can also handle missing roles. Assuming standard behavior for MePoupay:
-    await supabaseAdmin.from('profiles').update({ is_admin: role === 'admin', full_name: fullName }).eq('id', authData.user.id);
+    await supabaseAdmin.from('profiles').update({ 
+      is_admin: role === 'admin', 
+      full_name: fullName,
+      whatsapp_numbers: [whatsapp]
+    }).eq('id', authData.user.id);
 
     return NextResponse.json({ success: true, user: authData.user }, { status: 200 });
 

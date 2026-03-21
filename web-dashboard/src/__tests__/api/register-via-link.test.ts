@@ -37,7 +37,7 @@ describe('POST /api/auth/register-via-link', () => {
   it('deve retornar erro 400 se faltar parâmetros', async () => {
     const req = new NextRequest('http://localhost:3000/api/auth/register-via-link', {
       method: 'POST',
-      body: JSON.stringify({ token: 'abc' }), // missing email/password/name
+      body: JSON.stringify({ token: 'abc', email: 'test@test.com', password: '123', fullName: 'Test' }), // missing whatsapp
     });
     const response = await POST(req);
     expect(response.status).toBe(400);
@@ -53,7 +53,8 @@ describe('POST /api/auth/register-via-link', () => {
         token: 'invalid-token',
         email: 'test@test.com',
         password: '123',
-        fullName: 'Test'
+        fullName: 'Test',
+        whatsapp: '(11) 99999-9999'
       }),
     });
     const response = await POST(req);
@@ -73,7 +74,8 @@ describe('POST /api/auth/register-via-link', () => {
         token: 'valid-token',
         email: 'exists@test.com',
         password: '123',
-        fullName: 'Test'
+        fullName: 'Test',
+        whatsapp: '(11) 99999-9999'
       }),
     });
 
@@ -95,7 +97,8 @@ describe('POST /api/auth/register-via-link', () => {
         token: 'valid-token',
         email: 'new@test.com',
         password: '123',
-        fullName: 'Test'
+        fullName: 'Test',
+        whatsapp: '(11) 99999-9999'
       }),
     });
 
@@ -125,7 +128,8 @@ describe('POST /api/auth/register-via-link', () => {
         token: 'valid-token',
         email: 'new@test.com',
         password: '123',
-        fullName: 'Test'
+        fullName: 'Test',
+        whatsapp: '(11) 99999-9999'
       }),
     });
 
@@ -136,6 +140,10 @@ describe('POST /api/auth/register-via-link', () => {
     // Devemos chamar createUser
     expect(mockAdminSupabase.auth.admin.createUser).toHaveBeenCalledWith(expect.objectContaining({
       email: 'new@test.com'
+    }));
+    // Devemos atualizar o profile com o whatsapp
+    expect(mockAdminSupabase.update).toHaveBeenCalledWith(expect.objectContaining({
+      whatsapp_numbers: ['(11) 99999-9999']
     }));
   });
 });

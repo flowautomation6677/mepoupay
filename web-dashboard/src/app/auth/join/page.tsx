@@ -18,7 +18,22 @@ function JoinContent() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [whatsapp, setWhatsapp] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handlePhoneChange = (e: string | { target: { value: string } }) => {
+        const val = typeof e === 'string' ? e : e?.target?.value || '';
+        let v = val.replace(/\D/g, "");
+        if (v.length > 11) v = v.slice(0, 11);
+        if (v.length > 2) v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+        if (v.length > 7) v = `${v.slice(0, 5)}-${v.slice(5)}`;
+        if (v.length > 14) {
+            const clean = val.replace(/\D/g, "").slice(0, 11);
+            if (clean.length > 2) v = `(${clean.slice(0, 2)}) ${clean.slice(2)}`;
+            if (clean.length > 6) v = `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7)}`;
+        }
+        setWhatsapp(v);
+    };
 
     useEffect(() => {
         const validateToken = async () => {
@@ -52,8 +67,14 @@ function JoinContent() {
         e.preventDefault();
         setErrorMsg("");
 
-        if (!fullName || !email || !password || !confirmPassword) {
+        if (!fullName || !email || !password || !confirmPassword || !whatsapp) {
             setErrorMsg("Preencha todos os campos.");
+            return;
+        }
+
+        const rawPhone = whatsapp.replace(/\D/g, '');
+        if (rawPhone.length < 11) {
+            setErrorMsg("O WhatsApp deve ter DDD e 9 dígitos.");
             return;
         }
 
@@ -73,7 +94,7 @@ function JoinContent() {
             const res = await fetch('/api/auth/register-via-link', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, email, password, fullName })
+                body: JSON.stringify({ token, email, password, fullName, whatsapp })
             });
 
             const data = await res.json();
@@ -155,6 +176,16 @@ function JoinContent() {
                             placeholder="Seu nome real"
                             value={fullName}
                             onValueChange={setFullName}
+                            className="mt-1"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-xs text-muted-foreground font-medium ml-1">WhatsApp</label>
+                        <TextInput
+                            type="tel"
+                            placeholder="(11) 99999-9999"
+                            value={whatsapp}
+                            onValueChange={handlePhoneChange}
                             className="mt-1"
                         />
                     </div>
