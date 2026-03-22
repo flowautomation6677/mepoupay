@@ -24,6 +24,7 @@ describe('POST /api/auth/register-via-link', () => {
     select: jest.fn().mockReturnThis(),
     insert: jest.fn().mockReturnThis(),
     update: jest.fn().mockReturnThis(),
+    upsert: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
     single: jest.fn(),
     rpc: jest.fn(), // To call increment stored proc or transaction
@@ -141,8 +142,10 @@ describe('POST /api/auth/register-via-link', () => {
     expect(mockAdminSupabase.auth.admin.createUser).toHaveBeenCalledWith(expect.objectContaining({
       email: 'new@test.com'
     }));
-    // Devemos atualizar o profile com o whatsapp formatado para TDD e API
-    expect(mockAdminSupabase.update).toHaveBeenCalledWith(expect.objectContaining({
+    // Devemos atualizar/criar o profile via upsert garantindo array de telefones e email
+    expect(mockAdminSupabase.upsert).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'new-user-id',
+      email: 'new@test.com',
       whatsapp_numbers: ['5511999999999']
     }));
     // Deve inserir a Carteira Principal

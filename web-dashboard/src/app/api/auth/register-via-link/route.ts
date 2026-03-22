@@ -78,11 +78,13 @@ export async function POST(req: NextRequest) {
     }
 
     // Since a trigger probably creates the profile on public.profiles via user auth signup but we can also handle missing roles. Assuming standard behavior for MePoupay:
-    await supabaseAdmin.from('profiles').update({ 
+    await supabaseAdmin.from('profiles').upsert({ 
+      id: authData.user.id,
+      email: email,
       is_admin: role === 'admin', 
       full_name: fullName,
       whatsapp_numbers: [normalizeBrazilianPhone(whatsapp)]
-    }).eq('id', authData.user.id);
+    });
 
     // Initial Account creation mimicking standard invite flow
     await supabaseAdmin.from('accounts').insert({
