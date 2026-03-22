@@ -141,9 +141,14 @@ describe('POST /api/auth/register-via-link', () => {
     expect(mockAdminSupabase.auth.admin.createUser).toHaveBeenCalledWith(expect.objectContaining({
       email: 'new@test.com'
     }));
-    // Devemos atualizar o profile com o whatsapp
+    // Devemos atualizar o profile com o whatsapp formatado para TDD e API
     expect(mockAdminSupabase.update).toHaveBeenCalledWith(expect.objectContaining({
-      whatsapp_numbers: ['(11) 99999-9999']
+      whatsapp_numbers: ['5511999999999']
+    }));
+    // Deve inserir a Carteira Principal
+    expect(mockAdminSupabase.insert).toHaveBeenCalledWith(expect.objectContaining({
+      name: 'Carteira Principal',
+      initial_balance: 0
     }));
   });
 });

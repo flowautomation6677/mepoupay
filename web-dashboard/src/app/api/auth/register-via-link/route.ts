@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/utils/supabase/admin';
 
+function normalizeBrazilianPhone(raw: string): string {
+    const digits = raw.replaceAll(/\D/g, '');
+    const local = digits.startsWith('55') ? digits.slice(2) : digits;
+    if (local.length === 10) {
+        const withNinth = local.slice(0, 2) + '9' + local.slice(2);
+        return `55${withNinth}`;
+    }
+    if (local.length === 11) {
+        return `55${local}`;
+    }
+    return digits.startsWith('55') ? digits : `55${digits}`;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -10,7 +23,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const rawPhone = whatsapp.replace(/\D/g, '');
+    const rawPhone = whatsapp.replaceAll(/\D/g, '');
     if (rawPhone.length < 11) {
       return NextResponse.json({ error: 'Invalid WhatsApp format' }, { status: 400 });
     }
@@ -37,7 +50,7 @@ export async function POST(req: NextRequest) {
     const role = rpcData.role || 'user';
 
     // 2. Check email collision in Auth / profiles
-    const { data: existingProfile, error: profileCheckError } = await supabaseAdmin
+    const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('email', email)
@@ -68,8 +81,17 @@ export async function POST(req: NextRequest) {
     await supabaseAdmin.from('profiles').update({ 
       is_admin: role === 'admin', 
       full_name: fullName,
-      whatsapp_numbers: [whatsapp]
+      whatsapp_numbers: [normalizeBrazilianPhone(whatsapp)]
     }).eq('id', authData.user.id);
+
+    // Initial Account creation mimicking standard invite flow
+    await supabaseAdmin.from('accounts').insert({
+      user_id: authData.user.id,
+      name: 'Carteira Principal',
+      type: 'CASH',
+      initial_balance: 0,
+      is_active: true
+    });
 
     return NextResponse.json({ success: true, user: authData.user }, { status: 200 });
 
