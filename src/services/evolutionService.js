@@ -66,6 +66,7 @@ class EvolutionService {
                 },
                 mediaMessage: {
                     mediatype: type,
+                    mimetype: media.mimetype || 'application/pdf',
                     caption: media.caption || '',
                     media: media.data, // Base64
                     fileName: media.filename || 'file'

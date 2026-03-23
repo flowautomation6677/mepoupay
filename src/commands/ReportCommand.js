@@ -64,7 +64,8 @@ class ReportCommand {
                 return { handled: true };
             } catch (err) {
                 logger.error("Falha ao gerar PDF isolado", { error: err, stack: err.stack });
-                await message.reply(`❌ Erro Técnico Identificado:\n${err.message || err.response?.data?.message || err}`);
+                const axiosError = err.response?.data ? JSON.stringify(err.response.data) : (err.message || 'Erro Desconhecido');
+                await message.reply(`❌ Erro da API do WhatsApp:\n${axiosError}`);
                 return { handled: true };
             }
         }
