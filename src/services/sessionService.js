@@ -166,6 +166,37 @@ const sessionService = {
         } catch (error) {
             console.error(`Error clearing pending correction for ${userId}:`, error);
         }
+    },
+
+    /**
+     * Set the last selected date context for the Report/PDF flow
+     * @param {string} userId
+     * @param {object} dateContext { month: number, year: number }
+     * @param {number} ttlInSeconds Default 5 minutes (300)
+     */
+    async setReportContext(userId, dateContext, ttlInSeconds = 300) {
+        try {
+            const key = `session:reportContext:${userId}`;
+            await redis.set(key, JSON.stringify(dateContext), 'EX', ttlInSeconds);
+        } catch (error) {
+            console.error(`Error setting report context for ${userId}:`, error);
+        }
+    },
+
+    /**
+     * Get the last selected date context for the Report/PDF flow
+     * @param {string} userId
+     * @returns {Promise<object|null>}
+     */
+    async getReportContext(userId) {
+        try {
+            const key = `session:reportContext:${userId}`;
+            const data = await redis.get(key);
+            return data ? JSON.parse(data) : null;
+        } catch (error) {
+            console.error(`Error getting report context for ${userId}:`, error);
+            return null;
+        }
     }
 };
 

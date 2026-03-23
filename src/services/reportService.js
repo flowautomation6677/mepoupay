@@ -11,27 +11,24 @@ const logger = require('./loggerService');
 class ReportService {
 
     /**
-     * Gera relatório PDF mensal para o usuário
+     * Extrai os dados sumarizados do mês para exibição em texto/dashboard
      * @param {string} userId 
      * @param {number} [month] 0-11 (Jan=0, Dez=11) - Default: Mês Atual
      * @param {number} [year] Default: Ano Atual
-     * @returns {Promise<Buffer>}
+     * @returns {Promise<object>}
      */
-    async generateMonthlyReport(userId, month, year) {
+    async getMonthlyStats(userId, month, year) {
         try {
-            // 1. Definir Período
             const now = new Date();
-            const targetYear = year || now.getFullYear();
-            const targetMonth = month !== undefined ? month : now.getMonth();
+            const targetYear = year === undefined ? now.getFullYear() : year;
+            const targetMonth = month === undefined ? now.getMonth() : month;
 
             const startDate = new Date(targetYear, targetMonth, 1).toISOString(); // 1º dia
             const endDate = new Date(targetYear, targetMonth + 1, 0).toISOString(); // Último dia
             const queryDate = new Date(targetYear, targetMonth, 1); // Para formatação
 
-            // 2. Buscar Dados
             const transactions = await transactionRepo.findByUserAndDateRange(userId, startDate, endDate);
 
-            // 3. Cálculos
             let totalReceitas = 0;
             let totalDespesas = 0;
             const categorias = {};
@@ -42,12 +39,42 @@ class ReportService {
                     totalReceitas += valor;
                 } else {
                     totalDespesas += valor;
-                    // Agrupar categorias
                     categorias[tx.categoria] = (categorias[tx.categoria] || 0) + valor;
                 }
             });
 
             const saldo = totalReceitas - totalDespesas;
+            const mesExtenso = format(queryDate, 'MMMM', { locale: ptBR });
+
+            return {
+                totalReceitas,
+                totalDespesas,
+                saldo,
+                categorias,
+                periodo: {
+                    mes: mesExtenso.charAt(0).toUpperCase() + mesExtenso.slice(1),
+                    ano: targetYear
+                },
+                hasData: transactions.length > 0,
+                transactions // Injetamos as brutas para o ReportPDF poder reusar
+            };
+        } catch (error) {
+            logger.error("Erro ao buscar stats mensais", { error });
+            throw error;
+        }
+    }
+
+    /**
+     * Gera relatório PDF mensal para o usuário
+     * @param {string} userId 
+     * @param {number} [month] 0-11 (Jan=0, Dez=11) - Default: Mês Atual
+     * @param {number} [year] Default: Ano Atual
+     * @returns {Promise<Buffer>}
+     */
+    async generateMonthlyReport(userId, month, year) {
+        try {
+            // Reutiliza a lógica extraída
+            const stats = await this.getMonthlyStats(userId, month, year);
 
             // 4. Criar PDF
             const pdfDoc = await PDFDocument.create();
@@ -60,7 +87,6 @@ class ReportService {
             const fontSize = 12;
             let y = height - 50;
 
-            // Helper para escrever texto
             const drawText = (text, options = {}) => {
                 page.drawText(text, {
                     size: fontSize,
@@ -73,31 +99,28 @@ class ReportService {
             // --- CABEÇALHO ---
             drawText('Relatório Financeiro Mensal', { x: 50, y, size: 20, font: fontBold });
             y -= 30;
-            const mesExtenso = format(queryDate, 'MMMM yyyy', { locale: ptBR });
-            drawText(`Período: ${mesExtenso.charAt(0).toUpperCase() + mesExtenso.slice(1)}`, { x: 50, y, size: 14 });
+            drawText(`Período: ${stats.periodo.mes} ${stats.periodo.ano}`, { x: 50, y, size: 14 });
             y -= 40;
 
             // --- RESUMO ---
             drawText('Resumo Geral', { x: 50, y, size: 16, font: fontBold });
             y -= 25;
-            drawText(`Receitas: R$ ${totalReceitas.toFixed(2)}`, { x: 50, y, color: rgb(0, 0.6, 0) });
+            drawText(`Receitas: R$ ${stats.totalReceitas.toFixed(2)}`, { x: 50, y, color: rgb(0, 0.6, 0) });
             y -= 20;
-            drawText(`Despesas: R$ ${totalDespesas.toFixed(2)}`, { x: 50, y, color: rgb(0.8, 0, 0) });
+            drawText(`Despesas: R$ ${stats.totalDespesas.toFixed(2)}`, { x: 50, y, color: rgb(0.8, 0, 0) });
             y -= 20;
-            const corSaldo = saldo >= 0 ? rgb(0, 0.6, 0) : rgb(0.8, 0, 0);
-            drawText(`Saldo: R$ ${saldo.toFixed(2)}`, { x: 50, y, font: fontBold, color: corSaldo });
+            const corSaldo = stats.saldo >= 0 ? rgb(0, 0.6, 0) : rgb(0.8, 0, 0);
+            drawText(`Saldo: R$ ${stats.saldo.toFixed(2)}`, { x: 50, y, font: fontBold, color: corSaldo });
             y -= 40;
 
             // --- POR CATEGORIA ---
             drawText('Despesas por Categoria', { x: 50, y, size: 16, font: fontBold });
             y -= 25;
 
-            Object.entries(categorias).sort((a, b) => b[1] - a[1]).forEach(([cat, val]) => {
+            // Prevenção D02 (Proteção de categorias não quebra sem despesas)
+            Object.entries(stats.categorias).sort((a, b) => b[1] - a[1]).forEach(([cat, val]) => {
                 drawText(`• ${cat}: R$ ${val.toFixed(2)}`, { x: 60, y });
                 y -= 20;
-                if (y < 50) { // Nova Página se necessário (simplificado: apenas para na margem)
-                    // Em versão completa, adicionaríamos page = pdfDoc.addPage() e resetaríamos y
-                }
             });
 
             y -= 20;
@@ -106,8 +129,8 @@ class ReportService {
             drawText('Últimas 15 Transações', { x: 50, y, size: 16, font: fontBold });
             y -= 25;
 
-            transactions.slice(0, 15).forEach(tx => {
-                const dateStr = format(new Date(tx.data), 'dd/MM');
+            stats.transactions.slice(0, 15).forEach(tx => {
+                const dateStr = format(new Date(tx.data || new Date()), 'dd/MM');
                 const symbol = tx.tipo === 'receita' ? '+' : '-';
                 const color = tx.tipo === 'receita' ? rgb(0, 0.6, 0) : rgb(0, 0, 0);
 
