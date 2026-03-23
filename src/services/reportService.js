@@ -34,7 +34,10 @@ class ReportService {
             const categorias = {};
 
             transactions.forEach(tx => {
-                const valor = Number(tx.valor);
+                // Ensure value is correctly parsed even if it comes with a comma or is null
+                const rawValor = tx.valor !== null && tx.valor !== undefined ? String(tx.valor).replace(',', '.') : '0';
+                const valor = Number(rawValor) || 0;
+
                 if (tx.tipo === 'receita') {
                     totalReceitas += valor;
                 } else {
