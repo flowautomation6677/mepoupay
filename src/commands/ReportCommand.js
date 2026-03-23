@@ -63,8 +63,8 @@ class ReportCommand {
                 
                 return { handled: true };
             } catch (err) {
-                logger.error("Falha ao gerar PDF isolado", { error: err });
-                await message.reply("❌ Erro ao gerar o arquivo. Tente novamente mais tarde.");
+                logger.error("Falha ao gerar PDF isolado", { error: err, stack: err.stack });
+                await message.reply(`❌ Erro Técnico Identificado:\n${err.message || err.response?.data?.message || err}`);
                 return { handled: true };
             }
         }
