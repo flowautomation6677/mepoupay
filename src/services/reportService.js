@@ -35,14 +35,20 @@ class ReportService {
 
             transactions.forEach(tx => {
                 // Ensure value is correctly parsed even if it comes with a comma or is null
-                const rawValor = tx.valor !== null && tx.valor !== undefined ? String(tx.valor).replace(',', '.') : '0';
+                // Support both tx.valor (tests fallback) or tx.amount (real db)
+                const valTarget = tx.amount !== undefined ? tx.amount : tx.valor;
+                const rawValor = valTarget !== null && valTarget !== undefined ? String(valTarget).replace(',', '.') : '0';
                 const valor = Number(rawValor) || 0;
+                
+                const typeToMatch = tx.type || tx.tipo;
 
-                if (tx.tipo === 'receita') {
+                if (typeToMatch === 'INCOME' || typeToMatch === 'receita') {
                     totalReceitas += valor;
                 } else {
                     totalDespesas += valor;
-                    categorias[tx.categoria] = (categorias[tx.categoria] || 0) + valor;
+                    
+                    const catName = tx.categories?.name || tx.categoria || 'Sem Categoria';
+                    categorias[catName] = (categorias[catName] || 0) + valor;
                 }
             });
 

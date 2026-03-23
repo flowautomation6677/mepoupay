@@ -45,7 +45,7 @@ class TransactionRepository {
     async findByUserAndDateRange(userId, startDate, endDate) {
         const { data, error } = await this.supabase
             .from('transactions')
-            .select('*')
+            .select('*, categories(name)')
             .eq('user_id', userId)
             .gte('date', startDate)
             .lt('date', endDate)
