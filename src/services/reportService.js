@@ -139,11 +139,21 @@ class ReportService {
             y -= 25;
 
             stats.transactions.slice(0, 15).forEach(tx => {
-                const dateStr = format(new Date(tx.data || new Date()), 'dd/MM');
-                const symbol = tx.tipo === 'receita' ? '+' : '-';
-                const color = tx.tipo === 'receita' ? rgb(0, 0.6, 0) : rgb(0, 0, 0);
+                const dateSrc = tx.date || tx.data || new Date();
+                const dateStr = format(new Date(dateSrc), 'dd/MM');
+                
+                const typeToMatch = tx.type || tx.tipo;
+                const isIncome = typeToMatch === 'INCOME' || typeToMatch === 'receita';
+                
+                const symbol = isIncome ? '+' : '-';
+                const color = isIncome ? rgb(0, 0.6, 0) : rgb(0, 0, 0);
 
-                const line = `${dateStr} | ${tx.descricao} - ${symbol} R$ ${Number(tx.valor).toFixed(2)}`;
+                const desc = tx.description || tx.descricao || 'Sem Descrição';
+                const valTarget = tx.amount !== undefined ? tx.amount : tx.valor;
+                const rawValor = valTarget !== null && valTarget !== undefined ? String(valTarget).replace(',', '.') : '0';
+                const cleanValor = Number(rawValor) || 0;
+
+                const line = `${dateStr} | ${desc} - ${symbol} R$ ${cleanValor.toFixed(2)}`;
                 drawText(line, { x: 50, y, size: 10, color });
                 y -= 15;
             });
