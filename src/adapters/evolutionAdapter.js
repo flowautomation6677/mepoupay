@@ -93,7 +93,7 @@ class EvolutionAdapter {
             if (content.mimetype.startsWith('image')) type = 'image';
             if (content.mimetype.startsWith('audio')) type = 'audio';
 
-            return await evolutionService.sendMedia(this.from, content, type, this.instanceName);
+            return await evolutionService.sendMedia(this.from, content, this.instanceName, type);
         }
     }
 
