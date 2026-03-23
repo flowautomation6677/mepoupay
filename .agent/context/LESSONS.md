@@ -30,6 +30,10 @@
     * **O Erro:** A IA gerou um erro `Forbidden` por validar o privilégio de administrador do Supabase checando por `role = 'admin'` na tabela `profiles`.
     * **A Correção:** A validação e as *RLS Policies* foram atualizadas para checar a coluna correta existente na arquitetura atual: `is_admin = true`.
     * **A Regra:** Em TODO e QUALQUER lugar do sistema onde for necessário validar se um usuário é administrador (seja nas Policies do SQL de Migração ou em Rotas de API), SEMPRE verifique o campo booleano `is_admin = true` na tabela `profiles`, ignorando qualquer uso de string `role`.
+* **[CRÍTICO] Mock Drift (Falso Positivo em Testes por Chaves Incorretas):**
+    * **O Erro:** Ao refatorar o `reportService`, a IA e os testes usaram objetos mockados com chaves em português (`tx.valor`, `tx.tipo`). Os testes do Jest passaram verde perfeitamente (pois o código e o teste falavam a mesma língua errada), mas em produção os valores retornaram `0.00` pois o Supabase retornava as colunas reais em inglês (`amount`, `type`).
+    * **A Correção:** Ajuste do Service para mapear as chaves inglesas literais vindas do banco (`tx.amount`, `tx.type`).
+    * **A Regra:** NUNCA crie Mocks do Jest com dados "inventados" ou adivinhados do código antigo sem verificar a fonte. ANTES de escrever Mocks para repositórios do banco de dados, você DEVE inspecionar as queries no arquivo do repositório (`ex: TransactionRepository.js`) ou ler nosso arquivo mãe `.agent/context/DATABASE_SCHEMA.md` para garantir que as chaves do Mock correspondam EXATAMENTE aos nomes das colunas (inglês/schema) que o Supabase retorna na vida real.
 
 ## 2. 🧪 Estratégia de Testes (Mandatos XP)
 * **Sem APIs Reais nos Testes:** Nunca chame endpoints reais da OpenAI, Evolution API ou Supabase durante o `npm test`. Sempre use mocks do Jest.
