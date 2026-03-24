@@ -64,13 +64,11 @@ class EvolutionService {
                     delay: 1200,
                     presence: 'composing'
                 },
-                mediaMessage: {
-                    mediatype: type,
-                    mimetype: media.mimetype || 'application/pdf',
-                    caption: media.caption || '',
-                    media: media.data, // Base64
-                    fileName: media.filename || 'file'
-                }
+                mediatype: type,
+                mimetype: media.mimetype || 'application/pdf',
+                caption: media.caption || '',
+                media: media.data, // Base64
+                fileName: media.filename || 'file'
             };
 
             const response = await this.client.post(url, body);
