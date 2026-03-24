@@ -6,6 +6,9 @@ export type Json =
     | { [key: string]: Json | undefined }
     | Json[]
 
+export type AccountType = 'CHECKING' | 'SAVINGS' | 'CREDIT_CARD' | 'INVESTMENT' | 'CASH';
+export type TransactionType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
+
 export interface Database {
     public: {
         Tables: {
