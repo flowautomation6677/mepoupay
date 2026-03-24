@@ -2,6 +2,7 @@ const resetCommand = require('../commands/ResetCommand');
 const clearContextCommand = require('../commands/ClearContextCommand');
 const reportCommand = require('../commands/ReportCommand');
 const onboardingCommand = require('../commands/OnboardingCommand');
+const updateCommand = require('../commands/UpdateCommand');
 
 class CommandDispatcher {
     constructor() {
@@ -9,7 +10,8 @@ class CommandDispatcher {
             resetCommand,
             clearContextCommand,
             reportCommand,
-            onboardingCommand
+            onboardingCommand,
+            updateCommand
         ];
     }
 
