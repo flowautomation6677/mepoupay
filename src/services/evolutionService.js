@@ -117,6 +117,7 @@ class EvolutionService {
             const response = await this.client.get(url);
             return response.data?.instance?.state === 'open';
         } catch (error) {
+            logger.debug("Evolution API Connection Check Failed", { error: error.message });
             return false;
         }
     }

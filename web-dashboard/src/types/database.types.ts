@@ -40,7 +40,7 @@ export interface Database {
                     id: string
                     user_id: string
                     name: string
-                    type: 'CHECKING' | 'SAVINGS' | 'CREDIT_CARD' | 'INVESTMENT' | 'CASH'
+                    type: AccountType
                     currency: string
                     initial_balance: number
                     is_active: boolean
@@ -51,7 +51,7 @@ export interface Database {
                     id?: string
                     user_id: string
                     name: string
-                    type: 'CHECKING' | 'SAVINGS' | 'CREDIT_CARD' | 'INVESTMENT' | 'CASH'
+                    type: AccountType
                     currency?: string
                     initial_balance?: number
                     is_active?: boolean
@@ -62,7 +62,7 @@ export interface Database {
                     id?: string
                     user_id?: string
                     name?: string
-                    type?: 'CHECKING' | 'SAVINGS' | 'CREDIT_CARD' | 'INVESTMENT' | 'CASH'
+                    type?: AccountType
                     currency?: string
                     initial_balance?: number
                     is_active?: boolean
@@ -103,7 +103,7 @@ export interface Database {
                     account_id: string
                     category_id: string | null
                     amount: number
-                    type: 'INCOME' | 'EXPENSE' | 'TRANSFER'
+                    type: TransactionType
                     description: string | null
                     date: string
                     metadata: Json | null
@@ -118,7 +118,7 @@ export interface Database {
                     account_id: string
                     category_id?: string | null
                     amount: number
-                    type: 'INCOME' | 'EXPENSE' | 'TRANSFER'
+                    type: TransactionType
                     description?: string | null
                     date?: string
                     metadata?: Json | null
@@ -133,7 +133,7 @@ export interface Database {
                     account_id?: string
                     category_id?: string | null
                     amount?: number
-                    type?: 'INCOME' | 'EXPENSE' | 'TRANSFER'
+                    type?: TransactionType
                     description?: string | null
                     date?: string
                     metadata?: Json | null
