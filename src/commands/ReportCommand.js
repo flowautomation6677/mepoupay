@@ -5,10 +5,13 @@ const { subMonths } = require('date-fns');
 
 class ReportCommand {
     constructor() {
-        this.triggers = ['relatório', 'relatorio', 'saldo', 'quanto gastei', 'fechamento', 'pdf', 'arquivo', 'documento', 'baixar'];
+        this.triggers = ['relatório', 'relatorio', 'saldo', 'quanto gastei', 'fechamento', 'extrato'];
     }
 
-    matches(text) {
+    matches(text, message) {
+        // Guard: never intercept media messages — PDF filename contains 'pdf', 'arquivo', etc.
+        if (message && message.hasMedia) return false;
+
         const lowerText = text.toLowerCase().trim();
         return this.triggers.some(t => lowerText.includes(t));
     }

@@ -19,7 +19,7 @@ class CommandDispatcher {
         const bodyLower = message.body.toLowerCase().trim();
 
         for (const cmd of this.commands) {
-            if (cmd.matches(bodyLower)) {
+            if (cmd.matches(bodyLower, message)) {
                 return await cmd.execute(message, user);
             }
         }
